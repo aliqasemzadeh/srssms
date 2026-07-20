@@ -1,0 +1,20 @@
+{
+    "agents": [
+        "junie",
+        "claude_code",
+        "gemini"
+    ],
+    "guidelines": true,
+    "herd_mcp": true,
+    "mcp": true,
+    "packages": [
+        "laravel/fortify"
+    ],
+    "sail": false,
+    "skills": [
+        "livewire-development",
+        "pest-testing",
+        "tailwindcss-development",
+        "developing-with-fortify"
+    ]
+}
