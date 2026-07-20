@@ -1,6 +1,6 @@
 <x-fwb.layouts.auth :title="__('Log in')">
     <div class="flex flex-col gap-6">
-        <x-auth-header :title="__('Log in to your account')" :description="__('Enter your email and password below to log in')" />
+        <x-auth-header :title="__('Log in to your account')" :description="__('Enter your mobile number and password below to log in')" />
 
         <!-- Session Status -->
         <x-auth-session-status class="text-center" :status="session('status')" />
@@ -8,19 +8,19 @@
         <form method="POST" action="{{ route('login.store') }}" class="flex flex-col gap-6">
             @csrf
 
-            <!-- Email Address -->
+            <!-- Mobile Number -->
             <div>
                 <x-fwb.input
-                    name="email"
-                    :label="__('Email address')"
-                    :value="old('email')"
-                    type="email"
+                    name="mobile"
+                    :label="__('Mobile number')"
+                    :value="old('mobile')"
+                    type="tel"
                     required
                     autofocus
-                    autocomplete="email"
-                    placeholder="email@example.com"
+                    autocomplete="tel"
+                    placeholder="09123456789"
                 />
-                @error('email')
+                @error('mobile')
                     <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                 @enderror
             </div>

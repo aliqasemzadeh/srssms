@@ -11,17 +11,18 @@
             <!-- Token -->
             <input type="hidden" name="token" value="{{ request()->route('token') }}">
 
-            <!-- Email Address -->
+            <!-- Mobile Number -->
             <div>
                 <x-fwb.input
-                    name="email"
-                    value="{{ request('email') }}"
-                    :label="__('Email')"
-                    type="email"
+                    name="mobile"
+                    value="{{ request('mobile') }}"
+                    :label="__('Mobile number')"
+                    type="tel"
                     required
-                    autocomplete="email"
+                    autocomplete="tel"
+                    placeholder="09123456789"
                 />
-                @error('email')
+                @error('mobile')
                     <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                 @enderror
             </div>

@@ -8,19 +8,69 @@
         <form method="POST" action="{{ route('register.store') }}" class="flex flex-col gap-6">
             @csrf
 
-            <!-- Name -->
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <!-- First Name -->
+                <div>
+                    <x-fwb.input
+                        name="first_name"
+                        :label="__('First name')"
+                        :value="old('first_name')"
+                        type="text"
+                        required
+                        autofocus
+                        autocomplete="given-name"
+                        :placeholder="__('First name')"
+                    />
+                    @error('first_name')
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <!-- Last Name -->
+                <div>
+                    <x-fwb.input
+                        name="last_name"
+                        :label="__('Last name')"
+                        :value="old('last_name')"
+                        type="text"
+                        required
+                        autocomplete="family-name"
+                        :placeholder="__('Last name')"
+                    />
+                    @error('last_name')
+                        <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <!-- Username -->
             <div>
                 <x-fwb.input
-                    name="name"
-                    :label="__('Name')"
-                    :value="old('name')"
+                    name="username"
+                    :label="__('Username')"
+                    :value="old('username')"
                     type="text"
                     required
-                    autofocus
-                    autocomplete="name"
-                    :placeholder="__('Full name')"
+                    autocomplete="username"
+                    :placeholder="__('Username')"
                 />
-                @error('name')
+                @error('username')
+                    <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <!-- Mobile Number -->
+            <div>
+                <x-fwb.input
+                    name="mobile"
+                    :label="__('Mobile number')"
+                    :value="old('mobile')"
+                    type="tel"
+                    required
+                    autocomplete="tel"
+                    placeholder="09123456789"
+                />
+                @error('mobile')
                     <p class="mt-2 text-sm text-red-600 dark:text-red-500">{{ $message }}</p>
                 @enderror
             </div>
@@ -32,7 +82,6 @@
                     :label="__('Email address')"
                     :value="old('email')"
                     type="email"
-                    required
                     autocomplete="email"
                     placeholder="email@example.com"
                 />

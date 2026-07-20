@@ -76,6 +76,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's mobile number for password reset.
+     */
+    public function getEmailForPasswordReset(): string
+    {
+        return $this->mobile;
+    }
+
+    /**
      * Get the user's initials.
      */
     public function initials(): string
