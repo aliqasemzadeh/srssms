@@ -1,5 +1,1 @@
 <?php
-
-return [
-    'direction' => 'rtl',
-];

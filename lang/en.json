@@ -45,6 +45,7 @@
     "Delete :name": "Delete :name",
     "Detach": "Detach",
     "Details": "Details",
+    "direction": "ltr",
     "Disable": "Disable",
     "Discard": "Discard",
     "Done": "Done",

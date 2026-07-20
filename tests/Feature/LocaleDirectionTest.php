@@ -16,7 +16,7 @@ test('english locale uses ltr direction in layouts', function () {
         ->assertOk()
         ->assertSee('dir="ltr"', false);
 
-    expect(__('main.direction'))->toBe('ltr');
+    expect(__('direction'))->toBe('ltr');
 });
 
 test('persian locale uses rtl direction in layouts', function () {
@@ -33,5 +33,5 @@ test('persian locale uses rtl direction in layouts', function () {
         ->assertOk()
         ->assertSee('dir="rtl"', false);
 
-    expect(__('main.direction'))->toBe('rtl');
+    expect(__('direction'))->toBe('rtl');
 });

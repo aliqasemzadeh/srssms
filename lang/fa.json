@@ -45,6 +45,7 @@
     "Delete :name": "حذف :name",
     "Detach": "جدا‌سازی",
     "Details": "جزئیات",
+    "direction": "rtl",
     "Disable": "غیرفعال",
     "Discard": "دور انداختن",
     "Done": "انجام شده",
