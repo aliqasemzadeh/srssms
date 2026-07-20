@@ -15,7 +15,10 @@ test('profile information can be updated', function () {
     $this->actingAs($user);
 
     $response = Livewire::test('pages::settings.profile')
-        ->set('name', 'Test User')
+        ->set('first_name', 'Test')
+        ->set('last_name', 'User')
+        ->set('username', 'testuser')
+        ->set('mobile', '09171234545')
         ->set('email', 'test@example.com')
         ->call('updateProfileInformation');
 
@@ -23,9 +26,31 @@ test('profile information can be updated', function () {
 
     $user->refresh();
 
-    expect($user->name)->toEqual('Test User');
+    expect($user->first_name)->toEqual('Test');
+    expect($user->last_name)->toEqual('User');
+    expect($user->username)->toEqual('testuser');
+    expect($user->mobile)->toEqual('09171234545');
     expect($user->email)->toEqual('test@example.com');
     expect($user->email_verified_at)->toBeNull();
+    expect($user->mobile_verified_at)->toBeNull();
+});
+
+test('profile mobile verification status is unchanged when mobile is unchanged', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $response = Livewire::test('pages::settings.profile')
+        ->set('first_name', 'Updated')
+        ->set('last_name', $user->last_name)
+        ->set('username', $user->username)
+        ->set('mobile', $user->mobile)
+        ->set('email', $user->email ?? '')
+        ->call('updateProfileInformation');
+
+    $response->assertHasNoErrors();
+
+    expect($user->refresh()->mobile_verified_at)->not->toBeNull();
 });
 
 test('email verification status is unchanged when email address is unchanged', function () {
@@ -34,13 +59,34 @@ test('email verification status is unchanged when email address is unchanged', f
     $this->actingAs($user);
 
     $response = Livewire::test('pages::settings.profile')
-        ->set('name', 'Test User')
+        ->set('first_name', $user->first_name)
+        ->set('last_name', $user->last_name)
+        ->set('username', $user->username)
+        ->set('mobile', $user->mobile)
         ->set('email', $user->email)
         ->call('updateProfileInformation');
 
     $response->assertHasNoErrors();
 
     expect($user->refresh()->email_verified_at)->not->toBeNull();
+});
+
+test('profile email can be cleared', function () {
+    $user = User::factory()->create();
+
+    $this->actingAs($user);
+
+    $response = Livewire::test('pages::settings.profile')
+        ->set('first_name', $user->first_name)
+        ->set('last_name', $user->last_name)
+        ->set('username', $user->username)
+        ->set('mobile', $user->mobile)
+        ->set('email', '')
+        ->call('updateProfileInformation');
+
+    $response->assertHasNoErrors();
+
+    expect($user->refresh()->email)->toBeNull();
 });
 
 test('user can delete their account', function () {

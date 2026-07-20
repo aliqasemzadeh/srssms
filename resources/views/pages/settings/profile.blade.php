@@ -1,18 +1,23 @@
 <?php
 
 use App\Concerns\ProfileValidationRules;
-use App\Models\User;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 
 new class extends Component {
     use ProfileValidationRules;
 
-    public string $name = '';
+    public string $first_name = '';
+
+    public string $last_name = '';
+
+    public string $username = '';
+
+    public string $mobile = '';
+
     public string $email = '';
 
     /**
@@ -20,8 +25,13 @@ new class extends Component {
      */
     public function mount(): void
     {
-        $this->name = Auth::user()->name;
-        $this->email = Auth::user()->email;
+        $user = Auth::user();
+
+        $this->first_name = $user->first_name;
+        $this->last_name = $user->last_name;
+        $this->username = $user->username;
+        $this->mobile = $user->mobile;
+        $this->email = $user->email ?? '';
     }
 
     /**
@@ -33,10 +43,18 @@ new class extends Component {
 
         $validated = $this->validate($this->profileRules($user->id));
 
+        if ($validated['email'] === '') {
+            $validated['email'] = null;
+        }
+
         $user->fill($validated);
 
         if ($user->isDirty('email')) {
             $user->email_verified_at = null;
+        }
+
+        if ($user->isDirty('mobile')) {
+            $user->mobile_verified_at = null;
         }
 
         $user->save();
@@ -65,14 +83,21 @@ new class extends Component {
     #[Computed]
     public function hasUnverifiedEmail(): bool
     {
-        return Auth::user() instanceof MustVerifyEmail && ! Auth::user()->hasVerifiedEmail();
+        $user = Auth::user();
+
+        return filled($user->email)
+            && $user instanceof MustVerifyEmail
+            && ! $user->hasVerifiedEmail();
     }
 
     #[Computed]
     public function showDeleteUser(): bool
     {
-        return ! Auth::user() instanceof MustVerifyEmail
-            || (Auth::user() instanceof MustVerifyEmail && Auth::user()->hasVerifiedEmail());
+        $user = Auth::user();
+
+        return ! $user instanceof MustVerifyEmail
+            || ! filled($user->email)
+            || ($user instanceof MustVerifyEmail && $user->hasVerifiedEmail());
     }
 }; ?>
 
@@ -81,12 +106,52 @@ new class extends Component {
 
     <h2 class="sr-only">{{ __('Profile Settings') }}</h2>
 
-    <x-pages::settings.layout :heading="__('Profile')" :subheading="__('Update your name and email address')">
+    <x-pages::settings.layout :heading="__('Profile')" :subheading="__('Update your profile information')">
         <form wire:submit="updateProfileInformation" class="my-6 w-full space-y-6">
-            <x-fwb.input wire:model="name" :label="__('Name')" type="text" required autofocus autocomplete="name" />
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <x-fwb.input
+                    wire:model="first_name"
+                    :label="__('First name')"
+                    type="text"
+                    required
+                    autofocus
+                    autocomplete="given-name"
+                />
+
+                <x-fwb.input
+                    wire:model="last_name"
+                    :label="__('Last name')"
+                    type="text"
+                    required
+                    autocomplete="family-name"
+                />
+            </div>
+
+            <x-fwb.input
+                wire:model="username"
+                :label="__('Username')"
+                type="text"
+                required
+                autocomplete="username"
+            />
+
+            <x-fwb.input
+                wire:model="mobile"
+                :label="__('Mobile number')"
+                type="tel"
+                required
+                autocomplete="tel"
+                placeholder="09123456789"
+            />
 
             <div>
-                <x-fwb.input wire:model="email" :label="__('Email')" type="email" required autocomplete="email" />
+                <x-fwb.input
+                    wire:model="email"
+                    :label="__('Email address')"
+                    type="email"
+                    autocomplete="email"
+                    placeholder="email@example.com"
+                />
 
                 @if ($this->hasUnverifiedEmail)
                     <div>
