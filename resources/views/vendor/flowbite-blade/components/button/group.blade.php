@@ -1,1 +1,0 @@
-<div class="inline-flex [&>*]:rounded-none [&>*]:shadow-none [&>*:first-child]:rounded-s-base [&>*:last-child]:rounded-e-base [&>*:not(:first-child)]:-ms-px [&>*:focus]:z-10" role="group" {{ $attributes }}>{{ $slot }}</div>
