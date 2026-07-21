@@ -2,9 +2,21 @@
 
 ## Mass Assignment Protection
 
-Every model must define `Illuminate\Database\Eloquent\Attributes\Fillable #[Fillable()]` (whitelist) or `Illuminate\Database\Eloquent\Attributes\Hidden #[Hidden()]` (blacklist).
+Every model must define `Illuminate\Database\Eloquent\Attributes\Fillable` `#[Fillable()]` (whitelist) or `Illuminate\Database\Eloquent\Attributes\Guarded` `#[Guarded()]` (blacklist). Prefer `#[Fillable]` for models that accept user input.
 
 Incorrect:
+```php
+use Illuminate\Database\Eloquent\Attributes\Unguarded;
+use Illuminate\Database\Eloquent\Model;
+
+#[Unguarded] // All fields are mass assignable
+class User extends Model
+{
+    //
+}
+```
+
+Also incorrect:
 ```php
 class User extends Model
 {
@@ -14,22 +26,23 @@ class User extends Model
 
 Correct:
 ```php
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Model;
 
+#[Fillable(['name', 'email', 'password'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Model
 {
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    //
 }
 ```
 
-Never use `$guarded = []` on models that accept user input.
+Never use `#[Unguarded]` or `$guarded = []` on models that accept user input.
 
 ## Authorize Every Action
 
-Use policies or gates in controllers. Never skip authorization.
+Use policies or gates in controllers. Never skip authorization. In Laravel 13, prefer the `Authorize` attribute when using controller middleware attributes.
 
 Incorrect:
 ```php
@@ -40,6 +53,18 @@ public function update(UpdatePostRequest $request, Post $post)
 ```
 
 Correct:
+```php
+use Illuminate\Routing\Attributes\Controllers\Authorize;
+
+#[Authorize('update', 'post')]
+public function update(UpdatePostRequest $request, Post $post)
+{
+    $post->update($request->validated());
+}
+```
+
+Or via `Gate::authorize`:
+
 ```php
 public function update(UpdatePostRequest $request, Post $post)
 {
@@ -167,7 +192,7 @@ composer audit
 
 ## Encrypt Sensitive Database Fields
 
-Use `encrypted` cast for API keys/tokens and mark the attribute as `hidden`.
+Use the `encrypted` cast for API keys/tokens and mark the attribute as hidden with `Illuminate\Database\Eloquent\Attributes\Hidden` `#[Hidden()]`.
 
 Incorrect:
 ```php
@@ -184,10 +209,12 @@ class Integration extends Model
 
 Correct:
 ```php
+use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Model;
+
+#[Hidden(['api_key', 'api_secret'])]
 class Integration extends Model
 {
-    protected $hidden = ['api_key', 'api_secret'];
-
     protected function casts(): array
     {
         return [
