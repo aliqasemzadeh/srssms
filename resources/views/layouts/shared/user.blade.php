@@ -1,11 +1,24 @@
-<flux:dropdown position="top" align="start" class="max-lg:hidden">
-    <flux:sidebar.profile avatar="https://fluxui.dev/img/demo/user.png" name="Olivia Martin" />
+<flux:dropdown position="top" align="start" class="{{ $class ?? 'max-lg:hidden' }}">
+    <flux:sidebar.profile :name="auth()->user()->full_name" />
+
     <flux:menu>
-        <flux:menu.radio.group>
-            <flux:menu.radio checked>Olivia Martin</flux:menu.radio>
-            <flux:menu.radio>Truly Delta</flux:menu.radio>
-        </flux:menu.radio.group>
+        <flux:menu.heading>{{ auth()->user()->full_name }}</flux:menu.heading>
+
+        @if (auth()->user()->mobile)
+            <flux:menu.heading>{{ auth()->user()->mobile }}</flux:menu.heading>
+        @endif
+
+        @if (auth()->user()->email)
+            <flux:menu.heading>{{ auth()->user()->email }}</flux:menu.heading>
+        @endif
+
         <flux:menu.separator />
-        <flux:menu.item icon="arrow-right-start-on-rectangle">Logout</flux:menu.item>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <flux:menu.item type="submit" icon="arrow-right-start-on-rectangle">
+                {{ __('actions.log_out') }}
+            </flux:menu.item>
+        </form>
     </flux:menu>
 </flux:dropdown>
