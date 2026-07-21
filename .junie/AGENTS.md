@@ -116,3 +116,4 @@ You are an expert full-stack developer working on a Laravel project. Your task i
     <livewire:user.create />
     <livewire:user.edit />
 </div>
+```
