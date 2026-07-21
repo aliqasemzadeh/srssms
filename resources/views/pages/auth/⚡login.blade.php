@@ -2,7 +2,7 @@
 
 use Livewire\Component;
 
-new class extends Component
+new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 {
     //
 };
