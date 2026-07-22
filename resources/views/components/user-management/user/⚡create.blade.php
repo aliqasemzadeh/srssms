@@ -43,7 +43,7 @@ new class extends Component
         <flux:input wire:model="form.mobile" label="{{ __('general.mobile') }}" />
         <flux:input wire:model="form.email" type="email" label="{{ __('general.email') }}" />
         <flux:input wire:model="form.username" label="{{ __('general.username') }}" />
-        <flux:input wire:model="form.password" type="password" label="{{ __('general.password') }}" />
+        <flux:input wire:model="form.password" type="password" label="{{ __('general.password') }}" viewable />
 
         <flux:button type="submit" variant="primary" color="teal" class="w-full">
             {{ __('actions.save') }}
