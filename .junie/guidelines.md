@@ -42,10 +42,11 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 *   **Wrapper:** For modal components, do NOT add an outer `<div>`. Just use `<flux:modal>`.
 *   **Styling:** Always use flyout right positioning for forms: `<flux:modal flyout position="right">`.
 *   **Triggers:** Use `<flux:modal.trigger name="modal-name">` to open modals (especially if passing data).
-*   **Buttons:** No "Cancel" buttons are needed in modals. Only use full-width submit buttons (`w-full`).
+*   **Buttons:** In Create/Edit modals, no "Cancel" buttons are needed; use full-width submit buttons (`w-full`). **EXCEPTION:** For Delete Confirmation modals, you MUST provide two buttons: a "Cancel" button (e.g., `variant="ghost"` or `color="zinc"`) to close the modal, and a "Confirm" button (e.g., `color="red"`) to execute the deletion.
 *   **Control via Livewire:** Open/close modals programmatically using `Flux::modal('confirm')->show();` or `Flux::modals()->close();`.
 
 ### Forms & Inputs
+*   **Passwords:** Always use the `viewable` attribute for password fields so the user can toggle visibility: `<flux:input type="password" viewable />`.
 *   **Selects:** Use `<flux:select searchable>` for standard searchable dropdowns. Use the backend-search component for database options (https://fluxui.dev/components/select#backend-search).
 *   **Pillbox:** Use `https://fluxui.dev/components/pillbox#searchable` for multi-select/search.
 *   **Numbers:** Use `<flux:input type="number" />`.
@@ -92,20 +93,22 @@ You are an expert full-stack developer working on a Laravel project. Your task i
                 </flux:table.columns>
 
                 <flux:table.rows>
-                    @foreach ($this->users as$user)
-                    <flux:table.row :key="$user->id">
-                        <flux:table.cell>{{ $user->first_name }}</flux:table.cell>
-                        <flux:table.cell align="end">
-                            <div class="flex justify-end gap-2">
-                                <flux:tooltip content="{{ __('general.edit') }}">
-                                    <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user.edit.assign-data', { user: {{$user->id }} })" />
-                                </flux:tooltip>
-                                <flux:tooltip content="{{ __('general.delete') }}">
-                                    <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" wire:click="delete({{ $user->id }})" wire:confirm="{{ __('general.are_you_sure') }}" />
-                                </flux:tooltip>
-                            </div>
-                        </flux:table.cell>
-                    </flux:table.row>
+                    @foreach ($this->users as $user)
+                        <flux:table.row :key="$user->id">
+                            <flux:table.cell>{{ $user->first_name }}</flux:table.cell>
+                            <flux:table.cell align="end">
+                                <div class="flex justify-end gap-2">
+                                    <flux:tooltip content="{{ __('general.edit') }}">
+                                        <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user.edit.assign-data', { user: {{ $user->id }} })" />
+                                    </flux:tooltip>
+                                    <flux:tooltip content="{{ __('general.delete') }}">
+                                        <flux:modal.trigger name="delete-modal-{{ $user->id }}">
+                                            <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" />
+                                        </flux:modal.trigger>
+                                    </flux:tooltip>
+                                </div>
+                            </flux:table.cell>
+                        </flux:table.row>
                     @endforeach
                 </flux:table.rows>
             </flux:table>
@@ -115,3 +118,10 @@ You are an expert full-stack developer working on a Laravel project. Your task i
     <livewire:user.edit />
 </div>
 ```
+
+## 8. UI & CRUD Interaction Workflow
+*   **Create & Edit (Flyout Modals):** Never redirect to separate routes/pages for creating or editing records. Always implement `Create` and `Edit` forms inside a FluxUI Flyout Modal (`<flux:modal flyout position="right">`).
+*   **Delete Operations (Standard Modal):** Do not execute deletions instantly. Complex delete operations must trigger a **Standard Center-Aligned Modal** (`<flux:modal>`). This delete modal MUST explicitly include two buttons: a "Cancel" button to close the modal without taking action, and a "Confirm" button (color="red") to execute the `delete()` method.
+*   **Event-Driven Table Refresh:** The main data table must refresh automatically after any successful Create, Edit, or Delete action without a full page reload.
+    *   To do this, dispatch a context-specific Livewire event targeting the exact table page. For example: `$this->dispatch('panels.administrator.user.index.table');`.
+    *   The main listing Livewire component must listen for this precise event using `#[On('panels.administrator.user.index.table')]` to re-fetch its data. Do not use generic names like `refresh-data`.
