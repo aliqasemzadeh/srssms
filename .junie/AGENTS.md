@@ -43,15 +43,15 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
 ### Modals
 *   **Wrapper:** For modal components, do NOT add an outer `<div>`. Just use `<flux:modal>`.
-*   **Naming Convention:** Modal names MUST use dot notation representing their context (e.g., `name="user-management.user.create"`), NOT hyphens.
+*   **Naming Convention:** Modal names MUST use dot notation representing their context (e.g., `name="user.create"`), NOT hyphens.
 *   **Styling:** Always use flyout right positioning for forms: `<flux:modal flyout position="right">`.
 *   **Triggers:** Use `<flux:modal.trigger name="module.entity.action">` to open modals (especially if passing data).
-*   **Buttons:** In Create/Edit modals, no "Cancel" buttons are needed; use full-width submit buttons (`w-full`). **EXCEPTION:** For Delete Confirmation modals, you MUST provide two buttons: a "Cancel" button (e.g., `variant="ghost"` or `color="zinc"`) to close the modal, and a "Confirm" button (e.g., `color="red"`) to execute the deletion.
+*   **Buttons:** In Create/Edit modals, no "Cancel" buttons are needed; use full-width submit buttons (`w-full`). **EXCEPTION:** For Delete Confirmation modals, you MUST use the specific layout utilizing `<flux:spacer />` and `<flux:modal.close>` with a Ghost variant cancel button and a Danger variant submit button.
 *   **Control via Livewire:** Open/close modals programmatically using `Flux::modal('module.entity.action')->show();` or `Flux::modals()->close();`.
 
 ### Forms & Inputs
 *   **Input Features (Clearable, Viewable, Copyable):** Use Flux UI's built-in input modifiers when appropriate:
-    *   For search fields or optional inputs: `<flux:input placeholder="{{ __('actions.search') }}..." clearable />`
+    *   For search fields or optional inputs: `<flux:input placeholder="{{ __('general.search') }}..." clearable />`
     *   For passwords or secret tokens: `<flux:input type="password" viewable />`
     *   For API keys or read-only generated tokens: `<flux:input icon="key" readonly copyable />`
 *   **Prices & Masking:** Use Flux UI input masking for prices, currencies, or formatted numbers (https://fluxui.dev/components/input#input-masking).
@@ -64,22 +64,33 @@ You are an expert full-stack developer working on a Laravel project. Your task i
     `<flux:field variant="inline"><flux:label>Label</flux:label><flux:switch wire:model.live="field_name" /><flux:error name="field_name" /></flux:field>`
 
 ### Buttons & Actions
-*   **Submit Buttons:** Use `<flux:button type="submit" variant="primary" color="teal">{{ __('actions.save') }}</flux:button>`.
+*   **Submit Buttons:** Use `<flux:button type="submit" variant="primary" color="teal">{{ __('general.save') }}</flux:button>`.
 *   **Generic Buttons:** Only use `color="zinc"` for generic/neutral buttons.
 *   **Icons & Tooltips:** Action buttons (edit/delete/import) MUST be wrapped in `<flux:tooltip>` and use small, icon-only variants (e.g., `size="xs" variant="primary" icon="pencil" icon:variant="outline"`).
-*   **Colors:** Edit = `color="blue"`, Delete = `color="red"`, Import = `color="teal"`.
+*   **Colors/Variants:** Edit = `color="blue"`, Delete = `variant="danger"`, Import = `color="teal"`.
 
 ### Data Display
 *   Use `<flux:callout icon="cube" variant="secondary" inline>` to display specific records (like permissions, roles, users) inside modals.
 
 ## 6. Localization & Permissions (STRICT RULES)
-*   **Allowed Translation Files:** ALL text MUST be translated using ONLY `general.php`, `actions.php`, or `permissions.php`. If you encounter code using unauthorized translation domains, automatically refactor it to use these three files.
-*   **Translation Composition:** Do NOT create monolithic translation keys (e.g., `'create_user' => 'Create User'`). Instead, combine existing verbs from `actions.php` with nouns from `general.php`.
-    *   *Correct:* `{{ __('actions.create') }} {{ __('general.user') }}`
-    *   *Incorrect:* `{{ __('general.create_user') }}`
-*   **Permissions:** Use Spatie Laravel Permission v6. Add all permission translations to `/lang/fa/permissions.php` and `/lang/en/permissions.php`.
+*   **General Translations:** ALL UI texts, actions, and general words MUST be translated using ONLY the `general.php` file (e.g., `{{ __('general.create_user') }}` or `{{ __('general.save') }}`). Do NOT use any other files (like `actions.php` or module-specific files) for standard interface texts.
+*   **Permissions List:** Use Spatie Laravel Permission v6. The COMPLETE list of permissions MUST be stored strictly inside `/lang/fa/permissions.php` and `/lang/en/permissions.php`.
+*   **Permissions Structure (Role-Based):** Inside the `permissions.php` file, all permissions MUST be grouped and categorized by roles as nested arrays.
+    *Example Structure:*
+    ```php
+    return [
+        'administrator' => [
+            'user_create' => 'Create User',
+            'user_edit' => 'Edit User',
+        ],
+        'manager' => [
+            // ...
+        ]
+    ];
+    ```
 
 ## 7. Reference Examples
+
 **Table Example:**
 ```html
 <div>
@@ -88,14 +99,14 @@ You are an expert full-stack developer working on a Laravel project. Your task i
             <flux:heading size="xl">{{ __('general.users') }}</flux:heading>
             <flux:modal.trigger name="user.create">
                 <flux:button variant="primary" color="teal" icon="plus">
-                    {{ __('actions.create') }} {{ __('general.user') }}
+                    {{ __('general.create_user') }}
                 </flux:button>
             </flux:modal.trigger>
         </div>
 
         <flux:card>
             <div class="mb-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('actions.search') }}..." clearable />
+                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
             </div>
 
             <flux:table :paginate="$this->users">
@@ -110,12 +121,12 @@ You are an expert full-stack developer working on a Laravel project. Your task i
                             <flux:table.cell>{{ $user->first_name }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
-                                    <flux:tooltip content="{{ __('actions.edit') }}">
+                                    <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user.edit.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
-                                    <flux:tooltip content="{{ __('actions.delete') }}">
+                                    <flux:tooltip content="{{ __('general.delete') }}">
                                         <flux:modal.trigger name="user.delete.{{ $user->id }}">
-                                            <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" />
+                                            <flux:button size="xs" variant="danger" icon="trash" icon:variant="outline" />
                                         </flux:modal.trigger>
                                     </flux:tooltip>
                                 </div>
@@ -131,9 +142,39 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 </div>
 ```
 
+**Delete Modal Implementation Example:**
+```html
+<flux:modal.trigger name="module.entity.delete">
+    <flux:button variant="danger">{{ __('general.delete') }}</flux:button>
+</flux:modal.trigger>
+
+<flux:modal name="module.entity.delete" class="min-w-[22rem]">
+    <div class="space-y-6">
+        <div>
+            <flux:heading size="lg">{{ __('general.delete_confirmation') }}</flux:heading>
+
+            <flux:text class="mt-2">
+                {{ __('general.delete_warning_message') }}<br>
+                {{ __('general.action_cannot_be_reversed') }}
+            </flux:text>
+        </div>
+
+        <div class="flex gap-2">
+            <flux:spacer />
+
+            <flux:modal.close>
+                <flux:button variant="ghost">{{ __('general.cancel') }}</flux:button>
+            </flux:modal.close>
+
+            <flux:button type="submit" variant="danger">{{ __('general.delete') }}</flux:button>
+        </div>
+    </div>
+</flux:modal>
+```
+
 ## 8. UI & CRUD Interaction Workflow
 *   **Create & Edit (Flyout Modals):** Never redirect to separate routes/pages for creating or editing records. Always implement `Create` and `Edit` forms inside a FluxUI Flyout Modal (`<flux:modal flyout position="right">`).
-*   **Delete Operations (Standard Modal):** Do not execute deletions instantly. Complex delete operations must trigger a **Standard Center-Aligned Modal** (`<flux:modal>`). This delete modal MUST explicitly include two buttons: a "Cancel" button to close the modal without taking action, and a "Confirm" button (color="red") to execute the `delete()` method.
+*   **Delete Operations (Standard Modal):** Do not execute deletions instantly. Complex delete operations must trigger a **Standard Center-Aligned Modal** (`<flux:modal>`). See the "Delete Modal Implementation Example" section for the exact required structure (using `<flux:spacer />` and `<flux:modal.close>`).
 *   **Event-Driven Table Refresh:** The main data table must refresh automatically after any successful Create, Edit, or Delete action without a full page reload.
     *   To do this, dispatch a context-specific Livewire event targeting the exact table page. For example: `$this->dispatch('panels.administrator.user.index.table');`.
     *   The main listing Livewire component must listen for this precise event using `#[On('panels.administrator.user.index.table')]` to re-fetch its data. Do not use generic names like `refresh-data`.
