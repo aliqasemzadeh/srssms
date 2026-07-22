@@ -9,13 +9,13 @@
 </flux:sidebar.header>
 <flux:sidebar.search placeholder="Search..." />
 <flux:sidebar.nav>
-    <flux:sidebar.item icon="home" href="#" current>Home</flux:sidebar.item>
-    <flux:sidebar.item icon="inbox" badge="12" href="#">Inbox</flux:sidebar.item>
-    <flux:sidebar.item icon="document-text" href="#">Documents</flux:sidebar.item>
-    <flux:sidebar.item icon="calendar" href="#">Calendar</flux:sidebar.item>
-    <flux:sidebar.group expandable heading="Favorites" class="grid">
-        <flux:sidebar.item href="#">Marketing site</flux:sidebar.item>
-        <flux:sidebar.item href="#">Android app</flux:sidebar.item>
-        <flux:sidebar.item href="#">Brand guidelines</flux:sidebar.item>
+    <flux:sidebar.item icon="home" href="{{ route('panels.user.dashboard.index') }}" :current="request()->routeIs('panels.user.dashboard.index')">{{ __('general.dashboard') }}</flux:sidebar.item>
+    <flux:sidebar.item icon="inbox" badge="12" href="#">{{ __('general.inbox') }}</flux:sidebar.item>
+    <flux:sidebar.item icon="document-text" href="#">{{ __('general.documents') }}</flux:sidebar.item>
+    <flux:sidebar.item icon="calendar" href="#">{{ __('general.calendar') }}</flux:sidebar.item>
+    <flux:sidebar.group expandable heading="{{ __('general.favorites') }}" class="grid">
+        <flux:sidebar.item href="#">{{ __('general.marketing_site') }}</flux:sidebar.item>
+        <flux:sidebar.item href="#">{{ __('general.android_app') }}</flux:sidebar.item>
+        <flux:sidebar.item href="#">{{ __('general.brand_guidelines') }}</flux:sidebar.item>
     </flux:sidebar.group>
 </flux:sidebar.nav>

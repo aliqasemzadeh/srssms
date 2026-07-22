@@ -4,12 +4,15 @@
 <body class="min-h-screen bg-white dark:bg-zinc-800 antialiased">
 <flux:sidebar sticky collapsible="mobile" class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
 
-    @include('layouts.panels.user')
-    @include('layouts.panels.administrator')
+    @if(request()->is('panels/administrator*'))
+        @include('layouts.panels.administrator')
+    @elseif(request()->is('panels/user*'))
+        @include('layouts.panels.user')
+    @endif
 
     <flux:sidebar.spacer />
 
-    @include('layouts.shared.menus')
+    @include('layouts.shared.panels')
     @include('layouts.shared.user', ['class' => 'max-lg:hidden'])
 </flux:sidebar>
 <flux:header class="lg:hidden">

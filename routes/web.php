@@ -14,7 +14,7 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/panels/administrator/user-management/permissions', 'pages::panels.administrator.user-management.permission.index')->name('panels.administrator.user-management.permission.index');
 
     // User Panel
-    Route::livewire('/panels/user/dashboard', 'panels.administrator.index')->name('pages::panels.user.dashboard.index');
+    Route::livewire('/panels/user/dashboard', 'pages::panels.user.dashboard.index')->name('panels.user.dashboard.index');
 });
 
 require __DIR__.'/auth.php';
