@@ -27,26 +27,26 @@ new class extends Component
 
         Flux::modals()->close();
 
-        Flux::toast(__('app.user_created'));
+        Flux::toast(__('general.user_created'));
     }
 };
 ?>
 
 <flux:modal name="user-create-modal" flyout position="right" class="space-y-6">
     <div>
-        <flux:heading size="lg">{{ __('app.create_user') }}</flux:heading>
+        <flux:heading size="lg">{{ __('actions.create') }} {{ __('general.user') }}</flux:heading>
     </div>
 
     <form wire:submit="save" class="space-y-6">
-        <flux:input wire:model="form.first_name" label="{{ __('app.first_name') }}" />
-        <flux:input wire:model="form.last_name" label="{{ __('app.last_name') }}" />
-        <flux:input wire:model="form.mobile" label="{{ __('app.mobile') }}" />
-        <flux:input wire:model="form.email" type="email" label="{{ __('app.email') }}" />
-        <flux:input wire:model="form.username" label="{{ __('app.username') }}" />
-        <flux:input wire:model="form.password" type="password" label="{{ __('app.password') }}" />
+        <flux:input wire:model="form.first_name" label="{{ __('general.first_name') }}" />
+        <flux:input wire:model="form.last_name" label="{{ __('general.last_name') }}" />
+        <flux:input wire:model="form.mobile" label="{{ __('general.mobile') }}" />
+        <flux:input wire:model="form.email" type="email" label="{{ __('general.email') }}" />
+        <flux:input wire:model="form.username" label="{{ __('general.username') }}" />
+        <flux:input wire:model="form.password" type="password" label="{{ __('general.password') }}" />
 
-        <flux:button type="submit" variant="primary" color="orange" class="w-full">
-            {{ __('app.save') }}
+        <flux:button type="submit" variant="primary" color="teal" class="w-full">
+            {{ __('actions.save') }}
         </flux:button>
     </form>
 </flux:modal>

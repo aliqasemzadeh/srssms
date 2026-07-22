@@ -31,16 +31,16 @@ new class extends Component
 
         Flux::modals()->close();
 
-        Flux::toast(__('app.user_deleted'));
+        Flux::toast(__('general.user_deleted'));
     }
 };
 ?>
 
 <flux:modal name="user-delete-modal" flyout position="right" class="space-y-6">
     <div>
-        <flux:heading size="lg">{{ __('app.delete_user') }}</flux:heading>
+        <flux:heading size="lg">{{ __('actions.delete') }} {{ __('general.user') }}</flux:heading>
         <flux:subheading>
-            {{ __('app.are_you_sure') }}
+            {{ __('general.are_you_sure') }}
         </flux:subheading>
     </div>
 
@@ -51,6 +51,6 @@ new class extends Component
     @endif
 
     <flux:button wire:click="delete" variant="primary" color="red" class="w-full">
-        {{ __('app.delete') }}
+        {{ __('actions.delete') }}
     </flux:button>
 </flux:modal>

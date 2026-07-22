@@ -29,7 +29,9 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 *   **Event Naming:** Use full explicit names (e.g., `panels.administrator.learning-management.school.edit.assign-data`).
 *   **Notifications:** After any Livewire action, trigger a toast notification: `Flux::toast('message');`.
 
-## 5. FluxUI Component Rules
+## 5. FluxUI Component Rules & UI Innovation
+*   **Innovative UI/UX:** Always strive for a modern, clean, and innovative user interface. Leverage FluxUI's capabilities creatively to build intuitive, aesthetically pleasing experiences (e.g., smart empty states, elegant loading transitions, clean alignments, and modern spacing).
+
 ### Layout & Pages
 *   **Page Titles:** Use `<x-slot name="title">Page Title - {{ config('app.name') }}</x-slot>`.
 *   **Breadcrumbs:** Always include `<flux:breadcrumbs>`.
@@ -49,7 +51,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
 ### Forms & Inputs
 *   **Input Features (Clearable, Viewable, Copyable):** Use Flux UI's built-in input modifiers when appropriate:
-    *   For search fields or optional inputs: `<flux:input placeholder="Search..." clearable />`
+    *   For search fields or optional inputs: `<flux:input placeholder="{{ __('actions.search') }}..." clearable />`
     *   For passwords or secret tokens: `<flux:input type="password" viewable />`
     *   For API keys or read-only generated tokens: `<flux:input icon="key" readonly copyable />`
 *   **Prices & Masking:** Use Flux UI input masking for prices, currencies, or formatted numbers (https://fluxui.dev/components/input#input-masking).
@@ -62,7 +64,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
     `<flux:field variant="inline"><flux:label>Label</flux:label><flux:switch wire:model.live="field_name" /><flux:error name="field_name" /></flux:field>`
 
 ### Buttons & Actions
-*   **Submit Buttons:** Use `<flux:button type="submit" variant="primary" color="teal">Save</flux:button>`.
+*   **Submit Buttons:** Use `<flux:button type="submit" variant="primary" color="teal">{{ __('actions.save') }}</flux:button>`.
 *   **Generic Buttons:** Only use `color="zinc"` for generic/neutral buttons.
 *   **Icons & Tooltips:** Action buttons (edit/delete/import) MUST be wrapped in `<flux:tooltip>` and use small, icon-only variants (e.g., `size="xs" variant="primary" icon="pencil" icon:variant="outline"`).
 *   **Colors:** Edit = `color="blue"`, Delete = `color="red"`, Import = `color="teal"`.
@@ -70,8 +72,11 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 ### Data Display
 *   Use `<flux:callout icon="cube" variant="secondary" inline>` to display specific records (like permissions, roles, users) inside modals.
 
-## 6. Localization & Permissions
-*   **Translations:** ALL text must be translated using `/lang/en/general.php`. If adding new text, define it there. Use `{{ __('general.keyword') }}` in views.
+## 6. Localization & Permissions (STRICT RULES)
+*   **Allowed Translation Files:** ALL text MUST be translated using ONLY `general.php`, `actions.php`, or `permissions.php`. If you encounter code using unauthorized translation domains, automatically refactor it to use these three files.
+*   **Translation Composition:** Do NOT create monolithic translation keys (e.g., `'create_user' => 'Create User'`). Instead, combine existing verbs from `actions.php` with nouns from `general.php`.
+    *   *Correct:* `{{ __('actions.create') }} {{ __('general.user') }}`
+    *   *Incorrect:* `{{ __('general.create_user') }}`
 *   **Permissions:** Use Spatie Laravel Permission v6. Add all permission translations to `/lang/fa/permissions.php` and `/lang/en/permissions.php`.
 
 ## 7. Reference Examples
@@ -83,14 +88,14 @@ You are an expert full-stack developer working on a Laravel project. Your task i
             <flux:heading size="xl">{{ __('general.users') }}</flux:heading>
             <flux:modal.trigger name="user.create">
                 <flux:button variant="primary" color="teal" icon="plus">
-                    {{ __('general.create_user') }}
+                    {{ __('actions.create') }} {{ __('general.user') }}
                 </flux:button>
             </flux:modal.trigger>
         </div>
 
         <flux:card>
             <div class="mb-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('actions.search') }}..." clearable />
             </div>
 
             <flux:table :paginate="$this->users">
@@ -101,21 +106,21 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
                 <flux:table.rows>
                     @foreach ($this->users as $user)
-                    <flux:table.row :key="$user->id">
-                        <flux:table.cell>{{ $user->first_name }}</flux:table.cell>
-                        <flux:table.cell align="end">
-                            <div class="flex justify-end gap-2">
-                                <flux:tooltip content="{{ __('general.edit') }}">
-                                    <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user.edit.assign-data', { user: {{ $user->id }} })" />
-                                </flux:tooltip>
-                                <flux:tooltip content="{{ __('general.delete') }}">
-                                    <flux:modal.trigger name="user.delete.{{ $user->id }}">
-                                        <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" />
-                                    </flux:modal.trigger>
-                                </flux:tooltip>
-                            </div>
-                        </flux:table.cell>
-                    </flux:table.row>
+                        <flux:table.row :key="$user->id">
+                            <flux:table.cell>{{ $user->first_name }}</flux:table.cell>
+                            <flux:table.cell align="end">
+                                <div class="flex justify-end gap-2">
+                                    <flux:tooltip content="{{ __('actions.edit') }}">
+                                        <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user.edit.assign-data', { user: {{ $user->id }} })" />
+                                    </flux:tooltip>
+                                    <flux:tooltip content="{{ __('actions.delete') }}">
+                                        <flux:modal.trigger name="user.delete.{{ $user->id }}">
+                                            <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" />
+                                        </flux:modal.trigger>
+                                    </flux:tooltip>
+                                </div>
+                            </flux:table.cell>
+                        </flux:table.row>
                     @endforeach
                 </flux:table.rows>
             </flux:table>

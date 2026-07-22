@@ -55,7 +55,7 @@ new class extends Component
             </flux:breadcrumbs>
 
             <flux:button variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.create.assign-data')">
-                {{ __('app.create_user') }}
+                {{ __('actions.create') }} {{ __('general.user') }}
             </flux:button>
         </div>
 
@@ -71,7 +71,7 @@ new class extends Component
                     <flux:table.column>{{ __('general.mobile') }}</flux:table.column>
                     <flux:table.column>{{ __('general.email') }}</flux:table.column>
                     <flux:table.column>{{ __('general.username') }}</flux:table.column>
-                    <flux:table.column>{{ __('app.roles_count') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.roles_count') }}</flux:table.column>
                     <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
                 </flux:table.columns>
 
@@ -91,10 +91,10 @@ new class extends Component
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.edit.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
-                                    <flux:tooltip content="{{ __('app.user_roles') }}">
+                                    <flux:tooltip content="{{ __('general.user_roles') }}">
                                         <flux:button size="xs" variant="primary" color="indigo" icon="shield" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.roles.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
-                                    <flux:tooltip content="{{ __('app.user_permissions') }}">
+                                    <flux:tooltip content="{{ __('general.user_permissions') }}">
                                         <flux:button size="xs" variant="primary" color="violet" icon="key" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.permissions.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
                                     <flux:tooltip content="{{ __('general.delete') }}">

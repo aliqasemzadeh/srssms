@@ -83,20 +83,20 @@ new class extends Component
 
         Flux::modals()->close();
 
-        Flux::toast(__('app.user_permissions_updated'));
+        Flux::toast(__('general.user_permissions_updated'));
     }
 };
 ?>
 
 <flux:modal name="user-permissions-modal" flyout position="right" class="space-y-6 md:w-lg">
     <div>
-        <flux:heading size="lg">{{ __('app.user_permissions') }}</flux:heading>
+        <flux:heading size="lg">{{ __('general.user_permissions') }}</flux:heading>
         @if ($user)
             <flux:subheading>{{ $user->full_name }}</flux:subheading>
         @endif
     </div>
 
-    <flux:input wire:model.live.debounce.300ms="permissionSearch" icon="search" placeholder="{{ __('app.search_permissions') }}" />
+    <flux:input wire:model.live.debounce.300ms="permissionSearch" icon="search" placeholder="{{ __('actions.search') }}..." />
 
     <form wire:submit="save" class="space-y-6">
         <div class="space-y-4 max-h-[70vh] overflow-y-auto pe-1">
@@ -106,10 +106,10 @@ new class extends Component
                         <flux:heading size="sm">{{ $group }}</flux:heading>
                         <div class="flex gap-1">
                             <flux:button type="button" size="xs" variant="ghost" color="teal" wire:click="selectGroup('{{ $group }}')">
-                                {{ __('app.select_all') }}
+                                {{ __('actions.select_all') }}
                             </flux:button>
                             <flux:button type="button" size="xs" variant="ghost" color="zinc" wire:click="deselectGroup('{{ $group }}')">
-                                {{ __('app.deselect_all') }}
+                                {{ __('actions.deselect_all') }}
                             </flux:button>
                         </div>
                     </div>
@@ -131,8 +131,8 @@ new class extends Component
             @endforelse
         </div>
 
-        <flux:button type="submit" variant="primary" color="orange" class="w-full">
-            {{ __('app.save') }}
+        <flux:button type="submit" variant="primary" color="teal" class="w-full">
+            {{ __('actions.save') }}
         </flux:button>
     </form>
 </flux:modal>

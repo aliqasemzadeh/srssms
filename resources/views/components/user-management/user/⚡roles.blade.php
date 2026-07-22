@@ -47,14 +47,14 @@ new class extends Component
 
         Flux::modals()->close();
 
-        Flux::toast(__('app.user_roles_updated'));
+        Flux::toast(__('general.user_roles_updated'));
     }
 };
 ?>
 
 <flux:modal name="user-roles-modal" flyout position="right" class="space-y-6">
     <div>
-        <flux:heading size="lg">{{ __('app.user_roles') }}</flux:heading>
+        <flux:heading size="lg">{{ __('general.user_roles') }}</flux:heading>
         @if ($user)
             <flux:subheading>{{ $user->full_name }}</flux:subheading>
         @endif
@@ -66,8 +66,8 @@ new class extends Component
             variant="listbox"
             multiple
             searchable
-            label="{{ __('app.select_roles') }}"
-            selected-suffix="{{ __('app.selected_suffix') }}"
+            label="{{ __('general.select_roles') }}"
+            selected-suffix="{{ __('general.selected_suffix') }}"
         >
             @foreach ($this->roles as $role)
                 <flux:select.option value="{{ $role->id }}" wire:key="user-role-option-{{ $role->id }}">
@@ -76,8 +76,8 @@ new class extends Component
             @endforeach
         </flux:select>
 
-        <flux:button type="submit" variant="primary" color="orange" class="w-full">
-            {{ __('app.save') }}
+        <flux:button type="submit" variant="primary" color="teal" class="w-full">
+            {{ __('actions.save') }}
         </flux:button>
     </form>
 </flux:modal>
