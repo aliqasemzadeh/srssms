@@ -1,9 +1,9 @@
 <?php
 
+use App\Livewire\Concerns\InteractsWithPermissionLabels;
 use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Lang;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -12,63 +12,71 @@ use Spatie\Permission\Models\Permission;
 
 new class extends Component
 {
+    use InteractsWithPermissionLabels;
+
     public ?User $user = null;
 
     /** @var array<int> */
-    public array $permission_ids = [];
+    public array $granted_ids = [];
 
-    public string $permissionSearch = '';
+    public string $grantedSearch = '';
+
+    public string $grantableSearch = '';
 
     #[On('panels.administrator.user-management.user.permissions.assign-data')]
     public function assignData(User $user): void
     {
         $this->user = $user;
-        $this->permission_ids = $user->getDirectPermissions()->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $this->permissionSearch = '';
+        $this->granted_ids = $user->getDirectPermissions()->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $this->reset('grantedSearch', 'grantableSearch');
 
-        Flux::modal('user-permissions-modal')->show();
+        Flux::modal('user-management.user.permissions')->show();
     }
 
     #[Computed]
-    public function permissionGroups(): Collection
+    public function allPermissions(): Collection
     {
-        $search = trim($this->permissionSearch);
-
-        return Permission::query()
-            ->orderBy('name')
-            ->get()
-            ->filter(function (Permission $permission) use ($search) {
-                if ($search === '') {
-                    return true;
-                }
-
-                $label = $this->permissionLabel($permission->name);
-
-                return str_contains(Str::lower($permission->name), Str::lower($search))
-                    || str_contains(Str::lower($label), Str::lower($search));
-            })
-            ->groupBy(fn (Permission $permission) => Str::beforeLast($permission->name, '.') ?: $permission->name);
+        return Permission::query()->orderBy('name')->get();
     }
 
-    public function permissionLabel(string $name): string
+    #[Computed]
+    public function granted(): Collection
     {
-        $key = 'permissions.'.$name;
-
-        return Lang::has($key) ? __($key) : $name;
+        return $this->allPermissions
+            ->whereIn('id', $this->granted_ids)
+            ->filter(fn (Permission $permission) => $this->matches($permission, $this->grantedSearch))
+            ->values();
     }
 
-    public function selectGroup(string $group): void
+    #[Computed]
+    public function grantable(): Collection
     {
-        $ids = $this->permissionGroups->get($group)?->pluck('id')->map(fn ($id) => (int) $id)->all() ?? [];
-
-        $this->permission_ids = collect($this->permission_ids)->merge($ids)->unique()->values()->all();
+        return $this->allPermissions
+            ->whereNotIn('id', $this->granted_ids)
+            ->filter(fn (Permission $permission) => $this->matches($permission, $this->grantableSearch))
+            ->values();
     }
 
-    public function deselectGroup(string $group): void
+    public function grant(int $id): void
     {
-        $ids = $this->permissionGroups->get($group)?->pluck('id')->map(fn ($id) => (int) $id)->all() ?? [];
+        $this->granted_ids = collect($this->granted_ids)->push($id)->unique()->values()->all();
+    }
 
-        $this->permission_ids = collect($this->permission_ids)->reject(fn ($id) => in_array($id, $ids, true))->values()->all();
+    public function revoke(int $id): void
+    {
+        $this->granted_ids = collect($this->granted_ids)->reject(fn ($granted) => $granted === $id)->values()->all();
+    }
+
+    public function grantAll(): void
+    {
+        $this->granted_ids = collect($this->granted_ids)->merge($this->grantable->pluck('id'))->unique()->values()->all();
+    }
+
+    public function revokeAll(): void
+    {
+        $ids = $this->granted->pluck('id')->all();
+
+        $this->granted_ids = collect($this->granted_ids)->reject(fn ($granted) => in_array($granted, $ids, true))->values()->all();
     }
 
     public function save(): void
@@ -77,7 +85,7 @@ new class extends Component
             return;
         }
 
-        $this->user->syncPermissions($this->permission_ids);
+        $this->user->syncPermissions($this->granted_ids);
 
         $this->dispatch('panels.administrator.user-management.user.index.refresh');
 
@@ -85,54 +93,114 @@ new class extends Component
 
         Flux::toast(__('general.user_permissions_updated'));
     }
+
+    protected function matches(Permission $permission, string $search): bool
+    {
+        $search = trim($search);
+
+        if ($search === '') {
+            return true;
+        }
+
+        return str_contains(Str::lower($permission->name), Str::lower($search))
+            || str_contains(Str::lower($this->permissionLabel($permission->name)), Str::lower($search));
+    }
 };
 ?>
 
-<flux:modal name="user-permissions-modal" flyout position="right" class="space-y-6 md:w-lg">
-    <div>
-        <flux:heading size="lg">{{ __('general.user_permissions') }}</flux:heading>
-        @if ($user)
-            <flux:subheading>{{ $user->full_name }}</flux:subheading>
-        @endif
-    </div>
+<flux:modal name="user-management.user.permissions" class="w-[calc(100vw-2rem)] max-w-none h-[calc(100dvh-2rem)] overflow-y-auto">
+    <div class="flex h-full min-h-0 flex-col gap-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 pe-10">
+            <div>
+                <flux:heading size="lg">{{ __('general.user_permissions') }}</flux:heading>
+                <flux:subheading>{{ __('general.direct_permissions_hint') }}</flux:subheading>
+            </div>
 
-    <flux:input wire:model.live.debounce.300ms="permissionSearch" icon="search" placeholder="{{ __('actions.search') }}..." />
-
-    <form wire:submit="save" class="space-y-6">
-        <div class="space-y-4 max-h-[70vh] overflow-y-auto pe-1">
-            @forelse ($this->permissionGroups as $group => $permissions)
-                <div class="space-y-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700" wire:key="user-perm-group-{{ $group }}">
-                    <div class="flex items-center justify-between gap-2">
-                        <flux:heading size="sm">{{ $group }}</flux:heading>
-                        <div class="flex gap-1">
-                            <flux:button type="button" size="xs" variant="ghost" color="teal" wire:click="selectGroup('{{ $group }}')">
-                                {{ __('actions.select_all') }}
-                            </flux:button>
-                            <flux:button type="button" size="xs" variant="ghost" color="zinc" wire:click="deselectGroup('{{ $group }}')">
-                                {{ __('actions.deselect_all') }}
-                            </flux:button>
-                        </div>
-                    </div>
-
-                    <div class="space-y-2">
-                        @foreach ($permissions as $permission)
-                            <flux:checkbox
-                                wire:model="permission_ids"
-                                value="{{ $permission->id }}"
-                                label="{{ $this->permissionLabel($permission->name) }}"
-                                description="{{ $permission->name }}"
-                                wire:key="user-perm-{{ $permission->id }}"
-                            />
-                        @endforeach
-                    </div>
-                </div>
-            @empty
-                <flux:text>{{ __('general.search') }}...</flux:text>
-            @endforelse
+            @if ($user)
+                <flux:callout icon="user" variant="secondary" inline class="w-auto">
+                    <flux:callout.heading>{{ $user->full_name }} ({{ $user->username }})</flux:callout.heading>
+                </flux:callout>
+            @endif
         </div>
 
-        <flux:button type="submit" variant="primary" color="teal" class="w-full">
+        <div class="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-2">
+            {{-- Permissions granted directly to this user --}}
+            <div class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50/40 dark:border-emerald-900 dark:bg-emerald-950/20">
+                <div class="flex items-center justify-between gap-2 border-b border-emerald-200 p-4 dark:border-emerald-900">
+                    <div class="flex items-center gap-2">
+                        <flux:icon.shield-check variant="outline" class="size-5 text-emerald-500" />
+                        <flux:heading size="sm">{{ __('general.granted') }}</flux:heading>
+                        <flux:badge size="sm" color="emerald">{{ count($this->granted) }}</flux:badge>
+                    </div>
+                    <flux:button type="button" size="xs" variant="ghost" color="red" icon="list-x" icon:variant="outline" wire:click="revokeAll">
+                        {{ __('general.revoke_all') }}
+                    </flux:button>
+                </div>
+
+                <div class="border-b border-emerald-200 p-3 dark:border-emerald-900">
+                    <flux:input wire:model.live.debounce.300ms="grantedSearch" size="sm" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+                </div>
+
+                <div class="min-h-0 max-h-72 flex-1 space-y-2 overflow-y-auto p-3 lg:max-h-none">
+                    @forelse ($this->granted as $permission)
+                        <div class="flex items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-white p-2.5 dark:border-emerald-900 dark:bg-zinc-800" wire:key="user-perm-granted-{{ $permission->id }}">
+                            <div class="min-w-0">
+                                <flux:heading size="sm" class="truncate">{{ $this->permissionLabel($permission->name) }}</flux:heading>
+                                <flux:text size="sm" class="truncate" dir="ltr">{{ $permission->name }}</flux:text>
+                            </div>
+                            <flux:tooltip content="{{ __('general.revoke') }}">
+                                <flux:button size="xs" variant="danger" icon="x" icon:variant="outline" wire:click="revoke({{ $permission->id }})" />
+                            </flux:tooltip>
+                        </div>
+                    @empty
+                        <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 text-center">
+                            <flux:icon.shield-check variant="outline" class="size-8 text-zinc-300 dark:text-zinc-600" />
+                            <flux:text>{{ trim($grantedSearch) !== '' ? __('general.no_results_found') : __('general.nothing_granted_yet') }}</flux:text>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
+            {{-- Permissions that can be granted --}}
+            <div class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
+                <div class="flex items-center justify-between gap-2 border-b border-zinc-200 p-4 dark:border-zinc-700">
+                    <div class="flex items-center gap-2">
+                        <flux:icon.key variant="outline" class="size-5 text-violet-500" />
+                        <flux:heading size="sm">{{ __('general.grantable') }}</flux:heading>
+                        <flux:badge size="sm" color="violet">{{ count($this->grantable) }}</flux:badge>
+                    </div>
+                    <flux:button type="button" size="xs" variant="ghost" color="teal" icon="list-plus" icon:variant="outline" wire:click="grantAll">
+                        {{ __('general.grant_all') }}
+                    </flux:button>
+                </div>
+
+                <div class="border-b border-zinc-200 p-3 dark:border-zinc-700">
+                    <flux:input wire:model.live.debounce.300ms="grantableSearch" size="sm" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+                </div>
+
+                <div class="min-h-0 max-h-72 flex-1 space-y-2 overflow-y-auto p-3 lg:max-h-none">
+                    @forelse ($this->grantable as $permission)
+                        <div class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-2.5 dark:border-zinc-700 dark:bg-zinc-800" wire:key="user-perm-grantable-{{ $permission->id }}">
+                            <div class="min-w-0">
+                                <flux:heading size="sm" class="truncate">{{ $this->permissionLabel($permission->name) }}</flux:heading>
+                                <flux:text size="sm" class="truncate" dir="ltr">{{ $permission->name }}</flux:text>
+                            </div>
+                            <flux:tooltip content="{{ __('general.grant') }}">
+                                <flux:button size="xs" variant="primary" color="teal" icon="plus" icon:variant="outline" wire:click="grant({{ $permission->id }})" />
+                            </flux:tooltip>
+                        </div>
+                    @empty
+                        <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 text-center">
+                            <flux:icon.badge-check variant="outline" class="size-8 text-zinc-300 dark:text-zinc-600" />
+                            <flux:text>{{ trim($grantableSearch) !== '' ? __('general.no_results_found') : __('general.everything_granted') }}</flux:text>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <flux:button wire:click="save" variant="primary" color="teal" icon="badge-check" icon:variant="outline" class="w-full">
             {{ __('actions.save') }}
         </flux:button>
-    </form>
+    </div>
 </flux:modal>

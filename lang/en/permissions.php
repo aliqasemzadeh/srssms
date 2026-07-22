@@ -1,0 +1,42 @@
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Permissions (grouped by role)
+|--------------------------------------------------------------------------
+| The complete list of application permissions. Permissions are grouped
+| by role and follow the "group.action" naming convention, so the
+| permission name "user-management.user.create" is translated by the key
+| "permissions.administrator.user-management.user.create".
+*/
+
+return [
+    'administrator' => [
+        'user-management' => [
+            'user' => [
+                'view' => 'View Users',
+                'create' => 'Create User',
+                'edit' => 'Edit User',
+                'delete' => 'Delete User',
+                'import' => 'Import Users',
+                'export' => 'Export Users',
+            ],
+            'role' => [
+                'view' => 'View Roles',
+                'create' => 'Create Role',
+                'edit' => 'Edit Role',
+                'delete' => 'Delete Role',
+                'import' => 'Import Roles',
+                'export' => 'Export Roles',
+            ],
+            'permission' => [
+                'view' => 'View Permissions',
+                'create' => 'Create Permission',
+                'edit' => 'Edit Permission',
+                'delete' => 'Delete Permission',
+                'import' => 'Import Permissions',
+                'export' => 'Export Permissions',
+            ],
+        ],
+    ],
+];
