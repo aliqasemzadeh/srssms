@@ -17,12 +17,15 @@ new class extends Component
     public function users(): LengthAwarePaginator
     {
         return User::query()
+            ->withCount('roles')
             ->when($this->search, function ($query) {
-                $query->where('first_name', 'like', "%{$this->search}%")
-                    ->orWhere('last_name', 'like', "%{$this->search}%")
-                    ->orWhere('email', 'like', "%{$this->search}%")
-                    ->orWhere('mobile', 'like', "%{$this->search}%")
-                    ->orWhere('username', 'like', "%{$this->search}%");
+                $query->where(function ($query) {
+                    $query->where('first_name', 'like', "%{$this->search}%")
+                        ->orWhere('last_name', 'like', "%{$this->search}%")
+                        ->orWhere('email', 'like', "%{$this->search}%")
+                        ->orWhere('mobile', 'like', "%{$this->search}%")
+                        ->orWhere('username', 'like', "%{$this->search}%");
+                });
             })
             ->latest()
             ->paginate(config('general.per_page', 10));
@@ -68,6 +71,7 @@ new class extends Component
                     <flux:table.column>{{ __('general.mobile') }}</flux:table.column>
                     <flux:table.column>{{ __('general.email') }}</flux:table.column>
                     <flux:table.column>{{ __('general.username') }}</flux:table.column>
+                    <flux:table.column>{{ __('app.roles_count') }}</flux:table.column>
                     <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
                 </flux:table.columns>
 
@@ -79,10 +83,19 @@ new class extends Component
                             <flux:table.cell>{{ $user->mobile }}</flux:table.cell>
                             <flux:table.cell>{{ $user->email }}</flux:table.cell>
                             <flux:table.cell>{{ $user->username }}</flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="zinc">{{ $user->roles_count }}</flux:badge>
+                            </flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.edit.assign-data', { user: {{ $user->id }} })" />
+                                    </flux:tooltip>
+                                    <flux:tooltip content="{{ __('app.user_roles') }}">
+                                        <flux:button size="xs" variant="primary" color="indigo" icon="shield" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.roles.assign-data', { user: {{ $user->id }} })" />
+                                    </flux:tooltip>
+                                    <flux:tooltip content="{{ __('app.user_permissions') }}">
+                                        <flux:button size="xs" variant="primary" color="violet" icon="key" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.permissions.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
                                     <flux:tooltip content="{{ __('general.delete') }}">
                                         <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.delete.assign-data', { user: {{ $user->id }} })" />
@@ -99,4 +112,6 @@ new class extends Component
     <livewire:user-management.user.create :key="'user-create'" />
     <livewire:user-management.user.edit :key="'user-edit'" />
     <livewire:user-management.user.delete :key="'user-delete'" />
+    <livewire:user-management.user.roles :key="'user-roles'" />
+    <livewire:user-management.user.permissions :key="'user-permissions'" />
 </div>
