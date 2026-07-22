@@ -44,7 +44,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
 ### Tables & Lists
 *   **Component:** Use `<flux:table>` for lists. Implement pagination using `->paginate(config('general.per_page'))`.
-*   **Searchable Fields:** Add search inputs at the top of `<flux:table.columns>`. Use `<flux:input wire:model.live.debounce.300ms="search" icon="search" clearable ... />`.
+*   **Searchable Fields:** Add search inputs at the top of `<flux:table.columns>`. ALWAYS use the `clearable` attribute on search fields: `<flux:input placeholder="Search orders" clearable />` or `<flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />`.
 
 ### Modals
 *   **Wrapper:** For modal components, do NOT add an outer `<div>`. Just use `<flux:modal>`.
@@ -56,7 +56,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
 ### Forms & Inputs
 *   **Input Features (Clearable, Viewable, Copyable):** Use Flux UI's built-in input modifiers when appropriate:
-    *   For search fields or optional inputs: `<flux:input placeholder="{{ __('general.search') }}..." clearable />`
+    *   For search fields or optional inputs: `<flux:input placeholder="Search orders" clearable />`
     *   For passwords or secret tokens: `<flux:input type="password" viewable />`
     *   For API keys or read-only generated tokens: `<flux:input icon="key" readonly copyable />`
 *   **Prices & Masking:** Use Flux UI input masking for prices, currencies, or formatted numbers (https://fluxui.dev/components/input#input-masking).
