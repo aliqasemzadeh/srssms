@@ -9,5 +9,23 @@ new class extends Component
 ?>
 
 <div>
-    {{-- I begin to speak only when I am certain what I will say is not better left unsaid. - Cato the Younger --}}
+    <x-slot name="title">{{ __('general.functions') }} - {{ config('app.name') }}</x-slot>
+
+    <div class="space-y-6">
+        <div class="flex items-center justify-between">
+            <flux:breadcrumbs>
+                <flux:breadcrumbs.item href="{{ route('panels.administrator.dashboard.index') }}" icon="home" />
+                <flux:breadcrumbs.item>{{ __('general.system_management') }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ __('general.functions') }}</flux:breadcrumbs.item>
+            </flux:breadcrumbs>
+        </div>
+
+        <flux:card>
+            <div class="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400">
+                <flux:icon.wrench class="size-10" />
+                <flux:heading size="lg">{{ __('general.functions') }}</flux:heading>
+                <flux:subheading>{{ __('general.coming_soon') }}</flux:subheading>
+            </div>
+        </flux:card>
+    </div>
 </div>

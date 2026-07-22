@@ -38,5 +38,24 @@ return [
                 'export' => 'Export Permissions',
             ],
         ],
+        'system-management' => [
+            'setting' => [
+                'view' => 'View Settings',
+                'edit' => 'Edit Settings',
+            ],
+            'function' => [
+                'view' => 'View Functions',
+                'run' => 'Run Functions',
+            ],
+            'backup' => [
+                'view' => 'View Backups',
+                'create' => 'Create Backup',
+                'download' => 'Download Backup',
+                'delete' => 'Delete Backup',
+            ],
+            'log' => [
+                'view' => 'View Logs',
+            ],
+        ],
     ],
 ];

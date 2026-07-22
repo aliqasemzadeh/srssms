@@ -21,4 +21,16 @@
         <flux:sidebar.item href="{{ route('panels.administrator.user-management.role.index') }}" :current="request()->routeIs('panels.administrator.user-management.role.index')">{{ __('general.roles') }}</flux:sidebar.item>
         <flux:sidebar.item href="{{ route('panels.administrator.user-management.permission.index') }}" :current="request()->routeIs('panels.administrator.user-management.permission.index')">{{ __('general.permissions') }}</flux:sidebar.item>
     </flux:sidebar.group>
+    <flux:sidebar.group
+        expandable
+        icon="settings"
+        heading="{{ __('general.system_management') }}"
+        class="grid"
+        :expanded="request()->routeIs('panels.administrator.system-management.*')"
+    >
+        <flux:sidebar.item href="{{ route('panels.administrator.system-management.setting.index') }}" :current="request()->routeIs('panels.administrator.system-management.setting.index')">{{ __('general.settings') }}</flux:sidebar.item>
+        <flux:sidebar.item href="{{ route('panels.administrator.system-management.function.index') }}" :current="request()->routeIs('panels.administrator.system-management.function.index')">{{ __('general.functions') }}</flux:sidebar.item>
+        <flux:sidebar.item href="{{ route('panels.administrator.system-management.backup.index') }}" :current="request()->routeIs('panels.administrator.system-management.backup.index')">{{ __('general.backups') }}</flux:sidebar.item>
+        <flux:sidebar.item href="{{ route('log-viewer.index') }}" target="_blank">{{ __('general.log_viewer') }}</flux:sidebar.item>
+    </flux:sidebar.group>
 </flux:sidebar.nav>

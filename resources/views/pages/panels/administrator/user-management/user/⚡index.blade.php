@@ -17,7 +17,6 @@ new class extends Component
     public function users(): LengthAwarePaginator
     {
         return User::query()
-            ->withCount('roles')
             ->when($this->search, function ($query) {
                 $query->where(function ($query) {
                     $query->where('first_name', 'like', "%{$this->search}%")
@@ -71,7 +70,6 @@ new class extends Component
                     <flux:table.column>{{ __('general.mobile') }}</flux:table.column>
                     <flux:table.column>{{ __('general.email') }}</flux:table.column>
                     <flux:table.column>{{ __('general.username') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.roles_count') }}</flux:table.column>
                     <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
                 </flux:table.columns>
 
@@ -83,9 +81,6 @@ new class extends Component
                             <flux:table.cell>{{ $user->mobile }}</flux:table.cell>
                             <flux:table.cell>{{ $user->email }}</flux:table.cell>
                             <flux:table.cell>{{ $user->username }}</flux:table.cell>
-                            <flux:table.cell>
-                                <flux:badge size="sm" color="zinc">{{ $user->roles_count }}</flux:badge>
-                            </flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
                                     <flux:tooltip content="{{ __('general.edit') }}">

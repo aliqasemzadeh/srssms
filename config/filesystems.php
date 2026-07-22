@@ -47,6 +47,17 @@ return [
             'report' => false,
         ],
 
+        'backup_remote' => [
+            'driver' => 'sftp',
+            'host' => env('BACKUP_REMOTE_HOST'),
+            'username' => env('BACKUP_REMOTE_USERNAME'),
+            'password' => env('BACKUP_REMOTE_PASSWORD'),
+            'port' => (int) env('BACKUP_REMOTE_PORT', 22),
+            'root' => env('BACKUP_REMOTE_ROOT', ''),
+            'timeout' => 30,
+            'throw' => true,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
