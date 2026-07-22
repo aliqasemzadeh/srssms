@@ -26,7 +26,6 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 *   **Live Binding:** NEVER use `wire:model.live` in forms unless explicitly requested.
 *   **Events:** Never use `protected $listeners`. Use `Livewire\Attributes\On;` and `$this->dispatch('event-name');`.
 *   **Event Naming:** Use full explicit names (e.g., `panels.administrator.learning-management.school.edit.assign-data`).
-*   **Data Refreshing:** After creating/editing, dispatch a `refresh-data` event and use `#[On('refresh-data')]` on the listing page to reload data.
 *   **Notifications:** After any Livewire action, trigger a toast notification: `Flux::toast('message');`.
 
 ## 5. FluxUI Component Rules
@@ -41,7 +40,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
 ### Modals
 *   **Wrapper:** For modal components, do NOT add an outer `<div>`. Just use `<flux:modal>`.
-*   **Styling:** Always use flyout right positioning: `<flux:modal flyout position="right">`.
+*   **Styling:** Always use flyout right positioning for forms: `<flux:modal flyout position="right">`.
 *   **Triggers:** Use `<flux:modal.trigger name="modal-name">` to open modals (especially if passing data).
 *   **Buttons:** No "Cancel" buttons are needed in modals. Only use full-width submit buttons (`w-full`).
 *   **Control via Livewire:** Open/close modals programmatically using `Flux::modal('confirm')->show();` or `Flux::modals()->close();`.
@@ -59,7 +58,6 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 *   **Generic Buttons:** Only use `color="zinc"` for generic/neutral buttons.
 *   **Icons & Tooltips:** Action buttons (edit/delete/import) MUST be wrapped in `<flux:tooltip>` and use small, icon-only variants (e.g., `size="xs" variant="primary" icon="pencil" icon:variant="outline"`).
 *   **Colors:** Edit = `color="blue"`, Delete = `color="red"`, Import = `color="teal"`.
-*   **Confirmations:** Always use `wire:confirm="{{ __('general.are_you_sure') }}"` for destructive actions (like delete).
 
 ### Data Display
 *   Use `<flux:callout icon="cube" variant="secondary" inline>` to display specific records (like permissions, roles, users) inside modals.
