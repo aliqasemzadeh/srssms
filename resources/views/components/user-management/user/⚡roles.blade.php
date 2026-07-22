@@ -20,12 +20,16 @@ new class extends Component
 
     public string $grantableSearch = '';
 
+    public string $pending_action = '';
+
+    public ?int $pending_id = null;
+
     #[On('panels.administrator.user-management.user.roles.assign-data')]
     public function assignData(User $user): void
     {
         $this->user = $user;
         $this->granted_ids = $user->roles()->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $this->reset('grantedSearch', 'grantableSearch');
+        $this->reset('grantedSearch', 'grantableSearch', 'pending_action', 'pending_id');
 
         Flux::modal('user-management.user.roles')->show();
     }
@@ -54,41 +58,61 @@ new class extends Component
             ->values();
     }
 
-    public function grant(int $id): void
+    #[Computed]
+    public function isGranting(): bool
     {
-        $this->granted_ids = collect($this->granted_ids)->push($id)->unique()->values()->all();
+        return in_array($this->pending_action, ['grant', 'grant-all'], true);
     }
 
-    public function revoke(int $id): void
+    #[Computed]
+    public function pendingLabel(): string
     {
-        $this->granted_ids = collect($this->granted_ids)->reject(fn ($granted) => $granted === $id)->values()->all();
+        return match ($this->pending_action) {
+            'grant', 'revoke' => $this->allRoles->firstWhere('id', $this->pending_id)?->name ?? '',
+            'grant-all' => __('general.items_count', ['count' => count($this->grantable)]),
+            'revoke-all' => __('general.items_count', ['count' => count($this->granted)]),
+            default => '',
+        };
     }
 
-    public function grantAll(): void
+    public function confirm(string $action, ?int $id = null): void
     {
-        $this->granted_ids = collect($this->granted_ids)->merge($this->grantable->pluck('id'))->unique()->values()->all();
-    }
-
-    public function revokeAll(): void
-    {
-        $ids = $this->granted->pluck('id')->all();
-
-        $this->granted_ids = collect($this->granted_ids)->reject(fn ($granted) => in_array($granted, $ids, true))->values()->all();
-    }
-
-    public function save(): void
-    {
-        if (! $this->user) {
+        if (($action === 'grant-all' && $this->grantable->isEmpty())
+            || ($action === 'revoke-all' && $this->granted->isEmpty())) {
             return;
         }
 
-        $this->user->syncRoles($this->granted_ids);
+        $this->pending_action = $action;
+        $this->pending_id = $id;
+
+        Flux::modal('user-management.user.roles.confirm')->show();
+    }
+
+    public function apply(): void
+    {
+        if (! $this->user || $this->pending_action === '') {
+            return;
+        }
+
+        match ($this->pending_action) {
+            'grant' => $this->user->assignRole($this->pending_id),
+            'revoke' => $this->user->removeRole(Role::findById($this->pending_id)),
+            'grant-all' => $this->grantable->each(fn (Role $role) => $this->user->assignRole($role)),
+            'revoke-all' => $this->granted->each(fn (Role $role) => $this->user->removeRole($role)),
+        };
+
+        $granting = $this->isGranting;
+
+        $this->granted_ids = $this->user->roles()->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $this->reset('pending_action', 'pending_id');
+
+        unset($this->granted, $this->grantable, $this->isGranting, $this->pendingLabel);
 
         $this->dispatch('panels.administrator.user-management.user.index.refresh');
 
-        Flux::modals()->close();
+        Flux::modal('user-management.user.roles.confirm')->close();
 
-        Flux::toast(__('general.user_roles_updated'));
+        Flux::toast(__($granting ? 'general.granted_successfully' : 'general.revoked_successfully'));
     }
 
     protected function matches(Role $role, string $search): bool
@@ -100,99 +124,129 @@ new class extends Component
 };
 ?>
 
-<flux:modal name="user-management.user.roles" class="w-[calc(100vw-2rem)] max-w-none h-[calc(100dvh-2rem)] overflow-y-auto">
-    <div class="flex h-full min-h-0 flex-col gap-6">
-        <div class="flex flex-wrap items-center justify-between gap-4 pe-10">
-            <div>
-                <flux:heading size="lg">{{ __('general.user_roles') }}</flux:heading>
+<div>
+    <flux:modal name="user-management.user.roles" class="w-[calc(100vw-2rem)] max-w-none h-[calc(100dvh-2rem)] overflow-y-auto">
+        <div class="flex h-full min-h-0 flex-col gap-6">
+            <div class="min-w-0 pe-10">
+                <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
+                    <flux:heading size="lg">{{ __('general.user_roles') }}</flux:heading>
+                    @if ($user)
+                        <flux:badge size="sm" color="indigo" icon="user" class="max-w-full truncate">
+                            {{ $user->full_name }} ({{ $user->username }})
+                        </flux:badge>
+                    @endif
+                </div>
                 <flux:subheading>{{ __('general.granted') }} / {{ __('general.grantable') }}</flux:subheading>
             </div>
 
-            @if ($user)
-                <flux:callout icon="user" variant="secondary" inline class="w-auto">
-                    <flux:callout.heading>{{ $user->full_name }} ({{ $user->username }})</flux:callout.heading>
-                </flux:callout>
+            <div class="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-2">
+                {{-- Roles granted to this user --}}
+                <div class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50/40 dark:border-emerald-900 dark:bg-emerald-950/20">
+                    <div class="flex items-center justify-between gap-2 border-b border-emerald-200 p-4 dark:border-emerald-900">
+                        <div class="flex items-center gap-2">
+                            <flux:icon.shield-check variant="outline" class="size-5 text-emerald-500" />
+                            <flux:heading size="sm">{{ __('general.granted') }}</flux:heading>
+                            <flux:badge size="sm" color="emerald">{{ count($this->granted) }}</flux:badge>
+                        </div>
+                        <flux:button type="button" size="xs" variant="ghost" color="red" icon="list-x" icon:variant="outline" wire:click="confirm('revoke-all')">
+                            {{ __('general.revoke_all') }}
+                        </flux:button>
+                    </div>
+
+                    <div class="border-b border-emerald-200 p-3 dark:border-emerald-900">
+                        <flux:input wire:model.live.debounce.300ms="grantedSearch" size="sm" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+                    </div>
+
+                    <div class="min-h-0 max-h-72 flex-1 space-y-2 overflow-y-auto p-3 lg:max-h-none">
+                        @forelse ($this->granted as $role)
+                            <div class="flex items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-white p-2.5 dark:border-emerald-900 dark:bg-zinc-800" wire:key="user-role-granted-{{ $role->id }}">
+                                <div class="flex min-w-0 items-center gap-2">
+                                    <flux:icon.shield variant="outline" class="size-4 shrink-0 text-indigo-500" />
+                                    <flux:heading size="sm" class="truncate">{{ $role->name }}</flux:heading>
+                                </div>
+                                <flux:tooltip content="{{ __('general.revoke') }}">
+                                    <flux:button size="xs" variant="danger" icon="x" icon:variant="outline" wire:click="confirm('revoke', {{ $role->id }})" />
+                                </flux:tooltip>
+                            </div>
+                        @empty
+                            <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 text-center">
+                                <flux:icon.shield-check variant="outline" class="size-8 text-zinc-300 dark:text-zinc-600" />
+                                <flux:text>{{ trim($grantedSearch) !== '' ? __('general.no_results_found') : __('general.nothing_granted_yet') }}</flux:text>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- Roles that can be granted --}}
+                <div class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
+                    <div class="flex items-center justify-between gap-2 border-b border-zinc-200 p-4 dark:border-zinc-700">
+                        <div class="flex items-center gap-2">
+                            <flux:icon.shield variant="outline" class="size-5 text-indigo-500" />
+                            <flux:heading size="sm">{{ __('general.grantable') }}</flux:heading>
+                            <flux:badge size="sm" color="indigo">{{ count($this->grantable) }}</flux:badge>
+                        </div>
+                        <flux:button type="button" size="xs" variant="ghost" color="teal" icon="list-plus" icon:variant="outline" wire:click="confirm('grant-all')">
+                            {{ __('general.grant_all') }}
+                        </flux:button>
+                    </div>
+
+                    <div class="border-b border-zinc-200 p-3 dark:border-zinc-700">
+                        <flux:input wire:model.live.debounce.300ms="grantableSearch" size="sm" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+                    </div>
+
+                    <div class="min-h-0 max-h-72 flex-1 space-y-2 overflow-y-auto p-3 lg:max-h-none">
+                        @forelse ($this->grantable as $role)
+                            <div class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-2.5 dark:border-zinc-700 dark:bg-zinc-800" wire:key="user-role-grantable-{{ $role->id }}">
+                                <div class="flex min-w-0 items-center gap-2">
+                                    <flux:icon.shield variant="outline" class="size-4 shrink-0 text-indigo-500" />
+                                    <flux:heading size="sm" class="truncate">{{ $role->name }}</flux:heading>
+                                </div>
+                                <flux:tooltip content="{{ __('general.grant') }}">
+                                    <flux:button size="xs" variant="primary" color="teal" icon="plus" icon:variant="outline" wire:click="confirm('grant', {{ $role->id }})" />
+                                </flux:tooltip>
+                            </div>
+                        @empty
+                            <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 text-center">
+                                <flux:icon.badge-check variant="outline" class="size-8 text-zinc-300 dark:text-zinc-600" />
+                                <flux:text>{{ trim($grantableSearch) !== '' ? __('general.no_results_found') : __('general.everything_granted') }}</flux:text>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+            </div>
+        </div>
+    </flux:modal>
+
+    {{-- Grant/Revoke confirmation --}}
+    <flux:modal name="user-management.user.roles.confirm" class="min-w-[22rem] space-y-6">
+        <div>
+            <flux:heading size="lg">{{ $this->isGranting ? __('general.grant_confirmation') : __('general.revoke_confirmation') }}</flux:heading>
+
+            <flux:text class="mt-2">
+                {{ $this->isGranting ? __('general.grant_warning_message') : __('general.revoke_warning_message') }}
+            </flux:text>
+        </div>
+
+        <flux:callout icon="shield" variant="secondary" inline>
+            <flux:callout.heading>{{ $this->pendingLabel }}</flux:callout.heading>
+        </flux:callout>
+
+        <div class="flex gap-2">
+            <flux:spacer />
+
+            <flux:modal.close>
+                <flux:button variant="ghost">{{ __('actions.cancel') }}</flux:button>
+            </flux:modal.close>
+
+            @if ($this->isGranting)
+                <flux:button wire:click="apply" variant="primary" color="teal" icon="plus" icon:variant="outline">
+                    {{ __('general.grant') }}
+                </flux:button>
+            @else
+                <flux:button wire:click="apply" variant="danger" icon="x" icon:variant="outline">
+                    {{ __('general.revoke') }}
+                </flux:button>
             @endif
         </div>
-
-        <div class="grid min-h-0 flex-1 grid-cols-1 gap-6 lg:grid-cols-2">
-            {{-- Roles granted to this user --}}
-            <div class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-emerald-200 bg-emerald-50/40 dark:border-emerald-900 dark:bg-emerald-950/20">
-                <div class="flex items-center justify-between gap-2 border-b border-emerald-200 p-4 dark:border-emerald-900">
-                    <div class="flex items-center gap-2">
-                        <flux:icon.shield-check variant="outline" class="size-5 text-emerald-500" />
-                        <flux:heading size="sm">{{ __('general.granted') }}</flux:heading>
-                        <flux:badge size="sm" color="emerald">{{ count($this->granted) }}</flux:badge>
-                    </div>
-                    <flux:button type="button" size="xs" variant="ghost" color="red" icon="list-x" icon:variant="outline" wire:click="revokeAll">
-                        {{ __('general.revoke_all') }}
-                    </flux:button>
-                </div>
-
-                <div class="border-b border-emerald-200 p-3 dark:border-emerald-900">
-                    <flux:input wire:model.live.debounce.300ms="grantedSearch" size="sm" icon="search" placeholder="{{ __('general.search') }}..." clearable />
-                </div>
-
-                <div class="min-h-0 max-h-72 flex-1 space-y-2 overflow-y-auto p-3 lg:max-h-none">
-                    @forelse ($this->granted as $role)
-                        <div class="flex items-center justify-between gap-3 rounded-lg border border-emerald-200 bg-white p-2.5 dark:border-emerald-900 dark:bg-zinc-800" wire:key="user-role-granted-{{ $role->id }}">
-                            <div class="flex min-w-0 items-center gap-2">
-                                <flux:icon.shield variant="outline" class="size-4 shrink-0 text-indigo-500" />
-                                <flux:heading size="sm" class="truncate">{{ $role->name }}</flux:heading>
-                            </div>
-                            <flux:tooltip content="{{ __('general.revoke') }}">
-                                <flux:button size="xs" variant="danger" icon="x" icon:variant="outline" wire:click="revoke({{ $role->id }})" />
-                            </flux:tooltip>
-                        </div>
-                    @empty
-                        <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 text-center">
-                            <flux:icon.shield-check variant="outline" class="size-8 text-zinc-300 dark:text-zinc-600" />
-                            <flux:text>{{ trim($grantedSearch) !== '' ? __('general.no_results_found') : __('general.nothing_granted_yet') }}</flux:text>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-
-            {{-- Roles that can be granted --}}
-            <div class="flex min-h-0 flex-col overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
-                <div class="flex items-center justify-between gap-2 border-b border-zinc-200 p-4 dark:border-zinc-700">
-                    <div class="flex items-center gap-2">
-                        <flux:icon.shield variant="outline" class="size-5 text-indigo-500" />
-                        <flux:heading size="sm">{{ __('general.grantable') }}</flux:heading>
-                        <flux:badge size="sm" color="indigo">{{ count($this->grantable) }}</flux:badge>
-                    </div>
-                    <flux:button type="button" size="xs" variant="ghost" color="teal" icon="list-plus" icon:variant="outline" wire:click="grantAll">
-                        {{ __('general.grant_all') }}
-                    </flux:button>
-                </div>
-
-                <div class="border-b border-zinc-200 p-3 dark:border-zinc-700">
-                    <flux:input wire:model.live.debounce.300ms="grantableSearch" size="sm" icon="search" placeholder="{{ __('general.search') }}..." clearable />
-                </div>
-
-                <div class="min-h-0 max-h-72 flex-1 space-y-2 overflow-y-auto p-3 lg:max-h-none">
-                    @forelse ($this->grantable as $role)
-                        <div class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 bg-white p-2.5 dark:border-zinc-700 dark:bg-zinc-800" wire:key="user-role-grantable-{{ $role->id }}">
-                            <div class="flex min-w-0 items-center gap-2">
-                                <flux:icon.shield variant="outline" class="size-4 shrink-0 text-indigo-500" />
-                                <flux:heading size="sm" class="truncate">{{ $role->name }}</flux:heading>
-                            </div>
-                            <flux:tooltip content="{{ __('general.grant') }}">
-                                <flux:button size="xs" variant="primary" color="teal" icon="plus" icon:variant="outline" wire:click="grant({{ $role->id }})" />
-                            </flux:tooltip>
-                        </div>
-                    @empty
-                        <div class="flex h-full min-h-40 flex-col items-center justify-center gap-2 text-center">
-                            <flux:icon.badge-check variant="outline" class="size-8 text-zinc-300 dark:text-zinc-600" />
-                            <flux:text>{{ trim($grantableSearch) !== '' ? __('general.no_results_found') : __('general.everything_granted') }}</flux:text>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        <flux:button wire:click="save" variant="primary" color="teal" icon="badge-check" icon:variant="outline" class="w-full">
-            {{ __('actions.save') }}
-        </flux:button>
-    </div>
-</flux:modal>
+    </flux:modal>
+</div>

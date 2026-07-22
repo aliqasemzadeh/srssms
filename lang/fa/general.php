@@ -98,4 +98,13 @@ return [
     'permission_name_placeholder' => 'مثال: user-management.user.create',
     'permission_preview' => 'پیش‌نمایش مجوزهایی که ساخته می‌شوند',
     'direct_permissions_hint' => 'فقط مجوزهای مستقیم کاربر در این بخش مدیریت می‌شوند؛ مجوزهای ناشی از نقش‌ها جدا هستند.',
+    'user' => 'کاربر',
+    'leave_blank_to_keep_current' => 'برای حفظ رمز عبور فعلی خالی بگذارید',
+    'grant_confirmation' => 'تایید اعطا',
+    'revoke_confirmation' => 'تایید لغو اعطا',
+    'grant_warning_message' => 'این مورد بلافاصله اعطا می‌شود.',
+    'revoke_warning_message' => 'این مورد بلافاصله لغو می‌شود.',
+    'granted_successfully' => 'با موفقیت اعطا شد.',
+    'revoked_successfully' => 'با موفقیت لغو شد.',
+    'items_count' => ':count مورد',
 ];

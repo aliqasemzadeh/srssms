@@ -98,4 +98,13 @@ return [
     'permission_name_placeholder' => 'e.g. user-management.user.create',
     'permission_preview' => 'Preview of permissions to be created',
     'direct_permissions_hint' => 'Only direct user permissions are managed here; permissions inherited from roles are separate.',
+    'user' => 'User',
+    'leave_blank_to_keep_current' => 'Leave blank to keep the current password.',
+    'grant_confirmation' => 'Grant Confirmation',
+    'revoke_confirmation' => 'Revoke Confirmation',
+    'grant_warning_message' => 'This item will be granted immediately.',
+    'revoke_warning_message' => 'This item will be revoked immediately.',
+    'granted_successfully' => 'Granted successfully.',
+    'revoked_successfully' => 'Revoked successfully.',
+    'items_count' => ':count item(s)',
 ];

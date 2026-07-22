@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Concerns\InteractsWithPermissionLabels;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -97,14 +98,35 @@ class RolePermissionManagementTest extends TestCase
 
         Livewire::test('user-management.role.permissions')
             ->dispatch('panels.administrator.user-management.role.permissions.assign-data', role: $role->id)
-            ->call('grant', $view->id)
-            ->call('revoke', $edit->id)
-            ->call('save');
+            ->call('confirm', 'grant', $view->id)
+            ->call('apply')
+            ->call('confirm', 'revoke', $edit->id)
+            ->call('apply');
 
         $role->refresh();
 
         $this->assertTrue($role->hasPermissionTo('user-management.user.view'));
         $this->assertFalse($role->hasPermissionTo('user-management.user.edit'));
+    }
+
+    public function test_role_permissions_grant_all_and_revoke_all(): void
+    {
+        $role = Role::create(['name' => 'manager']);
+        Permission::create(['name' => 'user-management.user.view']);
+        Permission::create(['name' => 'user-management.user.edit']);
+
+        $component = Livewire::test('user-management.role.permissions')
+            ->dispatch('panels.administrator.user-management.role.permissions.assign-data', role: $role->id)
+            ->call('confirm', 'grant-all')
+            ->call('apply');
+
+        $this->assertCount(2, $role->fresh()->permissions);
+
+        $component
+            ->call('confirm', 'revoke-all')
+            ->call('apply');
+
+        $this->assertCount(0, $role->fresh()->permissions);
     }
 
     public function test_role_users_can_be_granted_and_revoked(): void
@@ -116,9 +138,10 @@ class RolePermissionManagementTest extends TestCase
 
         Livewire::test('user-management.role.users')
             ->dispatch('panels.administrator.user-management.role.users.assign-data', role: $role->id)
-            ->call('grant', $userA->id)
-            ->call('revoke', $userB->id)
-            ->call('save');
+            ->call('confirm', 'grant', $userA->id)
+            ->call('apply')
+            ->call('confirm', 'revoke', $userB->id)
+            ->call('apply');
 
         $this->assertTrue($userA->fresh()->hasRole('manager'));
         $this->assertFalse($userB->fresh()->hasRole('manager'));
@@ -132,15 +155,15 @@ class RolePermissionManagementTest extends TestCase
 
         Livewire::test('user-management.permission.roles')
             ->dispatch('panels.administrator.user-management.permission.roles.assign-data', permission: $permission->id)
-            ->call('grant', $role->id)
-            ->call('save');
+            ->call('confirm', 'grant', $role->id)
+            ->call('apply');
 
         $this->assertTrue($role->fresh()->hasPermissionTo('reports.view'));
 
         Livewire::test('user-management.permission.users')
             ->dispatch('panels.administrator.user-management.permission.users.assign-data', permission: $permission->id)
-            ->call('grant', $user->id)
-            ->call('save');
+            ->call('confirm', 'grant', $user->id)
+            ->call('apply');
 
         $this->assertTrue($user->fresh()->hasDirectPermission('reports.view'));
     }
@@ -153,16 +176,36 @@ class RolePermissionManagementTest extends TestCase
 
         Livewire::test('user-management.user.roles')
             ->dispatch('panels.administrator.user-management.user.roles.assign-data', user: $user->id)
-            ->call('grant', $role->id)
-            ->call('save');
+            ->call('confirm', 'grant', $role->id)
+            ->call('apply');
 
         $this->assertTrue($user->fresh()->hasRole('manager'));
 
         Livewire::test('user-management.user.permissions')
             ->dispatch('panels.administrator.user-management.user.permissions.assign-data', user: $user->id)
-            ->call('grant', $permission->id)
-            ->call('save');
+            ->call('confirm', 'grant', $permission->id)
+            ->call('apply');
 
         $this->assertTrue($user->fresh()->hasDirectPermission('reports.view'));
+
+        Livewire::test('user-management.user.permissions')
+            ->dispatch('panels.administrator.user-management.user.permissions.assign-data', user: $user->id)
+            ->call('confirm', 'revoke', $permission->id)
+            ->call('apply');
+
+        $this->assertFalse($user->fresh()->hasDirectPermission('reports.view'));
+    }
+
+    public function test_permission_labels_are_translated_from_lang_file(): void
+    {
+        app()->setLocale('fa');
+
+        $component = new class
+        {
+            use InteractsWithPermissionLabels;
+        };
+
+        $this->assertSame('مشاهده کاربران', $component->permissionLabel('user-management.user.view'));
+        $this->assertSame('unknown.permission', $component->permissionLabel('unknown.permission'));
     }
 }
