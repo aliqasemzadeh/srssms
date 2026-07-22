@@ -6,7 +6,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 *   **Frontend:** TailwindCSS, AlpineJS (for UI interactions)
 *   **Livewire:** Version 4 (Do NOT use Volt; use standard `Livewire\Component`)
 *   **UI Library:** FluxUI (https://fluxui.dev/)
-*   **Icons:** Lucide Icons (https://lucide.dev/icons). Add icons using `php artisan flux:icon icon-name`.
+*   **Icons:** Lucide Icons (https://lucide.dev/icons). When you add new icons to the UI, you MUST automatically execute the terminal command to publish them. You can publish multiple icons in a single command, like this: `php artisan flux:icon icon1 icon2 icon3`.
 
 ## 2. Architecture & File Structure
 *   **Single-File Component Architecture:** ALWAYS write Livewire components as Single-File Components. Place all PHP logic inside a `<?php ... ?>` block at the top of the `.blade.php` file.
