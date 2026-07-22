@@ -101,21 +101,21 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
                 <flux:table.rows>
                     @foreach ($this->users as $user)
-                        <flux:table.row :key="$user->id">
-                            <flux:table.cell>{{ $user->first_name }}</flux:table.cell>
-                            <flux:table.cell align="end">
-                                <div class="flex justify-end gap-2">
-                                    <flux:tooltip content="{{ __('general.edit') }}">
-                                        <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user.edit.assign-data', { user: {{ $user->id }} })" />
-                                    </flux:tooltip>
-                                    <flux:tooltip content="{{ __('general.delete') }}">
-                                        <flux:modal.trigger name="user.delete.{{ $user->id }}">
-                                            <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" />
-                                        </flux:modal.trigger>
-                                    </flux:tooltip>
-                                </div>
-                            </flux:table.cell>
-                        </flux:table.row>
+                    <flux:table.row :key="$user->id">
+                        <flux:table.cell>{{ $user->first_name }}</flux:table.cell>
+                        <flux:table.cell align="end">
+                            <div class="flex justify-end gap-2">
+                                <flux:tooltip content="{{ __('general.edit') }}">
+                                    <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user.edit.assign-data', { user: {{ $user->id }} })" />
+                                </flux:tooltip>
+                                <flux:tooltip content="{{ __('general.delete') }}">
+                                    <flux:modal.trigger name="user.delete.{{ $user->id }}">
+                                        <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" />
+                                    </flux:modal.trigger>
+                                </flux:tooltip>
+                            </div>
+                        </flux:table.cell>
+                    </flux:table.row>
                     @endforeach
                 </flux:table.rows>
             </flux:table>
