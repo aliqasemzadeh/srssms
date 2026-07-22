@@ -15,12 +15,27 @@ class SocialSettingsForm extends Form
 
     public ?string $x_twitter = null;
 
+    public ?string $eitaa = null;
+
+    public ?string $bale = null;
+
+    public ?string $rubika = null;
+
+    public ?string $soroush = null;
+
+    public ?string $aparat = null;
+
     public function setSettings(SocialSettings $settings): void
     {
         $this->telegram = $settings->telegram;
         $this->instagram = $settings->instagram;
         $this->linkedin = $settings->linkedin;
         $this->x_twitter = $settings->x_twitter;
+        $this->eitaa = $settings->eitaa;
+        $this->bale = $settings->bale;
+        $this->rubika = $settings->rubika;
+        $this->soroush = $settings->soroush;
+        $this->aparat = $settings->aparat;
     }
 
     public function rules(): array
@@ -30,6 +45,11 @@ class SocialSettingsForm extends Form
             'instagram' => ['nullable', 'url', 'max:255'],
             'linkedin' => ['nullable', 'url', 'max:255'],
             'x_twitter' => ['nullable', 'url', 'max:255'],
+            'eitaa' => ['nullable', 'url', 'max:255'],
+            'bale' => ['nullable', 'url', 'max:255'],
+            'rubika' => ['nullable', 'url', 'max:255'],
+            'soroush' => ['nullable', 'url', 'max:255'],
+            'aparat' => ['nullable', 'url', 'max:255'],
         ];
     }
 
@@ -43,6 +63,11 @@ class SocialSettingsForm extends Form
         $settings->instagram = $this->instagram ?: null;
         $settings->linkedin = $this->linkedin ?: null;
         $settings->x_twitter = $this->x_twitter ?: null;
+        $settings->eitaa = $this->eitaa ?: null;
+        $settings->bale = $this->bale ?: null;
+        $settings->rubika = $this->rubika ?: null;
+        $settings->soroush = $this->soroush ?: null;
+        $settings->aparat = $this->aparat ?: null;
 
         $settings->save();
     }

@@ -3,8 +3,10 @@
 namespace App\Livewire\Forms\Auth;
 
 use App\Models\User;
+use App\Settings\SecuritySettings;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Form;
 
 class RegisterForm extends Form
@@ -30,7 +32,13 @@ class RegisterForm extends Form
             'last_name' => ['required', 'string', 'max:255'],
             'mobile' => ['required', 'string', 'ir_mobile', Rule::unique(User::class)],
             'email' => ['nullable', 'email', 'max:255', Rule::unique(User::class)],
-            'username' => ['nullable', 'string', 'max:255', Rule::unique(User::class)],
+            'username' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique(User::class),
+                Rule::notIn(app(SecuritySettings::class)->banned_usernames),
+            ],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
     }
@@ -49,6 +57,12 @@ class RegisterForm extends Form
 
     public function register(): User
     {
+        if (! app(SecuritySettings::class)->is_registration_enabled) {
+            throw ValidationException::withMessages([
+                'form.mobile' => __('general.registration_disabled'),
+            ]);
+        }
+
         $validated = $this->validate();
 
         $user = User::create([

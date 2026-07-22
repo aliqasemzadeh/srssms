@@ -54,7 +54,7 @@ new class extends Component
 
         <form wire:submit="save" class="space-y-6">
             <div class="grid gap-6 md:grid-cols-2">
-                <flux:input wire:model="form.site_name" label="{{ __('general.site_name') }}" />
+                <flux:input wire:model="form.site_name" label="{{ __('general.site_name') }}" description="{{ __('general.site_name_hint') }}" />
                 <flux:input wire:model="form.site_short_name" label="{{ __('general.site_short_name') }}" description="{{ __('general.site_short_name_hint') }}" />
             </div>
 
@@ -64,6 +64,7 @@ new class extends Component
                 {{-- Logo --}}
                 <flux:field>
                     <flux:label>{{ __('general.site_logo') }}</flux:label>
+                    <flux:description>{{ __('general.site_logo_hint') }}</flux:description>
 
                     @if ($form->current_logo)
                         <div class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
@@ -83,6 +84,7 @@ new class extends Component
                 {{-- Favicon --}}
                 <flux:field>
                     <flux:label>{{ __('general.site_favicon') }}</flux:label>
+                    <flux:description>{{ __('general.site_favicon_hint') }}</flux:description>
 
                     @if ($form->current_favicon)
                         <div class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">

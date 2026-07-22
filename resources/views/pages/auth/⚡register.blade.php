@@ -1,12 +1,20 @@
 <?php
 
 use App\Livewire\Forms\Auth\RegisterForm;
+use App\Settings\SecuritySettings;
 use Flux\Flux;
 use Livewire\Component;
 
 new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 {
     public RegisterForm $form;
+
+    public function mount(SecuritySettings $settings)
+    {
+        if (! $settings->is_registration_enabled) {
+            return redirect()->route('login');
+        }
+    }
 
     public function register()
     {

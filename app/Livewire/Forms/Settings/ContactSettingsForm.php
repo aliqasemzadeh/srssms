@@ -9,6 +9,10 @@ class ContactSettingsForm extends Form
 {
     public ?string $address = null;
 
+    public ?string $postal_code = null;
+
+    public ?string $fax = null;
+
     /** @var array<int, string> */
     public array $phone_numbers = [];
 
@@ -17,6 +21,8 @@ class ContactSettingsForm extends Form
     public function setSettings(ContactSettings $settings): void
     {
         $this->address = $settings->address;
+        $this->postal_code = $settings->postal_code;
+        $this->fax = $settings->fax;
         $this->phone_numbers = $settings->phone_numbers;
         $this->support_email = $settings->support_email;
     }
@@ -25,6 +31,8 @@ class ContactSettingsForm extends Form
     {
         return [
             'address' => ['nullable', 'string', 'max:500'],
+            'postal_code' => ['nullable', 'ir_postal_code'],
+            'fax' => ['nullable', 'string', 'max:20'],
             'phone_numbers' => ['array'],
             'phone_numbers.*' => ['string', 'max:20'],
             'support_email' => ['nullable', 'email', 'max:255'],
@@ -38,6 +46,8 @@ class ContactSettingsForm extends Form
         $settings = app(ContactSettings::class);
 
         $settings->address = $this->address ?: null;
+        $settings->postal_code = $this->postal_code ?: null;
+        $settings->fax = $this->fax ?: null;
         $settings->phone_numbers = array_values($this->phone_numbers);
         $settings->support_email = $this->support_email ?: null;
 

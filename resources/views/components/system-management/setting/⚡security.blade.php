@@ -112,6 +112,7 @@ new class extends Component
             {{-- Banned usernames (tag input) --}}
             <flux:field>
                 <flux:label>{{ __('general.banned_usernames') }}</flux:label>
+                <flux:description>{{ __('general.banned_usernames_hint') }}</flux:description>
                 <flux:input.group>
                     <flux:input wire:model="newBannedUsername" icon="ban" placeholder="{{ __('general.type_and_press_enter') }}" wire:keydown.enter.prevent="addBannedUsername" />
                     <flux:button type="button" icon="plus" wire:click="addBannedUsername">{{ __('general.add') }}</flux:button>
@@ -130,25 +131,26 @@ new class extends Component
                 </div>
             </flux:field>
 
-            {{-- Banned IPs (tag input) --}}
+            {{-- Banned IPs (tag input, fully LTR with the add button at the end) --}}
             <flux:field>
                 <flux:label>{{ __('general.banned_ips') }}</flux:label>
-                <flux:input.group>
-                    <div class="flex-1" dir="ltr">
+                <flux:description>{{ __('general.banned_ips_hint') }}</flux:description>
+                <div dir="ltr">
+                    <flux:input.group>
                         <flux:input wire:model="newBannedIp" icon="ban" placeholder="192.168.1.1" class="font-mono" wire:keydown.enter.prevent="addBannedIp" />
-                    </div>
-                    <flux:button type="button" icon="plus" wire:click="addBannedIp">{{ __('general.add') }}</flux:button>
-                </flux:input.group>
+                        <flux:button type="button" icon="plus" wire:click="addBannedIp">{{ __('general.add') }}</flux:button>
+                    </flux:input.group>
+                </div>
                 <flux:error name="newBannedIp" />
 
-                <div class="mt-2 flex flex-wrap gap-2">
+                <div class="mt-2 flex flex-wrap justify-start gap-2" dir="ltr">
                     @forelse ($form->banned_ips as $index => $ip)
                         <flux:badge color="rose" wire:key="banned-ip-{{ $index }}-{{ $ip }}">
-                            <span dir="ltr" class="font-mono">{{ $ip }}</span>
+                            <span class="font-mono">{{ $ip }}</span>
                             <flux:badge.close wire:click="removeBannedIp({{ $index }})" />
                         </flux:badge>
                     @empty
-                        <flux:text size="sm">{{ __('general.no_items_added') }}</flux:text>
+                        <flux:text size="sm" dir="rtl">{{ __('general.no_items_added') }}</flux:text>
                     @endforelse
                 </div>
             </flux:field>

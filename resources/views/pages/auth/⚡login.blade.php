@@ -74,10 +74,12 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
         </flux:button>
     </form>
 
-    <div class="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
-        {{ __('general.no_account') }}
-        <flux:link href="{{ route('register') }}" wire:navigate class="font-medium">
-            {{ __('general.register') }}
-        </flux:link>
-    </div>
+    @if (app(\App\Settings\SecuritySettings::class)->is_registration_enabled)
+        <div class="mt-4 text-center text-sm text-zinc-500 dark:text-zinc-400">
+            {{ __('general.no_account') }}
+            <flux:link href="{{ route('register') }}" wire:navigate class="font-medium">
+                {{ __('general.register') }}
+            </flux:link>
+        </div>
+    @endif
 </div>

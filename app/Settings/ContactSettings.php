@@ -8,6 +8,10 @@ class ContactSettings extends Settings
 {
     public ?string $address;
 
+    public ?string $postal_code;
+
+    public ?string $fax;
+
     /** @var array<int, string> */
     public array $phone_numbers;
 

@@ -36,38 +36,31 @@ new class extends Component
         </div>
 
         <form wire:submit="save" class="space-y-6">
+            @php
+                $networks = [
+                    'telegram' => ['icon' => 'send', 'placeholder' => 'https://t.me/username'],
+                    'eitaa' => ['icon' => 'message-circle', 'placeholder' => 'https://eitaa.com/username'],
+                    'bale' => ['icon' => 'message-square', 'placeholder' => 'https://ble.ir/username'],
+                    'rubika' => ['icon' => 'smartphone', 'placeholder' => 'https://rubika.ir/username'],
+                    'soroush' => ['icon' => 'messages-square', 'placeholder' => 'https://splus.ir/username'],
+                    'aparat' => ['icon' => 'video', 'placeholder' => 'https://aparat.com/username'],
+                    'instagram' => ['icon' => 'camera', 'placeholder' => 'https://instagram.com/username'],
+                    'linkedin' => ['icon' => 'briefcase', 'placeholder' => 'https://linkedin.com/company/name'],
+                    'x_twitter' => ['icon' => 'at-sign', 'placeholder' => 'https://x.com/username'],
+                ];
+            @endphp
+
             <div class="grid gap-6 md:grid-cols-2">
-                <flux:field>
-                    <flux:label>{{ __('general.telegram') }}</flux:label>
-                    <div dir="ltr">
-                        <flux:input wire:model="form.telegram" icon="send" placeholder="https://t.me/username" clearable />
-                    </div>
-                    <flux:error name="form.telegram" />
-                </flux:field>
-
-                <flux:field>
-                    <flux:label>{{ __('general.instagram') }}</flux:label>
-                    <div dir="ltr">
-                        <flux:input wire:model="form.instagram" icon="camera" placeholder="https://instagram.com/username" clearable />
-                    </div>
-                    <flux:error name="form.instagram" />
-                </flux:field>
-
-                <flux:field>
-                    <flux:label>{{ __('general.linkedin') }}</flux:label>
-                    <div dir="ltr">
-                        <flux:input wire:model="form.linkedin" icon="briefcase" placeholder="https://linkedin.com/company/name" clearable />
-                    </div>
-                    <flux:error name="form.linkedin" />
-                </flux:field>
-
-                <flux:field>
-                    <flux:label>{{ __('general.x_twitter') }}</flux:label>
-                    <div dir="ltr">
-                        <flux:input wire:model="form.x_twitter" icon="at-sign" placeholder="https://x.com/username" clearable />
-                    </div>
-                    <flux:error name="form.x_twitter" />
-                </flux:field>
+                @foreach ($networks as $network => $meta)
+                    <flux:field>
+                        <flux:label>{{ __('general.' . $network) }}</flux:label>
+                        <flux:description>{{ __('general.social_link_hint', ['network' => __('general.' . $network)]) }}</flux:description>
+                        <div dir="ltr">
+                            <flux:input wire:model="form.{{ $network }}" icon="{{ $meta['icon'] }}" placeholder="{{ $meta['placeholder'] }}" clearable />
+                        </div>
+                        <flux:error name="form.{{ $network }}" />
+                    </flux:field>
+                @endforeach
             </div>
 
             <flux:button type="submit" variant="primary" color="teal" icon="save" class="w-full">

@@ -65,13 +65,34 @@ new class extends Component
         </div>
 
         <form wire:submit="save" class="space-y-6">
-            <flux:textarea wire:model="form.address" label="{{ __('general.address') }}" rows="2" />
+            <flux:textarea wire:model="form.address" label="{{ __('general.address') }}" description="{{ __('general.address_hint') }}" rows="2" />
 
-            <flux:input wire:model="form.support_email" type="email" icon="mail" label="{{ __('general.support_email') }}" />
+            <div class="grid gap-6 md:grid-cols-2">
+                <flux:field>
+                    <flux:label>{{ __('general.postal_code') }}</flux:label>
+                    <flux:description>{{ __('general.postal_code_hint') }}</flux:description>
+                    <div dir="ltr">
+                        <flux:input wire:model="form.postal_code" icon="map-pin" placeholder="1234567890" class="font-mono" mask="9999999999" clearable />
+                    </div>
+                    <flux:error name="form.postal_code" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:label>{{ __('general.fax') }}</flux:label>
+                    <flux:description>{{ __('general.fax_hint') }}</flux:description>
+                    <div dir="ltr">
+                        <flux:input wire:model="form.fax" icon="printer" placeholder="021-12345678" class="font-mono" clearable />
+                    </div>
+                    <flux:error name="form.fax" />
+                </flux:field>
+            </div>
+
+            <flux:input wire:model="form.support_email" type="email" icon="mail" label="{{ __('general.support_email') }}" description="{{ __('general.support_email_hint') }}" />
 
             {{-- Phone numbers (tag input) --}}
             <flux:field>
                 <flux:label>{{ __('general.phone_numbers') }}</flux:label>
+                <flux:description>{{ __('general.phone_numbers_hint') }}</flux:description>
                 <flux:input.group>
                     <div class="flex-1" dir="ltr">
                         <flux:input wire:model="newPhoneNumber" icon="phone" placeholder="021-12345678" class="font-mono" wire:keydown.enter.prevent="addPhoneNumber" />

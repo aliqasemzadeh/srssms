@@ -63,7 +63,7 @@ new class extends Component
 
             <flux:input wire:model="form.secret_token" type="password" viewable label="{{ __('general.secret_token') }}" description="{{ __('general.secret_token_hint') }}" />
 
-            <flux:textarea wire:model="form.message" label="{{ __('general.maintenance_message') }}" rows="3" />
+            <flux:textarea wire:model="form.message" label="{{ __('general.maintenance_message') }}" description="{{ __('general.maintenance_message_hint') }}" rows="3" />
 
             <flux:button type="submit" variant="primary" color="teal" icon="save" class="w-full">
                 {{ __('general.save') }}

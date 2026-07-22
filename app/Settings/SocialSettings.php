@@ -14,6 +14,16 @@ class SocialSettings extends Settings
 
     public ?string $x_twitter;
 
+    public ?string $eitaa;
+
+    public ?string $bale;
+
+    public ?string $rubika;
+
+    public ?string $soroush;
+
+    public ?string $aparat;
+
     public static function group(): string
     {
         return 'social';
