@@ -26,29 +26,26 @@ new class extends Component
 
         Flux::modals()->close();
 
-        Flux::toast(__('general.user_updated'));
+        Flux::toast(__('app.user_updated'));
     }
 };
 ?>
 
 <flux:modal name="user-edit-modal" flyout position="right" class="space-y-6">
     <div>
-        <flux:heading size="lg">{{ __('general.edit_user') }}</flux:heading>
+        <flux:heading size="lg">{{ __('app.edit_user') }}</flux:heading>
     </div>
 
     <form wire:submit="save" class="space-y-6">
-        <flux:input wire:model="form.first_name" label="{{ __('general.first_name') }}" />
-        <flux:input wire:model="form.last_name" label="{{ __('general.last_name') }}" />
-        <flux:input wire:model="form.mobile" label="{{ __('general.mobile') }}" />
-        <flux:input wire:model="form.email" type="email" label="{{ __('general.email') }}" />
-        <flux:input wire:model="form.username" label="{{ __('general.username') }}" />
-        <flux:input wire:model="form.password" type="password" label="{{ __('general.password') }}" placeholder="Leave blank to keep current password" />
+        <flux:input wire:model="form.first_name" label="{{ __('app.first_name') }}" />
+        <flux:input wire:model="form.last_name" label="{{ __('app.last_name') }}" />
+        <flux:input wire:model="form.mobile" label="{{ __('app.mobile') }}" />
+        <flux:input wire:model="form.email" type="email" label="{{ __('app.email') }}" />
+        <flux:input wire:model="form.username" label="{{ __('app.username') }}" />
+        <flux:input wire:model="form.password" type="password" label="{{ __('app.password') }}" placeholder="{{ __('app.password_keep_blank') }}" />
 
-        <div class="flex">
-            <flux:spacer />
-            <flux:button type="submit" variant="primary" color="teal" class="w-full">
-                {{ __('general.save') }}
-            </flux:button>
-        </div>
+        <flux:button type="submit" variant="primary" color="orange" class="w-full">
+            {{ __('app.save') }}
+        </flux:button>
     </form>
 </flux:modal>

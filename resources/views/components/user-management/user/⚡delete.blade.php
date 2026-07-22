@@ -19,35 +19,38 @@ new class extends Component
 
     public function delete(): void
     {
+        if (! $this->user) {
+            return;
+        }
+
         $this->user->delete();
+
+        $this->user = null;
 
         $this->dispatch('panels.administrator.user-management.user.index.refresh');
 
         Flux::modals()->close();
 
-        Flux::toast(__('general.user_deleted'));
+        Flux::toast(__('app.user_deleted'));
     }
 };
 ?>
 
-<flux:modal name="user-delete-modal" class="min-w-[22rem] space-y-6">
+<flux:modal name="user-delete-modal" flyout position="right" class="space-y-6">
     <div>
-        <flux:heading size="lg">{{ __('general.delete_user') }}</flux:heading>
+        <flux:heading size="lg">{{ __('app.delete_user') }}</flux:heading>
         <flux:subheading>
-            {{ __('general.are_you_sure') }}
+            {{ __('app.are_you_sure') }}
         </flux:subheading>
     </div>
 
-    @if($user)
+    @if ($user)
         <flux:callout icon="user" variant="secondary" inline>
             {{ $user->full_name }} ({{ $user->username }})
         </flux:callout>
     @endif
 
-    <div class="flex">
-        <flux:spacer />
-        <flux:button wire:click="delete" variant="primary" color="red" class="w-full">
-            {{ __('general.delete') }}
-        </flux:button>
-    </div>
+    <flux:button wire:click="delete" variant="primary" color="red" class="w-full">
+        {{ __('app.delete') }}
+    </flux:button>
 </flux:modal>

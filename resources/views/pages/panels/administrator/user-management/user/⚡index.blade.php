@@ -51,11 +51,9 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.users') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <flux:modal.trigger name="user-create-modal">
-                <flux:button variant="primary" color="teal" icon="plus">
-                    {{ __('general.create_user') }}
-                </flux:button>
-            </flux:modal.trigger>
+            <flux:button variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.create.assign-data')">
+                {{ __('app.create_user') }}
+            </flux:button>
         </div>
 
         <flux:card>
@@ -98,7 +96,7 @@ new class extends Component
         </flux:card>
     </div>
 
-    <livewire:user-management.user.create key="user-create" />
-    <livewire:user-management.user.edit key="user-edit" />
-    <livewire:user-management.user.delete key="user-delete" />
+    <livewire:user-management.user.create :key="'user-create'" />
+    <livewire:user-management.user.edit :key="'user-edit'" />
+    <livewire:user-management.user.delete :key="'user-delete'" />
 </div>

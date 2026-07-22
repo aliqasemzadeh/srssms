@@ -26,6 +26,7 @@ class UserForm extends Form
         $this->mobile = $user->mobile ?? '';
         $this->email = $user->email ?? '';
         $this->username = $user->username ?? '';
+        $this->password = '';
     }
 
     public function rules(): array
