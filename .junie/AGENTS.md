@@ -1,3 +1,8 @@
+---
+description: 
+alwaysApply: true
+---
+
 # Project Role & Context
 You are an expert full-stack developer working on a Laravel project. Your task is to generate code that strictly adheres to the following project guidelines, tech stack, and architectural rules.
 
@@ -24,6 +29,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 *   **Computed Properties:** Use `#[Computed]` attributes to load data (https://livewire.laravel.com/docs/4.x/attribute-computed).
 *   **Forms:** For model forms, use Livewire Form Objects (https://livewire.laravel.com/docs/4.x/forms). Extract them using `php artisan livewire:form ModelForm`. Use a `setModel` method to populate data.
 *   **Live Binding:** NEVER use `wire:model.live` in forms unless explicitly requested.
+*   **Navigation:** Always use `wire:navigate` on internal links (`<a>` tags or Flux components with `href`) to ensure SPA-like page transitions without full page reloads.
 *   **Events:** Never use `protected $listeners`. Use `Livewire\Attributes\On;` and `$this->dispatch('event-name');`.
 *   **Event Naming:** Use full explicit names (e.g., `panels.administrator.learning-management.school.edit.assign-data`).
 *   **Notifications:** After any Livewire action, trigger a toast notification: `Flux::toast('message');`.
@@ -36,7 +42,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
 ### Tables & Lists
 *   **Component:** Use `<flux:table>` for lists. Implement pagination using `->paginate(config('general.per_page'))`.
-*   **Searchable Fields:** Add search inputs at the top of `<flux:table.columns>`. Use `<flux:input wire:model.live.debounce.300ms="search" icon="search" ... />`.
+*   **Searchable Fields:** Add search inputs at the top of `<flux:table.columns>`. Use `<flux:input wire:model.live.debounce.300ms="search" icon="search" clearable ... />`.
 
 ### Modals
 *   **Wrapper:** For modal components, do NOT add an outer `<div>`. Just use `<flux:modal>`.
@@ -46,7 +52,12 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 *   **Control via Livewire:** Open/close modals programmatically using `Flux::modal('confirm')->show();` or `Flux::modals()->close();`.
 
 ### Forms & Inputs
-*   **Passwords:** Always use the `viewable` attribute for password fields so the user can toggle visibility: `<flux:input type="password" viewable />`.
+*   **Input Features (Clearable, Viewable, Copyable):** Use Flux UI's built-in input modifiers when appropriate:
+    *   For search fields or optional inputs: `<flux:input placeholder="Search..." clearable />`
+    *   For passwords or secret tokens: `<flux:input type="password" viewable />`
+    *   For API keys or read-only generated tokens: `<flux:input icon="key" readonly copyable />`
+*   **Prices & Masking:** Use Flux UI input masking for prices, currencies, or formatted numbers (https://fluxui.dev/components/input#input-masking).
+*   **File Uploads:** Always use Flux UI's file upload component (https://fluxui.dev/components/file-upload). **Crucial constraint:** When placing a file upload inside a modal, you MUST use the **inline layout** (https://fluxui.dev/components/file-upload#inline-layout). Only use the standard/block file upload layout if the upload field is placed directly on a full Livewire page (outside of any modals).
 *   **Selects:** Use `<flux:select searchable>` for standard searchable dropdowns. Use the backend-search component for database options (https://fluxui.dev/components/select#backend-search).
 *   **Pillbox:** Use `https://fluxui.dev/components/pillbox#searchable` for multi-select/search.
 *   **Numbers:** Use `<flux:input type="number" />`.
@@ -83,7 +94,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
         <flux:card>
             <div class="mb-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." />
+                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
             </div>
 
             <flux:table :paginate="$this->users">
@@ -120,7 +131,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 ```
 
 ## 8. UI & CRUD Interaction Workflow
-*   **Create & Edit (Flyout Modals):** Never redirect to separate routes/pages for creating or editing records. Always implement `Create` and `Edit` forms inside a FluxUI Flyout Modal (`<flux:modal flyout position="right">`).
+*   **Create & Edit (Flyout Modals):** Never redirect to separate routes/pages for creating or editing records. Always implement `Create` and `Edit` forms inside a FluxUI Flyout Modal (`<flux:modal flyout position="right">`). 
 *   **Delete Operations (Standard Modal):** Do not execute deletions instantly. Complex delete operations must trigger a **Standard Center-Aligned Modal** (`<flux:modal>`). This delete modal MUST explicitly include two buttons: a "Cancel" button to close the modal without taking action, and a "Confirm" button (color="red") to execute the `delete()` method.
 *   **Event-Driven Table Refresh:** The main data table must refresh automatically after any successful Create, Edit, or Delete action without a full page reload.
     *   To do this, dispatch a context-specific Livewire event targeting the exact table page. For example: `$this->dispatch('panels.administrator.user.index.table');`.
