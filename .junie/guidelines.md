@@ -41,10 +41,11 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
 ### Modals
 *   **Wrapper:** For modal components, do NOT add an outer `<div>`. Just use `<flux:modal>`.
+*   **Naming Convention:** Modal names MUST use dot notation representing their context (e.g., `name="user-management.user.create"`), NOT hyphens.
 *   **Styling:** Always use flyout right positioning for forms: `<flux:modal flyout position="right">`.
-*   **Triggers:** Use `<flux:modal.trigger name="modal-name">` to open modals (especially if passing data).
+*   **Triggers:** Use `<flux:modal.trigger name="module.entity.action">` to open modals (especially if passing data).
 *   **Buttons:** In Create/Edit modals, no "Cancel" buttons are needed; use full-width submit buttons (`w-full`). **EXCEPTION:** For Delete Confirmation modals, you MUST provide two buttons: a "Cancel" button (e.g., `variant="ghost"` or `color="zinc"`) to close the modal, and a "Confirm" button (e.g., `color="red"`) to execute the deletion.
-*   **Control via Livewire:** Open/close modals programmatically using `Flux::modal('confirm')->show();` or `Flux::modals()->close();`.
+*   **Control via Livewire:** Open/close modals programmatically using `Flux::modal('module.entity.action')->show();` or `Flux::modals()->close();`.
 
 ### Forms & Inputs
 *   **Input Features (Clearable, Viewable, Copyable):** Use Flux UI's built-in input modifiers when appropriate:
@@ -80,7 +81,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <flux:heading size="xl">{{ __('general.users') }}</flux:heading>
-            <flux:modal.trigger name="user-create-modal">
+            <flux:modal.trigger name="user.create">
                 <flux:button variant="primary" color="teal" icon="plus">
                     {{ __('general.create_user') }}
                 </flux:button>
@@ -108,7 +109,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user.edit.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
                                     <flux:tooltip content="{{ __('general.delete') }}">
-                                        <flux:modal.trigger name="delete-modal-{{ $user->id }}">
+                                        <flux:modal.trigger name="user.delete.{{ $user->id }}">
                                             <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" />
                                         </flux:modal.trigger>
                                     </flux:tooltip>
