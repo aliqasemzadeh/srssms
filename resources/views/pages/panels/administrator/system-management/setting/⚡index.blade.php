@@ -1,10 +1,12 @@
 <?php
 
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 new class extends Component
 {
-    //
+    #[Url]
+    public string $tab = 'general';
 };
 ?>
 
@@ -20,12 +22,34 @@ new class extends Component
             </flux:breadcrumbs>
         </div>
 
-        <flux:card>
-            <div class="flex flex-col items-center justify-center gap-3 py-12 text-zinc-400">
-                <flux:icon.settings class="size-10" />
-                <flux:heading size="lg">{{ __('general.settings') }}</flux:heading>
-                <flux:subheading>{{ __('general.coming_soon') }}</flux:subheading>
-            </div>
-        </flux:card>
+        <flux:tab.group>
+            <flux:tabs wire:model.live="tab" variant="segmented" scrollable>
+                <flux:tab name="general" icon="settings">{{ __('general.general_settings') }}</flux:tab>
+                <flux:tab name="maintenance" icon="construction">{{ __('general.maintenance_settings') }}</flux:tab>
+                <flux:tab name="security" icon="shield">{{ __('general.security_settings') }}</flux:tab>
+                <flux:tab name="contact" icon="phone">{{ __('general.contact_settings') }}</flux:tab>
+                <flux:tab name="social" icon="share-2">{{ __('general.social_settings') }}</flux:tab>
+            </flux:tabs>
+
+            <flux:tab.panel name="general">
+                <livewire:system-management.setting.general :key="'setting-general'" />
+            </flux:tab.panel>
+
+            <flux:tab.panel name="maintenance">
+                <livewire:system-management.setting.maintenance :key="'setting-maintenance'" />
+            </flux:tab.panel>
+
+            <flux:tab.panel name="security">
+                <livewire:system-management.setting.security :key="'setting-security'" />
+            </flux:tab.panel>
+
+            <flux:tab.panel name="contact">
+                <livewire:system-management.setting.contact :key="'setting-contact'" />
+            </flux:tab.panel>
+
+            <flux:tab.panel name="social">
+                <livewire:system-management.setting.social :key="'setting-social'" />
+            </flux:tab.panel>
+        </flux:tab.group>
     </div>
 </div>
