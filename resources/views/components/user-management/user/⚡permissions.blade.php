@@ -40,6 +40,10 @@ new class extends Component
     #[Computed]
     public function allPermissions(): Collection
     {
+        if (! $this->user) {
+            return collect();
+        }
+
         return Permission::query()->orderBy('name')->get();
     }
 

@@ -37,6 +37,10 @@ new class extends Component
     #[Computed]
     public function allRoles(): Collection
     {
+        if (! $this->user) {
+            return collect();
+        }
+
         return Role::query()->orderBy('name')->get();
     }
 
