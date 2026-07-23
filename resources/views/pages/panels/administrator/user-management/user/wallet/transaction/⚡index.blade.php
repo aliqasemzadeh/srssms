@@ -60,7 +60,7 @@ new class extends Component
 
         return Transaction::query()
             ->where('wallet_id', $this->wallet->id)
-            ->with(['reference'])
+            ->with(['reference', 'creator'])
             ->when($this->search, function ($query) {
                 $query->where('description', 'like', "%{$this->search}%");
             })
@@ -338,6 +338,7 @@ new class extends Component
                     <flux:table.column sortable :sorted="$sortBy === 'balance_after'" :direction="$sortDirection" wire:click="sort('balance_after')">{{ __('general.balance_after') }}</flux:table.column>
                     <flux:table.column>{{ __('general.description') }}</flux:table.column>
                     <flux:table.column>{{ __('general.reference') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.creator') }}</flux:table.column>
                     <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">{{ __('general.created_at') }}</flux:table.column>
                     <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
                 </flux:table.columns>
@@ -366,11 +367,18 @@ new class extends Component
                             <flux:table.cell>
                                 @if ($transaction->reference instanceof \App\Models\User)
                                     {{ $transaction->reference->full_name }}
+                                @elseif ($transaction->reference instanceof \App\Models\Finance\Wallet)
+                                    #{{ $transaction->reference->id }}
+                                @elseif ($transaction->reference instanceof \App\Models\Finance\Currency)
+                                    <span dir="ltr">{{ $transaction->reference->symbol }}</span>
                                 @elseif ($transaction->reference)
                                     {{ class_basename($transaction->reference_type) }} #{{ $transaction->reference_id }}
                                 @else
                                     —
                                 @endif
+                            </flux:table.cell>
+                            <flux:table.cell>
+                                {{ $transaction->creator?->full_name ?? '—' }}
                             </flux:table.cell>
                             <flux:table.cell>{{ $transaction->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
@@ -386,7 +394,7 @@ new class extends Component
                         </flux:table.row>
                     @empty
                         <flux:table.row>
-                            <flux:table.cell colspan="7">
+                            <flux:table.cell colspan="8">
                                 <div class="flex flex-col items-center justify-center gap-2 py-10 text-center">
                                     <flux:icon.arrow-left-right variant="outline" class="size-8 text-zinc-400" />
                                     <flux:text>{{ __('general.no_results_found') }}</flux:text>

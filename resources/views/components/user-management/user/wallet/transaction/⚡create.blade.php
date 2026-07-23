@@ -4,6 +4,8 @@ use App\Livewire\Forms\TransactionForm;
 use App\Models\Finance\Wallet;
 use App\Models\User;
 use Flux\Flux;
+use Illuminate\Support\Collection;
+use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -14,6 +16,8 @@ new class extends Component
     public Wallet $wallet;
 
     public TransactionForm $form;
+
+    public string $referenceSearch = '';
 
     public function mount(User $user, Wallet $wallet): void
     {
@@ -33,9 +37,35 @@ new class extends Component
             'currency' => fn ($query) => $query->withTrashed(),
         ]);
         $this->form->setWallet($this->wallet);
+        $this->referenceSearch = '';
         $this->resetValidation();
+        unset($this->referenceOptions);
 
         Flux::modal('user-management.user.wallet.transaction.create')->show();
+    }
+
+    public function updated(string $property): void
+    {
+        if ($property === 'form.reference_type') {
+            $this->form->reference_id = '';
+            $this->referenceSearch = '';
+            $this->resetValidation('form.reference_id');
+            unset($this->referenceOptions);
+        }
+
+        if ($property === 'referenceSearch') {
+            unset($this->referenceOptions);
+        }
+    }
+
+    #[Computed]
+    public function referenceOptions(): Collection
+    {
+        return $this->form->referenceOptions($this->referenceSearch)
+            ->map(fn ($model) => (object) [
+                'id' => $model->getKey(),
+                'label' => $this->form->referenceOptionLabel($model),
+            ]);
     }
 
     public function save(): void
@@ -52,6 +82,8 @@ new class extends Component
         ]);
 
         $this->form->setWallet($this->wallet);
+        $this->referenceSearch = '';
+        unset($this->referenceOptions);
 
         $this->dispatch('panels.administrator.user-management.user.wallet.transaction.index.refresh');
 
@@ -63,9 +95,9 @@ new class extends Component
 ?>
 
 @php
+    $currency = $wallet->currency;
     $decimals = $form->decimals();
-    $step = $form->amountStep();
-    $currencySymbol = $wallet->currency?->symbol ?? '';
+    $currencySymbol = $currency?->symbol ?? '';
 @endphp
 
 <flux:modal name="user-management.user.wallet.transaction.create" flyout position="right" class="space-y-6">
@@ -82,17 +114,19 @@ new class extends Component
             <flux:select.option value="debit">{{ __('general.transaction_type_debit') }}</flux:select.option>
         </flux:select>
 
-        <flux:input
-            wire:model="form.amount"
-            type="number"
-            min="0"
-            step="{{ $step }}"
-            label="{{ __('general.amount') }}"
-            description="{{ __('general.amount_decimals_hint', ['decimals' => $decimals]) }}"
-            placeholder="0"
-            dir="ltr"
-            icon="coins"
-        />
+        <flux:field>
+            <flux:label>{{ __('general.amount') }}</flux:label>
+            <flux:description>{{ __('general.amount_decimals_hint', ['decimals' => $decimals]) }}</flux:description>
+
+            <x-finance.money-input
+                wire:model="form.amount"
+                :decimals="$decimals"
+                :currency="$currency"
+                :symbol="$currencySymbol"
+            />
+
+            <flux:error name="form.amount" />
+        </flux:field>
 
         <flux:textarea
             wire:model="form.description"
@@ -100,6 +134,11 @@ new class extends Component
             description="{{ __('general.transaction_description_hint') }}"
             placeholder="{{ __('general.description') }}..."
             rows="3"
+        />
+
+        <x-finance.transaction-reference-fields
+            :reference-type="$form->reference_type"
+            :reference-options="$this->referenceOptions"
         />
 
         <flux:button type="submit" variant="primary" color="teal" class="w-full">

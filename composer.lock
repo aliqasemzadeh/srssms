@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/aliqasemzadeh/fluxui-persian-date-picker.git",
-                "reference": "cdf26418917e2affde711250913f77876514446a"
+                "reference": "91a68b665b34f6295e1767f94eed12dd7676813e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aliqasemzadeh/fluxui-persian-date-picker/zipball/cdf26418917e2affde711250913f77876514446a",
-                "reference": "cdf26418917e2affde711250913f77876514446a",
+                "url": "https://api.github.com/repos/aliqasemzadeh/fluxui-persian-date-picker/zipball/91a68b665b34f6295e1767f94eed12dd7676813e",
+                "reference": "91a68b665b34f6295e1767f94eed12dd7676813e",
                 "shasum": ""
             },
             "require": {
@@ -66,7 +66,7 @@
                 "issues": "https://github.com/aliqasemzadeh/fluxui-persian-date-picker/issues",
                 "source": "https://github.com/aliqasemzadeh/fluxui-persian-date-picker/tree/main"
             },
-            "time": "2026-04-25T08:17:38+00:00"
+            "time": "2026-07-23T08:59:58+00:00"
         },
         {
             "name": "archtechx/enums",

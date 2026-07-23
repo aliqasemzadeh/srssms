@@ -1,10 +1,11 @@
 <?php
 
-use App\Livewire\Forms\TransactionForm;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
 use App\Models\User;
 use Flux\Flux;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -13,8 +14,6 @@ new class extends Component
     public User $user;
 
     public Wallet $wallet;
-
-    public TransactionForm $form;
 
     public ?Transaction $transaction = null;
 
@@ -26,7 +25,6 @@ new class extends Component
         $this->wallet = $wallet->load([
             'currency' => fn ($query) => $query->withTrashed(),
         ]);
-        $this->form->setWallet($this->wallet);
     }
 
     #[On('panels.administrator.user-management.user.wallet.transaction.delete.assign-data')]
@@ -36,18 +34,46 @@ new class extends Component
             ->where('wallet_id', $this->wallet->id)
             ->findOrFail($transaction);
 
-        $this->form->setModel($this->transaction);
-
         Flux::modal('user-management.user.wallet.transaction.delete')->show();
     }
 
-    public function delete(): void
+    public function confirmDelete(): void
     {
         if (! $this->transaction) {
             return;
         }
 
-        $this->form->delete();
+        try {
+            DB::transaction(function () {
+                $wallet = Wallet::query()->lockForUpdate()->findOrFail($this->wallet->id);
+                $transaction = Transaction::query()
+                    ->where('wallet_id', $wallet->id)
+                    ->lockForUpdate()
+                    ->findOrFail($this->transaction->id);
+
+                if ($transaction->type === Transaction::TYPE_CREDIT) {
+                    $wallet->balance = bcsub((string) $wallet->balance, (string) $transaction->amount, 8);
+                } else {
+                    $wallet->balance = bcadd((string) $wallet->balance, (string) $transaction->amount, 8);
+                }
+
+                if (bccomp((string) $wallet->balance, (string) $wallet->locked_balance, 8) < 0) {
+                    throw ValidationException::withMessages([
+                        'transaction' => __('general.transaction_delete_insufficient_balance'),
+                    ]);
+                }
+
+                $wallet->save();
+                $transaction->delete();
+            });
+        } catch (ValidationException $exception) {
+            Flux::toast(
+                text: collect($exception->errors())->flatten()->first() ?: __('general.transaction_delete_insufficient_balance'),
+                variant: 'danger',
+            );
+
+            return;
+        }
 
         $this->transaction = null;
 
@@ -99,7 +125,7 @@ new class extends Component
             <flux:button variant="ghost">{{ __('actions.cancel') }}</flux:button>
         </flux:modal.close>
 
-        <flux:button wire:click="delete" variant="danger" icon="trash" icon:variant="outline">
+        <flux:button type="button" wire:click="confirmDelete" variant="danger" icon="trash" icon:variant="outline">
             {{ __('actions.delete') }}
         </flux:button>
     </div>
