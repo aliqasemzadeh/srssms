@@ -45,14 +45,14 @@ new class extends Component
     <x-slot name="title">{{ __('general.permissions') }} - {{ config('app.name') }}</x-slot>
 
     <div class="space-y-6">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-3">
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('panels.administrator.dashboard.index') }}" icon="home" />
                 <flux:breadcrumbs.item>{{ __('general.user_management') }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ __('general.permissions') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <flux:button variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.permission.create.assign-data')">
+            <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.permission.create.assign-data')">
                 {{ __('actions.create') }} {{ __('general.permission') }}
             </flux:button>
         </div>

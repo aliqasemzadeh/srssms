@@ -139,14 +139,30 @@ new class extends Component
     <x-slot name="title">{{ __('general.backups') }} - {{ config('app.name') }}</x-slot>
 
     <div class="space-y-6">
-        <div class="flex items-center justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-3">
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('panels.administrator.dashboard.index') }}" icon="home" />
                 <flux:breadcrumbs.item>{{ __('general.system_management') }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ __('general.backups') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <div class="flex items-center gap-2">
+            <div class="sm:hidden shrink-0">
+                <flux:dropdown align="end">
+                    <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
+
+                    <flux:menu>
+                        <flux:menu.item icon="plus" wire:click="$dispatch('panels.administrator.system-management.backup.create.assign-data')">
+                            {{ __('actions.create') }} {{ __('general.backup') }}
+                        </flux:menu.item>
+                        <flux:menu.separator />
+                        <flux:menu.item variant="danger" icon="trash" wire:click="deleteAll" wire:confirm="{{ __('general.are_you_sure') }}">
+                            {{ __('general.delete_all_backups') }}
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+            </div>
+
+            <div class="hidden items-center gap-2 sm:flex shrink-0">
                 <flux:button variant="primary" color="red" icon="trash" wire:click="deleteAll" wire:confirm="{{ __('general.are_you_sure') }}">
                     {{ __('general.delete_all_backups') }}
                 </flux:button>
