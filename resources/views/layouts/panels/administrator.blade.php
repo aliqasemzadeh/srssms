@@ -23,13 +23,13 @@
                 :expanded="request()->routeIs('panels.administrator.user-management.*')"
             >
                 <div x-show="showItem($el)" x-cloak>
-                    <flux:sidebar.item href="{{ route('panels.administrator.user-management.user.index') }}" :current="request()->routeIs('panels.administrator.user-management.user.index')">{{ __('general.users') }}</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('panels.administrator.user-management.user.index') }}" :current="request()->routeIs('panels.administrator.user-management.user.index')" wire:navigate>{{ __('general.users') }}</flux:sidebar.item>
                 </div>
                 <div x-show="showItem($el)" x-cloak>
-                    <flux:sidebar.item href="{{ route('panels.administrator.user-management.role.index') }}" :current="request()->routeIs('panels.administrator.user-management.role.index')">{{ __('general.roles') }}</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('panels.administrator.user-management.role.index') }}" :current="request()->routeIs('panels.administrator.user-management.role.index')" wire:navigate>{{ __('general.roles') }}</flux:sidebar.item>
                 </div>
                 <div x-show="showItem($el)" x-cloak>
-                    <flux:sidebar.item href="{{ route('panels.administrator.user-management.permission.index') }}" :current="request()->routeIs('panels.administrator.user-management.permission.index')">{{ __('general.permissions') }}</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('panels.administrator.user-management.permission.index') }}" :current="request()->routeIs('panels.administrator.user-management.permission.index')" wire:navigate>{{ __('general.permissions') }}</flux:sidebar.item>
                 </div>
             </flux:sidebar.group>
         </div>
@@ -48,13 +48,13 @@
                 :expanded="request()->routeIs('panels.administrator.system-management.*')"
             >
                 <div x-show="showItem($el)" x-cloak>
-                    <flux:sidebar.item href="{{ route('panels.administrator.system-management.setting.index') }}" :current="request()->routeIs('panels.administrator.system-management.setting.index')">{{ __('general.settings') }}</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('panels.administrator.system-management.setting.index') }}" :current="request()->routeIs('panels.administrator.system-management.setting.index')" wire:navigate>{{ __('general.settings') }}</flux:sidebar.item>
                 </div>
                 <div x-show="showItem($el)" x-cloak>
-                    <flux:sidebar.item href="{{ route('panels.administrator.system-management.function.index') }}" :current="request()->routeIs('panels.administrator.system-management.function.index')">{{ __('general.functions') }}</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('panels.administrator.system-management.function.index') }}" :current="request()->routeIs('panels.administrator.system-management.function.index')" wire:navigate>{{ __('general.functions') }}</flux:sidebar.item>
                 </div>
                 <div x-show="showItem($el)" x-cloak>
-                    <flux:sidebar.item href="{{ route('panels.administrator.system-management.backup.index') }}" :current="request()->routeIs('panels.administrator.system-management.backup.index')">{{ __('general.backups') }}</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('panels.administrator.system-management.backup.index') }}" :current="request()->routeIs('panels.administrator.system-management.backup.index')" wire:navigate>{{ __('general.backups') }}</flux:sidebar.item>
                 </div>
                 <div x-show="showItem($el)" x-cloak>
                     <flux:sidebar.item href="{{ route('log-viewer.index') }}" target="_blank">{{ __('general.log_viewer') }}</flux:sidebar.item>

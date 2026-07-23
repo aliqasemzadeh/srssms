@@ -11,9 +11,10 @@
         :logo="$logo"
         :name="$name"
         :alt="$name"
+        wire:navigate
     />
 @else
-    <flux:sidebar.brand href="{{ $href }}" :name="$name" :alt="$name">
+    <flux:sidebar.brand href="{{ $href }}" :name="$name" :alt="$name"  wire:navigate>
         <x-slot name="logo" class="size-6 rounded-sm bg-teal-600 text-white text-[10px] font-bold tracking-wide">
             {{ $shortName }}
         </x-slot>
