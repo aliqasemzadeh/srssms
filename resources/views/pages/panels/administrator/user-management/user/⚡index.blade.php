@@ -71,6 +71,7 @@ new class extends Component
                     <flux:table.column>{{ __('general.mobile') }}</flux:table.column>
                     <flux:table.column>{{ __('general.email') }}</flux:table.column>
                     <flux:table.column>{{ __('general.username') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.created_at') }}</flux:table.column>
                     <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
                 </flux:table.columns>
 
@@ -82,6 +83,7 @@ new class extends Component
                             <flux:table.cell>{{ $user->mobile }}</flux:table.cell>
                             <flux:table.cell>{{ $user->email }}</flux:table.cell>
                             <flux:table.cell>{{ $user->username }}</flux:table.cell>
+                            <flux:table.cell>{{ $user->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
                                     <flux:tooltip content="{{ __('general.edit') }}">

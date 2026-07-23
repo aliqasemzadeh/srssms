@@ -38,7 +38,7 @@ new class extends Component
                 'path' => $path,
                 'name' => basename($path),
                 'size' => Number::fileSize($disk->size($path), precision: 2),
-                'date' => Carbon::createFromTimestamp($disk->lastModified($path))->toDynamicFormat('Y/m/d H:i'),
+                'date' => Carbon::createFromTimestamp($disk->lastModified($path))->toDynamicFormat('Y/m/d H:i:s'),
                 'timestamp' => $disk->lastModified($path),
             ])
             ->when($this->search, fn ($files) => $files->filter(
