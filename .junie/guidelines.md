@@ -51,7 +51,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 
 ### Forms & Inputs
 *   **Input Features (Clearable, Viewable, Copyable):** Use Flux UI's built-in input modifiers when appropriate:
-    *   For search fields or optional inputs: `<flux:input placeholder="Search orders" clearable />`
+    *   For search fields or optional inputs: `<flux:input placeholder="{{ __('general.search') }}..." clearable />`
     *   For passwords or secret tokens: `<flux:input type="password" viewable />`
     *   For API keys or read-only generated tokens: `<flux:input icon="key" readonly copyable />`
 *   **Prices & Masking:** Use Flux UI input masking for prices, currencies, or formatted numbers (https://fluxui.dev/components/input#input-masking).
@@ -64,6 +64,19 @@ You are an expert full-stack developer working on a Laravel project. Your task i
     `<flux:field variant="inline"><flux:label>Label</flux:label><flux:switch wire:model.live="field_name" /><flux:error name="field_name" /></flux:field>`
 
 ### Buttons & Actions
+*   **Responsive Page Actions (Mobile Overflow Prevention):** To prevent top-level action buttons from breaking out of the container on mobile screens:
+    *   If there is **only one** action, use a standard single `<flux:button>`.
+    *   If there are **multiple** actions, group them inside a `<flux:dropdown>` menu for a responsive and clean layout. Example:
+    ```html
+    <flux:dropdown>
+        <flux:button icon:trailing="chevron-down">{{ __('general.options') }}</flux:button>
+        <flux:menu>
+            <flux:menu.item icon="plus">{{ __('general.create') }}</flux:menu.item>
+            <flux:menu.separator />
+            <flux:menu.item variant="danger" icon="trash">{{ __('general.delete') }}</flux:menu.item>
+        </flux:menu>
+    </flux:dropdown>
+    ```
 *   **Submit Buttons:** Use `<flux:button type="submit" variant="primary" color="teal">{{ __('general.save') }}</flux:button>`.
 *   **Generic Buttons:** Only use `color="zinc"` for generic/neutral buttons.
 *   **Icons & Tooltips:** Action buttons (edit/delete/import) MUST be wrapped in `<flux:tooltip>` and use small, icon-only variants (e.g., `size="xs" variant="primary" icon="pencil" icon:variant="outline"`).
@@ -97,6 +110,8 @@ You are an expert full-stack developer working on a Laravel project. Your task i
     <div class="space-y-6">
         <div class="flex items-center justify-between">
             <flux:heading size="xl">{{ __('general.users') }}</flux:heading>
+            
+            <!-- Example of a single action button -->
             <flux:modal.trigger name="user.create">
                 <flux:button variant="primary" color="teal" icon="plus">
                     {{ __('general.create_user') }}
