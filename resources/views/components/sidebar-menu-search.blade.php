@@ -28,23 +28,36 @@
 
             return group?.dataset.sidebarMenuHeading?.toLowerCase().includes(q) ?? false;
         },
-        expandGroups(root) {
+        expandGroups() {
             if (! this.query()) {
                 return;
             }
 
-            root.querySelectorAll('ui-disclosure').forEach((el) => el.setAttribute('open', ''));
+            this.$el.querySelectorAll('ui-disclosure').forEach((el) => {
+                el.setAttribute('open', '');
+
+                if ('open' in el) {
+                    el.open = true;
+                }
+
+                el.querySelectorAll(':scope > div.relative').forEach((panel) => {
+                    panel.setAttribute('data-open', '');
+                });
+            });
         },
     }"
-    x-effect="expandGroups($el)"
-    {{ $attributes->class('flex flex-col gap-4') }}
+    x-effect="$nextTick(() => expandGroups())"
+    {{ $attributes->class('flex flex-col gap-2') }}
 >
     <flux:input
         type="search"
+        size="sm"
+        variant="filled"
         icon="magnifying-glass"
         clearable
         placeholder="{{ $placeholder ?? __('general.search').'...' }}"
         x-model="search"
+        x-on:input="expandGroups()"
     />
 
     {{ $slot }}
