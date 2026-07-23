@@ -18,6 +18,7 @@ Route::middleware('auth')->group(function () {
 
     // User Panel
     Route::livewire('/panels/user/dashboard', 'pages::panels.user.dashboard.index')->name('panels.user.dashboard.index');
+    Route::livewire('/panels/user/settings', 'pages::panels.user.setting.index')->name('panels.user.setting.index');
 });
 
 require __DIR__.'/auth.php';
