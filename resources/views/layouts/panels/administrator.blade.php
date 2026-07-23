@@ -23,7 +23,7 @@
                 :expanded="request()->routeIs('panels.administrator.user-management.*')"
             >
                 <div x-show="showItem($el)" x-cloak>
-                    <flux:sidebar.item href="{{ route('panels.administrator.user-management.user.index') }}" :current="request()->routeIs('panels.administrator.user-management.user.index')" wire:navigate>{{ __('general.users') }}</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('panels.administrator.user-management.user.index') }}" :current="request()->routeIs('panels.administrator.user-management.user.*')" wire:navigate>{{ __('general.users') }}</flux:sidebar.item>
                 </div>
                 <div x-show="showItem($el)" x-cloak>
                     <flux:sidebar.item href="{{ route('panels.administrator.user-management.role.index') }}" :current="request()->routeIs('panels.administrator.user-management.role.index')" wire:navigate>{{ __('general.roles') }}</flux:sidebar.item>

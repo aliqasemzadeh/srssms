@@ -47,6 +47,9 @@ class User extends Authenticatable
         return trim("{$this->first_name} {$this->last_name}");
     }
 
+    /**
+     * Soft-deleted wallets are excluded by default.
+     */
     public function wallets(): HasMany
     {
         return $this->hasMany(Wallet::class);

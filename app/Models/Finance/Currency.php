@@ -32,6 +32,9 @@ class Currency extends Model
         ];
     }
 
+    /**
+     * Soft-deleted wallets are excluded by default.
+     */
     public function wallets(): HasMany
     {
         return $this->hasMany(Wallet::class);

@@ -102,6 +102,9 @@ new class extends Component
                             <flux:table.cell>{{ $user->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
+                                    <flux:tooltip content="{{ __('general.wallets') }}">
+                                        <flux:button size="xs" variant="primary" color="teal" icon="wallet" icon:variant="outline" :href="route('panels.administrator.user-management.user.wallet.index', $user)" wire:navigate />
+                                    </flux:tooltip>
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.edit.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>

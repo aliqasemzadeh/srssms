@@ -10,6 +10,8 @@ Route::middleware('auth')->group(function () {
     // Administrator Panel
     Route::livewire('/panels/administrator/dashboard', 'pages::panels.administrator.dashboard.index')->name('panels.administrator.dashboard.index');
     Route::livewire('/panels/administrator/user-management/users', 'pages::panels.administrator.user-management.user.index')->name('panels.administrator.user-management.user.index');
+    Route::livewire('/panels/administrator/user-management/users/{user}/wallets', 'pages::panels.administrator.user-management.user.wallet.index')->name('panels.administrator.user-management.user.wallet.index');
+    Route::livewire('/panels/administrator/user-management/users/{user}/wallets/{wallet}/transactions', 'pages::panels.administrator.user-management.user.wallet.transaction.index')->scopeBindings()->name('panels.administrator.user-management.user.wallet.transaction.index');
     Route::livewire('/panels/administrator/user-management/roles', 'pages::panels.administrator.user-management.role.index')->name('panels.administrator.user-management.role.index');
     Route::livewire('/panels/administrator/user-management/permissions', 'pages::panels.administrator.user-management.permission.index')->name('panels.administrator.user-management.permission.index');
     Route::livewire('/panels/administrator/finance-management/currencies', 'pages::panels.administrator.finance-management.currency.index')->name('panels.administrator.finance-management.currency.index');
