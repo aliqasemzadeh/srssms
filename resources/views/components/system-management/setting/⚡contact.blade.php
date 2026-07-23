@@ -89,26 +89,26 @@ new class extends Component
 
             <flux:input wire:model="form.support_email" type="email" icon="mail" label="{{ __('general.support_email') }}" description="{{ __('general.support_email_hint') }}" />
 
-            {{-- Phone numbers (tag input) --}}
+            {{-- Phone numbers (tag input, fully LTR with the add button at the end) --}}
             <flux:field>
                 <flux:label>{{ __('general.phone_numbers') }}</flux:label>
                 <flux:description>{{ __('general.phone_numbers_hint') }}</flux:description>
-                <flux:input.group>
-                    <div class="flex-1" dir="ltr">
+                <div dir="ltr">
+                    <flux:input.group>
                         <flux:input wire:model="newPhoneNumber" icon="phone" placeholder="021-12345678" class="font-mono" wire:keydown.enter.prevent="addPhoneNumber" />
-                    </div>
-                    <flux:button type="button" icon="plus" wire:click="addPhoneNumber">{{ __('general.add') }}</flux:button>
-                </flux:input.group>
+                        <flux:button type="button" icon="plus" wire:click="addPhoneNumber">{{ __('general.add') }}</flux:button>
+                    </flux:input.group>
+                </div>
                 <flux:error name="newPhoneNumber" />
 
-                <div class="mt-2 flex flex-wrap gap-2">
+                <div class="mt-2 flex flex-wrap justify-start gap-2" dir="ltr">
                     @forelse ($form->phone_numbers as $index => $phone)
                         <flux:badge color="blue" wire:key="phone-number-{{ $index }}-{{ $phone }}">
-                            <span dir="ltr" class="font-mono">{{ $phone }}</span>
+                            <span class="font-mono">{{ $phone }}</span>
                             <flux:badge.close wire:click="removePhoneNumber({{ $index }})" />
                         </flux:badge>
                     @empty
-                        <flux:text size="sm">{{ __('general.no_items_added') }}</flux:text>
+                        <flux:text size="sm" dir="rtl">{{ __('general.no_items_added') }}</flux:text>
                     @endforelse
                 </div>
             </flux:field>

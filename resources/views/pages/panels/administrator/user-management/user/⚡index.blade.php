@@ -50,6 +50,7 @@ new class extends Component
         <div class="flex items-center justify-between">
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('panels.administrator.dashboard.index') }}" icon="home" />
+                <flux:breadcrumbs.item>{{ __('general.user_management') }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ __('general.users') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
