@@ -293,4 +293,34 @@ return [
     'phone_numbers_hint' => 'Phone numbers shown on the contact page.',
     'support_email_hint' => 'The email address that receives user messages.',
     'registration_disabled' => 'Registration is currently disabled.',
+
+    'account_types' => [
+        'iban' => 'IBAN Number',
+        'card' => 'Card Number',
+        'crypto' => 'Crypto Wallet Address',
+    ],
+
+    'deposit_methods' => [
+        'gateway_zarinpal' => 'Zarinpal Gateway',
+        'gateway_mellat' => 'Mellat Gateway',
+        'receipt' => 'Bank Receipt',
+        'crypto_transfer' => 'Crypto Transfer',
+    ],
+
+    'withdrawal_methods' => [
+        'paya_auto' => 'Automatic Paya Transfer',
+        'satna' => 'Satna Transfer',
+        'card' => 'Card to Card',
+        'manual' => 'Manual Deposit by Admin',
+        'crypto' => 'Crypto Transfer',
+    ],
+
+    'statuses' => [
+        'approved' => 'Approved',
+        'pending' => 'Pending',
+        'processing' => 'Processing',
+        'completed' => 'Completed',
+        'rejected' => 'Rejected',
+        'canceled' => 'Canceled',
+    ],
 ];

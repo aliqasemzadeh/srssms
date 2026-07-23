@@ -293,4 +293,34 @@ return [
     'phone_numbers_hint' => 'شماره‌های تماس که در صفحه تماس با ما نمایش داده می‌شوند.',
     'support_email_hint' => 'ایمیلی که پیام‌های کاربران به آن ارسال می‌شود.',
     'registration_disabled' => 'ثبت‌نام در سایت در حال حاضر غیرفعال است.',
+
+    'account_types' => [
+        'iban' => 'شماره شبا',
+        'card' => 'شماره کارت',
+        'crypto' => 'آدرس کیف پول دیجیتال',
+    ],
+
+    'deposit_methods' => [
+        'gateway_zarinpal' => 'درگاه زرین‌پال',
+        'gateway_mellat' => 'درگاه ملت',
+        'receipt' => 'فیش بانکی',
+        'crypto_transfer' => 'انتقال رمزارز',
+    ],
+
+    'withdrawal_methods' => [
+        'paya_auto' => 'انتقال اتوماتیک پایا',
+        'satna' => 'انتقال ساتنا',
+        'card' => 'کارت به کارت',
+        'manual' => 'واریز دستی توسط ادمین',
+        'crypto' => 'انتقال رمزارز',
+    ],
+
+    'statuses' => [
+        'approved' => 'تایید شده',
+        'pending' => 'در انتظار',
+        'processing' => 'در حال پردازش',
+        'completed' => 'تکمیل شده',
+        'rejected' => 'رد شده',
+        'canceled' => 'لغو شده',
+    ],
 ];
