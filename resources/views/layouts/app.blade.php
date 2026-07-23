@@ -14,12 +14,11 @@
 
     @include('layouts.shared.panels')
     @include('layouts.shared.user', ['class' => 'max-lg:hidden'])
+    @include('layouts.shared.theme')
 </flux:sidebar>
 <flux:header class="lg:hidden">
     <flux:sidebar.toggle class="lg:hidden" icon="bars-2" inset="left" />
     <flux:spacer />
-
-    @include('layouts.shared.theme')
     @include('layouts.shared.user', ['class' => 'lg:hidden'])
 </flux:header>
 <flux:main>
