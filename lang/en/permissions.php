@@ -55,6 +55,14 @@ return [
                 'import' => 'Import Wallets',
                 'export' => 'Export Wallets',
             ],
+            'transaction' => [
+                'view' => 'View Transactions',
+                'create' => 'Create Transaction',
+                'edit' => 'Edit Transaction',
+                'delete' => 'Delete Transaction',
+                'import' => 'Import Transactions',
+                'export' => 'Export Transactions',
+            ],
         ],
         'system-management' => [
             'setting' => [

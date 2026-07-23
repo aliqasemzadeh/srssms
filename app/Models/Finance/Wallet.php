@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -39,5 +40,15 @@ class Wallet extends Model
     public function currency(): BelongsTo
     {
         return $this->belongsTo(Currency::class)->withTrashed();
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(Transaction::class);
+    }
+
+    public function getAvailableBalanceAttribute(): string
+    {
+        return bcsub((string) $this->balance, (string) $this->locked_balance, 8);
     }
 }

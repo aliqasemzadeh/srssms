@@ -13,7 +13,17 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('wallet_id')->constrained('wallets')->cascadeOnDelete();
+            $table->string('type', 20);
+            $table->decimal('amount', 20, 8);
+            $table->decimal('balance_after', 20, 8)->nullable();
+            $table->nullableMorphs('reference');
+            $table->string('description', 255)->nullable();
             $table->timestamps();
+
+            $table->index(['wallet_id', 'created_at']);
+            $table->index(['wallet_id', 'amount']);
+            $table->index(['wallet_id', 'type']);
         });
     }
 

@@ -3,6 +3,7 @@
 @import '../../node_modules/vazirmatn/Vazirmatn-font-face.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/aliqasemzadeh/fluxui-persian-date-picker/resources/views/**/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @theme {
