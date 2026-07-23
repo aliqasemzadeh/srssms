@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('symbol', 10)->unique();
             $table->string('name');
             $table->string('logo')->nullable();
-            $table->enum('type', ['fiat', 'crypto' , 'commodity'])->default('fiat');
+            $table->enum('type', ['fiat', 'crypto', 'commodity'])->default('fiat');
             $table->unsignedTinyInteger('decimals')->default(0);
             $table->json('meta')->nullable();
             $table->boolean('is_active')->default(true);
