@@ -167,6 +167,7 @@ new class extends Component
                     <flux:table.column>{{ __('general.balance') }}</flux:table.column>
                     <flux:table.column>{{ __('general.locked_balance') }}</flux:table.column>
                     <flux:table.column>{{ __('general.status') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.created_at') }}</flux:table.column>
                     <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
                 </flux:table.columns>
 
@@ -244,6 +245,13 @@ new class extends Component
                                     </flux:badge>
                                 @else
                                     <flux:badge size="sm" color="zinc">{{ __('general.inactive') }}</flux:badge>
+                                @endif
+                            </flux:table.cell>
+                            <flux:table.cell>
+                                @if ($hasWallet)
+                                    {{ $wallet->created_at->toDynamicFormat('Y/m/d H:i:s') }}
+                                @else
+                                    <span class="text-zinc-400">—</span>
                                 @endif
                             </flux:table.cell>
                             <flux:table.cell align="end">
