@@ -6,7 +6,6 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Morilog\Jalali\Jalalian;
 use Spatie\Permission\Models\Permission;
 
 new class extends Component
@@ -93,7 +92,7 @@ new class extends Component
                             <flux:table.cell>
                                 <flux:badge size="sm" color="cyan">{{ $permission->users_count }}</flux:badge>
                             </flux:table.cell>
-                            <flux:table.cell>{{ Jalalian::fromCarbon($permission->created_at)->format('Y/m/d') }}</flux:table.cell>
+                            <flux:table.cell>{{ $permission->created_at->toDynamicFormat('Y/m/d') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
                                     <flux:tooltip content="{{ __('general.permission_roles') }}">

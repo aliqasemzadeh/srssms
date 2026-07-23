@@ -3,6 +3,7 @@
 use App\Livewire\Forms\Settings\GeneralSettingsForm;
 use App\Settings\GeneralSettings;
 use Flux\Flux;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -17,11 +18,34 @@ new class extends Component
         $this->form->setSettings($settings);
     }
 
+    #[Computed]
+    public function timezones(): array
+    {
+        return timezone_identifiers_list();
+    }
+
     public function save(): void
     {
+        $previousLocale = app()->getLocale();
+
         $this->form->store();
 
+        $settings = app(GeneralSettings::class);
+
+        config([
+            'app.name' => $settings->site_name,
+            'app.locale' => $settings->locale,
+            'app.timezone' => $settings->timezone,
+        ]);
+
+        app()->setLocale($settings->locale);
+        date_default_timezone_set($settings->timezone);
+
         Flux::toast(__('general.settings_saved'));
+
+        if ($previousLocale !== $settings->locale) {
+            $this->redirect(request()->header('Referer') ?: url()->current(), navigate: false);
+        }
     }
 
     public function removeLogo(): void
@@ -59,6 +83,33 @@ new class extends Component
             </div>
 
             <flux:textarea wire:model="form.site_description" label="{{ __('general.site_description') }}" description="{{ __('general.site_description_hint') }}" rows="3" />
+
+            <div class="grid gap-6 md:grid-cols-2">
+                <flux:select
+                    wire:model="form.locale"
+                    variant="listbox"
+                    searchable
+                    label="{{ __('general.locale') }}"
+                    description="{{ __('general.locale_hint') }}"
+                    placeholder="{{ __('general.select_locale') }}"
+                >
+                    <flux:select.option value="fa">{{ __('general.locale_fa') }}</flux:select.option>
+                    <flux:select.option value="en">{{ __('general.locale_en') }}</flux:select.option>
+                </flux:select>
+
+                <flux:select
+                    wire:model="form.timezone"
+                    variant="listbox"
+                    searchable
+                    label="{{ __('general.timezone') }}"
+                    description="{{ __('general.timezone_hint') }}"
+                    placeholder="{{ __('general.select_timezone') }}"
+                >
+                    @foreach ($this->timezones as $timezone)
+                        <flux:select.option value="{{ $timezone }}" wire:key="timezone-{{ $timezone }}">{{ $timezone }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+            </div>
 
             <div class="grid gap-6 md:grid-cols-2">
                 {{-- Logo --}}

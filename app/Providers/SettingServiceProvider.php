@@ -32,7 +32,12 @@ class SettingServiceProvider extends ServiceProvider
 
             config([
                 'app.name' => $general->site_name,
+                'app.locale' => $general->locale,
+                'app.timezone' => $general->timezone,
             ]);
+
+            app()->setLocale($general->locale);
+            date_default_timezone_set($general->timezone);
 
             View::share('generalSettings', $general);
         }, report: false);

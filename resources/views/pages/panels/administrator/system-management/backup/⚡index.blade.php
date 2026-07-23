@@ -3,6 +3,7 @@
 use Flux\Flux;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Number;
@@ -10,7 +11,6 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Morilog\Jalali\Jalalian;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 new class extends Component
@@ -38,7 +38,7 @@ new class extends Component
                 'path' => $path,
                 'name' => basename($path),
                 'size' => Number::fileSize($disk->size($path), precision: 2),
-                'date' => Jalalian::forge($disk->lastModified($path))->format('Y/m/d H:i'),
+                'date' => Carbon::createFromTimestamp($disk->lastModified($path))->toDynamicFormat('Y/m/d H:i'),
                 'timestamp' => $disk->lastModified($path),
             ])
             ->when($this->search, fn ($files) => $files->filter(

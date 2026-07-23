@@ -4,6 +4,7 @@ namespace App\Livewire\Forms\Settings;
 
 use App\Settings\GeneralSettings;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Form;
 
@@ -14,6 +15,10 @@ class GeneralSettingsForm extends Form
     public string $site_short_name = '';
 
     public string $site_description = '';
+
+    public string $locale = 'fa';
+
+    public string $timezone = 'Asia/Tehran';
 
     public ?TemporaryUploadedFile $site_logo = null;
 
@@ -28,6 +33,8 @@ class GeneralSettingsForm extends Form
         $this->site_name = $settings->site_name;
         $this->site_short_name = $settings->site_short_name;
         $this->site_description = $settings->site_description;
+        $this->locale = $settings->locale;
+        $this->timezone = $settings->timezone;
         $this->current_logo = $settings->site_logo;
         $this->current_favicon = $settings->site_favicon;
         $this->site_logo = null;
@@ -40,6 +47,8 @@ class GeneralSettingsForm extends Form
             'site_name' => ['required', 'string', 'max:255'],
             'site_short_name' => ['required', 'string', 'max:10'],
             'site_description' => ['nullable', 'string', 'max:500'],
+            'locale' => ['required', 'string', Rule::in(['fa', 'en'])],
+            'timezone' => ['required', 'string', 'timezone:all'],
             'site_logo' => ['nullable', 'image', 'max:2048'],
             'site_favicon' => ['nullable', 'file', 'mimes:png,ico,svg,jpg,jpeg', 'max:1024'],
         ];
@@ -54,6 +63,8 @@ class GeneralSettingsForm extends Form
         $settings->site_name = $this->site_name;
         $settings->site_short_name = $this->site_short_name;
         $settings->site_description = $this->site_description;
+        $settings->locale = $this->locale;
+        $settings->timezone = $this->timezone;
 
         if ($this->site_logo instanceof TemporaryUploadedFile) {
             if ($settings->site_logo) {

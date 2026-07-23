@@ -16,6 +16,10 @@ class GeneralSettings extends Settings
 
     public ?string $site_favicon;
 
+    public string $locale;
+
+    public string $timezone;
+
     public static function group(): string
     {
         return 'general';
