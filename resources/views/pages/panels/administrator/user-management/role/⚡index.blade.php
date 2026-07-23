@@ -13,6 +13,10 @@ new class extends Component
 
     public string $search = '';
 
+    public string $sortBy = 'created_at';
+
+    public string $sortDirection = 'desc';
+
     #[Computed]
     public function roles(): LengthAwarePaginator
     {
@@ -21,8 +25,20 @@ new class extends Component
             ->when($this->search, function ($query) {
                 $query->where('name', 'like', "%{$this->search}%");
             })
-            ->latest()
+            ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate(config('general.per_page', 10));
+    }
+
+    public function sort(string $column): void
+    {
+        if ($this->sortBy === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $column;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
     }
 
     public function updatedSearch(): void
@@ -33,7 +49,7 @@ new class extends Component
     #[On('panels.administrator.user-management.role.index.refresh')]
     public function refresh(): void
     {
-        //
+        unset($this->roles);
     }
 };
 ?>
@@ -65,7 +81,7 @@ new class extends Component
                     <flux:table.column>{{ __('general.guard') }}</flux:table.column>
                     <flux:table.column>{{ __('general.permissions_count') }}</flux:table.column>
                     <flux:table.column>{{ __('general.users_count') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.created_at') }}</flux:table.column>
+                    <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">{{ __('general.created_at') }}</flux:table.column>
                     <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
                 </flux:table.columns>
 
