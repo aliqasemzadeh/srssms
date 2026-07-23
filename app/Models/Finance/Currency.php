@@ -4,6 +4,7 @@ namespace App\Models\Finance;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -29,5 +30,10 @@ class Currency extends Model
             'is_active' => 'boolean',
             'decimals' => 'integer',
         ];
+    }
+
+    public function wallets(): HasMany
+    {
+        return $this->hasMany(Wallet::class);
     }
 }

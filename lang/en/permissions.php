@@ -47,6 +47,14 @@ return [
                 'import' => 'Import Currencies',
                 'export' => 'Export Currencies',
             ],
+            'wallet' => [
+                'view' => 'View Wallets',
+                'create' => 'Create Wallet',
+                'edit' => 'Edit Wallet',
+                'delete' => 'Delete Wallet',
+                'import' => 'Import Wallets',
+                'export' => 'Export Wallets',
+            ],
         ],
         'system-management' => [
             'setting' => [

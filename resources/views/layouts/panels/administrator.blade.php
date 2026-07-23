@@ -50,6 +50,9 @@
                 <div x-show="showItem($el)" x-cloak>
                     <flux:sidebar.item href="{{ route('panels.administrator.finance-management.currency.index') }}" :current="request()->routeIs('panels.administrator.finance-management.currency.index')" wire:navigate>{{ __('general.currencies') }}</flux:sidebar.item>
                 </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.finance-management.wallet.index') }}" :current="request()->routeIs('panels.administrator.finance-management.wallet.index')" wire:navigate>{{ __('general.wallets') }}</flux:sidebar.item>
+                </div>
             </flux:sidebar.group>
         </div>
 
