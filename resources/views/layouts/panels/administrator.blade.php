@@ -1,10 +1,5 @@
 <flux:sidebar.header>
-    <flux:sidebar.brand
-        href="{{ route('panels.administrator.dashboard.index') }}"
-        logo="https://fluxui.dev/img/demo/logo.png"
-        logo:dark="https://fluxui.dev/img/demo/dark-mode-logo.png"
-        name="Acme Inc."
-    />
+    @include('layouts.shared.brand', ['href' => route('panels.administrator.dashboard.index')])
     <flux:sidebar.collapse class="lg:hidden" />
 </flux:sidebar.header>
 <flux:sidebar.search placeholder="{{ __('general.search') }}..." />

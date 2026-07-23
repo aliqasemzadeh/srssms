@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Settings\GeneralSettings;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 class SettingServiceProvider extends ServiceProvider
@@ -32,6 +33,8 @@ class SettingServiceProvider extends ServiceProvider
             config([
                 'app.name' => $general->site_name,
             ]);
+
+            View::share('generalSettings', $general);
         }, report: false);
     }
 }
