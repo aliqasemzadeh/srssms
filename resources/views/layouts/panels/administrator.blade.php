@@ -36,6 +36,25 @@
 
         <div
             data-sidebar-menu-group
+            data-sidebar-menu-heading="{{ __('general.finance_management') }}"
+            x-show="matches($el)"
+            x-cloak
+        >
+            <flux:sidebar.group
+                expandable
+                icon="banknote"
+                heading="{{ __('general.finance_management') }}"
+                class="grid"
+                :expanded="request()->routeIs('panels.administrator.finance-management.*')"
+            >
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.finance-management.currency.index') }}" :current="request()->routeIs('panels.administrator.finance-management.currency.index')" wire:navigate>{{ __('general.currencies') }}</flux:sidebar.item>
+                </div>
+            </flux:sidebar.group>
+        </div>
+
+        <div
+            data-sidebar-menu-group
             data-sidebar-menu-heading="{{ __('general.system_management') }}"
             x-show="matches($el)"
             x-cloak

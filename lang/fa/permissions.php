@@ -38,6 +38,16 @@ return [
                 'export' => 'خروجی گرفتن از مجوزها',
             ],
         ],
+        'finance-management' => [
+            'currency' => [
+                'view' => 'مشاهده ارزها',
+                'create' => 'ایجاد ارز',
+                'edit' => 'ویرایش ارز',
+                'delete' => 'حذف ارز',
+                'import' => 'وارد کردن ارزها',
+                'export' => 'خروجی گرفتن از ارزها',
+            ],
+        ],
         'system-management' => [
             'setting' => [
                 'view' => 'مشاهده تنظیمات',

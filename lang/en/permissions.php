@@ -38,6 +38,16 @@ return [
                 'export' => 'Export Permissions',
             ],
         ],
+        'finance-management' => [
+            'currency' => [
+                'view' => 'View Currencies',
+                'create' => 'Create Currency',
+                'edit' => 'Edit Currency',
+                'delete' => 'Delete Currency',
+                'import' => 'Import Currencies',
+                'export' => 'Export Currencies',
+            ],
+        ],
         'system-management' => [
             'setting' => [
                 'view' => 'View Settings',
