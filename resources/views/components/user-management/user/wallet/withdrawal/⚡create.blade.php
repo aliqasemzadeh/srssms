@@ -94,7 +94,7 @@ new class extends Component
     </div>
 
     <form wire:submit="save" class="space-y-6">
-        <flux:select wire:model="form.user_account_id" variant="combobox" :filter="false" searchable label="{{ __('general.user_account') }}">
+        <flux:select wire:model="form.user_account_id" variant="combobox" :filter="false" label="{{ __('general.user_account') }}">
             <x-slot name="input">
                 <flux:select.input wire:model.live.debounce.300ms="userAccountSearch" placeholder="{{ __('general.search') }}..." />
             </x-slot>
