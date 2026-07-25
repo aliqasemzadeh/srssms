@@ -4,8 +4,6 @@ namespace App\Livewire\Forms\Phonebook;
 
 use App\Models\Phonebook\Contact;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
 use Livewire\Form;
 use Spatie\Tags\Tag;
 

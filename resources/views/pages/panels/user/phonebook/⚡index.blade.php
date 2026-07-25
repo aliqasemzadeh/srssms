@@ -104,19 +104,13 @@ new class extends Component
         $this->resetPage();
     }
 
-    public function toggleSelect(int $id): void
-    {
-        if (in_array($id, $this->selected, true)) {
-            $this->selected = array_values(array_filter($this->selected, fn ($item) => (int) $item !== $id));
-        } else {
-            $this->selected[] = $id;
-        }
-    }
-
     public function selectPage(): void
     {
         $pageIds = $this->contacts->pluck('id')->map(fn ($id) => (int) $id)->all();
-        $this->selected = array_values(array_unique([...$this->selected, ...$pageIds]));
+        $this->selected = array_values(array_unique([
+            ...collect($this->selected)->map(fn ($id) => (int) $id)->all(),
+            ...$pageIds,
+        ]));
     }
 
     public function clearSelection(): void
