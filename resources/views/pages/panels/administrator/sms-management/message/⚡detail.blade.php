@@ -1,7 +1,14 @@
 <?php
 
+use App\Enums\Sms\SmsDirectionEnum;
+use App\Enums\Sms\SmsMessageStatusEnum;
 use App\Models\Sms\Message;
+use App\Services\Sms\SmsSender;
+use Flux\Flux;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
+use RuntimeException;
+use Throwable;
 
 new class extends Component
 {
@@ -10,6 +17,42 @@ new class extends Component
     public function mount(Message $message): void
     {
         $this->message = $message->load(['gateway.provider', 'user', 'recipients']);
+    }
+
+    #[Computed]
+    public function canResend(): bool
+    {
+        if ($this->message->direction !== SmsDirectionEnum::Outbound) {
+            return false;
+        }
+
+        if ($this->message->status === SmsMessageStatusEnum::Failed) {
+            return true;
+        }
+
+        return $this->message->recipients->contains(
+            fn ($recipient) => $recipient->status === SmsMessageStatusEnum::Failed
+        );
+    }
+
+    public function resend(SmsSender $sender): void
+    {
+        if (! $this->canResend) {
+            Flux::toast(variant: 'danger', text: __('general.sms_resend_not_allowed'));
+
+            return;
+        }
+
+        try {
+            $this->message = $sender->resend($this->message);
+            unset($this->canResend);
+
+            Flux::toast(__('general.sms_resent_successfully'));
+        } catch (RuntimeException $e) {
+            Flux::toast(variant: 'danger', text: $e->getMessage());
+        } catch (Throwable $e) {
+            Flux::toast(variant: 'danger', text: __('general.sms_resend_failed'));
+        }
     }
 };
 ?>
@@ -26,9 +69,25 @@ new class extends Component
                 <flux:breadcrumbs.item>#{{ $message->id }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <flux:button variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.administrator.sms-management.message.index') }}" wire:navigate>
-                {{ __('general.sms_messages') }}
-            </flux:button>
+            <div class="flex flex-wrap items-center gap-2">
+                @if ($this->canResend)
+                    <flux:tooltip content="{{ __('general.resend_sms') }}">
+                        <flux:button
+                            variant="primary"
+                            color="orange"
+                            icon="refresh-cw"
+                            wire:click="resend"
+                            wire:confirm="{{ __('general.are_you_sure') }}"
+                        >
+                            {{ __('general.resend_sms') }}
+                        </flux:button>
+                    </flux:tooltip>
+                @endif
+
+                <flux:button variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.administrator.sms-management.message.index') }}" wire:navigate>
+                    {{ __('general.sms_messages') }}
+                </flux:button>
+            </div>
         </div>
 
         <div class="grid gap-6 lg:grid-cols-2">

@@ -208,6 +208,55 @@ class SmsSender implements SmsSenderContract
         });
     }
 
+    /**
+     * Re-queue a failed outbound message (or only its failed recipients). Does not re-bill.
+     */
+    public function resend(Message $message): Message
+    {
+        $message->loadMissing(['gateway.provider', 'recipients']);
+
+        if ($message->direction !== SmsDirectionEnum::Outbound) {
+            throw new RuntimeException(__('general.sms_resend_not_allowed'));
+        }
+
+        $gateway = $message->gateway;
+
+        if (! $gateway || ! $gateway->is_active || ! $gateway->provider?->is_active) {
+            throw new RuntimeException(__('general.sms_gateway_inactive'));
+        }
+
+        $failedRecipients = $message->recipients
+            ->filter(fn ($recipient) => $recipient->status === SmsMessageStatusEnum::Failed)
+            ->values();
+
+        if ($failedRecipients->isEmpty()) {
+            if ($message->status !== SmsMessageStatusEnum::Failed || $message->recipients->isEmpty()) {
+                throw new RuntimeException(__('general.sms_resend_not_allowed'));
+            }
+
+            $failedRecipients = $message->recipients->values();
+        }
+
+        DB::transaction(function () use ($message, $failedRecipients): void {
+            foreach ($failedRecipients as $recipient) {
+                $recipient->update([
+                    'status' => SmsMessageStatusEnum::Queued,
+                    'reference_id' => null,
+                    'error' => null,
+                    'delivered_at' => null,
+                ]);
+            }
+
+            $message->update([
+                'status' => SmsMessageStatusEnum::Queued,
+            ]);
+        });
+
+        SendSmsCampaignJob::dispatch($message->id);
+
+        return $message->fresh(['recipients', 'gateway.provider', 'user']);
+    }
+
     public function defaultGateway(?User $user = null): Gateway
     {
         try {

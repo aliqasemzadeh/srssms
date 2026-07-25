@@ -504,6 +504,10 @@ return [
     'sms_gateway_deleted' => 'درگاه پیامک با موفقیت حذف شد.',
     'message_details' => 'جزئیات پیامک',
     'provider_payload' => 'داده خام پروایدر',
+    'resend_sms' => 'ارسال مجدد',
+    'sms_resent_successfully' => 'پیامک برای ارسال مجدد در صف قرار گرفت.',
+    'sms_resend_not_allowed' => 'ارسال مجدد فقط برای پیامک‌های ناموفق امکان‌پذیر است.',
+    'sms_resend_failed' => 'ارسال مجدد پیامک با خطا مواجه شد.',
 
     'sms_drivers' => [
         'log' => 'لاگ (تست)',

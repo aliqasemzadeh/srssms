@@ -504,6 +504,10 @@ return [
     'sms_gateway_deleted' => 'SMS gateway deleted successfully.',
     'message_details' => 'Message Details',
     'provider_payload' => 'Provider Payload',
+    'resend_sms' => 'Resend',
+    'sms_resent_successfully' => 'SMS has been queued for resend.',
+    'sms_resend_not_allowed' => 'Resend is only available for failed SMS messages.',
+    'sms_resend_failed' => 'Failed to resend the SMS.',
 
     'sms_drivers' => [
         'log' => 'Log (Test)',
