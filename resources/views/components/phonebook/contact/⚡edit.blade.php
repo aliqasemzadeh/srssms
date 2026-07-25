@@ -119,19 +119,19 @@ new class extends Component
             @endforeach
         </flux:select>
 
-        <flux:select wire:model="form.tags" variant="combobox" multiple label="{{ __('general.phonebook_tags') }}">
+        <flux:pillbox wire:model="form.tags" variant="combobox" multiple label="{{ __('general.phonebook_tags') }}">
             <x-slot name="input">
-                <flux:select.input wire:model="tagSearch" placeholder="{{ __('general.search_phonebook_tags') }}" />
+                <flux:pillbox.input wire:model="tagSearch" placeholder="{{ __('general.search_phonebook_tags') }}" />
             </x-slot>
 
             @foreach ($this->availableTags as $tag)
-                <flux:select.option value="{{ $tag->name }}" :wire:key="$tag->id">{{ $tag->name }}</flux:select.option>
+                <flux:pillbox.option value="{{ $tag->name }}" :wire:key="$tag->id">{{ $tag->name }}</flux:pillbox.option>
             @endforeach
 
-            <flux:select.option.create wire:click="createTag" min-length="1">
+            <flux:pillbox.option.create wire:click="createTag" min-length="1">
                 {{ __('general.create_phonebook_tag') }} "<span wire:text="tagSearch"></span>"
-            </flux:select.option.create>
-        </flux:select>
+            </flux:pillbox.option.create>
+        </flux:pillbox>
 
         <flux:button type="submit" variant="primary" color="orange" class="w-full">{{ __('actions.save') }}</flux:button>
     </form>

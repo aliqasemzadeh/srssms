@@ -45,7 +45,20 @@ class NoteForm extends Form
             ],
             'body' => ['required', 'string', 'max:5000'],
             'status' => ['nullable', 'string', Rule::enum(ContactNoteStatusEnum::class)],
-            'remind_at' => ['nullable', 'date'],
+            'remind_at' => ['nullable', 'date', 'after:today'],
+        ];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function validationAttributes(): array
+    {
+        return [
+            'contact_id' => __('general.contact'),
+            'body' => __('general.note'),
+            'status' => __('general.note_status'),
+            'remind_at' => __('general.remind_at'),
         ];
     }
 

@@ -70,7 +70,7 @@ new class extends Component
         @if (app()->getLocale() === 'fa')
             <x-persian-date-picker wire:model="form.remind_at" label="{{ __('general.remind_at') }}" description="{{ __('general.remind_at_hint') }}" />
         @else
-            <flux:input wire:model="form.remind_at" type="date" label="{{ __('general.remind_at') }}" description="{{ __('general.remind_at_hint') }}" />
+            <flux:input wire:model="form.remind_at" type="date" min="{{ now()->addDay()->toDateString() }}" label="{{ __('general.remind_at') }}" description="{{ __('general.remind_at_hint') }}" />
         @endif
 
         <flux:button type="submit" variant="primary" color="teal" class="w-full">{{ __('actions.save') }}</flux:button>
