@@ -11,10 +11,10 @@ use App\Observers\TransactionObserver;
 use App\Observers\WithdrawalObserver;
 use App\Services\Sms\SmsSender as DomainSmsSender;
 use App\Settings\PaymentSettings;
+use App\Support\JalaliDate;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\ServiceProvider;
-use Morilog\Jalali\Jalalian;
 use Throwable;
 
 class AppServiceProvider extends ServiceProvider
@@ -43,11 +43,7 @@ class AppServiceProvider extends ServiceProvider
             $timezone = Config::get('app.timezone', 'UTC');
             $date = $this->copy()->setTimezone($timezone);
 
-            if (app()->getLocale() === 'fa') {
-                return Jalalian::fromCarbon($date)->format($format);
-            }
-
-            return $date->format($format);
+            return JalaliDate::format($date, $format) ?? $date->format($format);
         });
     }
 

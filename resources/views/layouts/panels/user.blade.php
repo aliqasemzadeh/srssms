@@ -65,6 +65,9 @@
                 <div x-show="showItem($el)" x-cloak>
                     <flux:sidebar.item href="{{ route('panels.user.sms.token.doc') }}" :current="request()->routeIs('panels.user.sms.token.doc')" wire:navigate>{{ __('general.sms_api_docs') }}</flux:sidebar.item>
                 </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.user.sms.token.sample') }}" :current="request()->routeIs('panels.user.sms.token.sample')" wire:navigate>{{ __('general.sms_api_samples') }}</flux:sidebar.item>
+                </div>
             </flux:sidebar.group>
         </div>
 

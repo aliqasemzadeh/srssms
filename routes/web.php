@@ -69,6 +69,7 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/panels/user/sms/tokens', 'pages::panels.user.sms.token.index')->name('panels.user.sms.token.index');
     Route::livewire('/panels/user/sms/tokens/logs', 'pages::panels.user.sms.token.logs')->name('panels.user.sms.token.logs');
     Route::livewire('/panels/user/sms/tokens/doc', 'pages::panels.user.sms.token.doc')->name('panels.user.sms.token.doc');
+    Route::livewire('/panels/user/sms/tokens/sample', 'pages::panels.user.sms.token.sample')->name('panels.user.sms.token.sample');
 });
 
 require __DIR__.'/auth.php';

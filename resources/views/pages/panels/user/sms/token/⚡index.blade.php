@@ -74,6 +74,9 @@ new class extends Component
                 <flux:button variant="primary" color="zinc" icon="book-open" :href="route('panels.user.sms.token.doc')" wire:navigate>
                     {{ __('general.sms_api_docs') }}
                 </flux:button>
+                <flux:button variant="primary" color="indigo" icon="code" :href="route('panels.user.sms.token.sample')" wire:navigate>
+                    {{ __('general.sms_api_samples') }}
+                </flux:button>
                 <flux:button variant="primary" color="sky" icon="scroll-text" :href="route('panels.user.sms.token.logs')" wire:navigate>
                     {{ __('general.sms_token_logs') }}
                 </flux:button>

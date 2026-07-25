@@ -6,6 +6,7 @@ use App\Enums\Phonebook\ContactGenderEnum;
 use App\Enums\Phonebook\ContactPersonTypeEnum;
 use App\Models\Phonebook\Contact;
 use App\Models\Phonebook\Group;
+use App\Support\JalaliDate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
@@ -54,8 +55,9 @@ class ContactForm extends Form
         $this->mobile = $contact->mobile;
         $this->company = (string) ($contact->company ?? '');
         $this->gender = $contact->gender?->value ?? '';
-        $this->birth_date = $contact->birth_date?->format('Y-m-d');
-        $this->marriage_date = $contact->marriage_date?->format('Y-m-d');
+        $dateFormat = app()->getLocale() === 'fa' ? 'Y/m/d' : 'Y-m-d';
+        $this->birth_date = JalaliDate::format($contact->birth_date, $dateFormat);
+        $this->marriage_date = JalaliDate::format($contact->marriage_date, $dateFormat);
         $this->address = (string) ($contact->address ?? '');
         $this->postal_code = (string) ($contact->postal_code ?? '');
         $this->national_code = (string) ($contact->national_code ?? '');
@@ -85,8 +87,22 @@ class ContactForm extends Form
             ],
             'company' => ['nullable', 'string', 'max:255'],
             'gender' => ['nullable', 'string', Rule::enum(ContactGenderEnum::class)],
-            'birth_date' => ['nullable', 'date'],
-            'marriage_date' => ['nullable', 'date'],
+            'birth_date' => [
+                'nullable',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (filled($value) && ! JalaliDate::parse((string) $value)) {
+                        $fail(__('validation.date', ['attribute' => __('general.birth_date')]));
+                    }
+                },
+            ],
+            'marriage_date' => [
+                'nullable',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (filled($value) && ! JalaliDate::parse((string) $value)) {
+                        $fail(__('validation.date', ['attribute' => __('general.marriage_date')]));
+                    }
+                },
+            ],
             'address' => ['nullable', 'string', 'max:2000'],
             'postal_code' => ['nullable', 'string', 'max:20'],
             'national_code' => ['nullable', 'string', 'max:20'],
@@ -137,8 +153,8 @@ class ContactForm extends Form
             'mobile' => $this->mobile,
             'company' => $this->company !== '' ? $this->company : null,
             'gender' => $this->gender !== '' ? $this->gender : null,
-            'birth_date' => $this->birth_date ?: null,
-            'marriage_date' => $this->marriage_date ?: null,
+            'birth_date' => JalaliDate::toGregorianString($this->birth_date),
+            'marriage_date' => JalaliDate::toGregorianString($this->marriage_date),
             'address' => $this->address !== '' ? $this->address : null,
             'postal_code' => $this->postal_code !== '' ? $this->postal_code : null,
             'national_code' => $this->national_code !== '' ? $this->national_code : null,
