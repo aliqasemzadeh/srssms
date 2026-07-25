@@ -11,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sms_providers', function (Blueprint $table) {
+        Schema::create('sms_gateways', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('driver');
-            $table->text('credentials')->nullable();
-            $table->json('meta')->nullable();
+            $table->foreignId('provider_id')->constrained('sms_providers')->cascadeOnDelete();
+            $table->string('number');
+            $table->string('title');
+            $table->json('settings')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
 
-            $table->index('driver');
+            $table->unique(['provider_id', 'number']);
+            $table->index('number');
             $table->index('is_active');
         });
     }
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sms_providers');
+        Schema::dropIfExists('sms_gateways');
     }
 };

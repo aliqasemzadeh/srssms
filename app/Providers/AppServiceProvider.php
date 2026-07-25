@@ -9,7 +9,7 @@ use App\Models\Finance\Withdrawal;
 use App\Observers\DepositObserver;
 use App\Observers\TransactionObserver;
 use App\Observers\WithdrawalObserver;
-use App\Services\Sms\LogSmsSender;
+use App\Services\Sms\SmsSender as DomainSmsSender;
 use App\Settings\PaymentSettings;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->bind(SmsSender::class, LogSmsSender::class);
+        $this->app->bind(SmsSender::class, DomainSmsSender::class);
     }
 
     /**

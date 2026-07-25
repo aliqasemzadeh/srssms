@@ -11,9 +11,26 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('messages', function (Blueprint $table) {
+        Schema::create('sms_messages', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('gateway_id')->constrained('sms_gateways')->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->string('direction');
+            $table->string('number');
+            $table->text('body');
+            $table->unsignedSmallInteger('parts_count')->default(1);
+            $table->string('encoding')->default('gsm7');
+            $table->string('status')->default('pending');
+            $table->string('reference_id')->nullable();
+            $table->json('provider_payload')->nullable();
+            $table->timestamp('sent_at')->nullable();
+            $table->timestamp('received_at')->nullable();
             $table->timestamps();
+
+            $table->index('direction');
+            $table->index('status');
+            $table->index('number');
+            $table->index('reference_id');
         });
     }
 
@@ -22,6 +39,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('messages');
+        Schema::dropIfExists('sms_messages');
     }
 };

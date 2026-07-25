@@ -6,10 +6,13 @@ namespace App\Models;
 use App\Models\Finance\Deposit;
 use App\Models\Finance\Wallet;
 use App\Models\Finance\Withdrawal;
+use App\Models\Sms\Gateway;
+use App\Models\Sms\Message;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -76,5 +79,16 @@ class User extends Authenticatable
     public function withdrawals(): HasMany
     {
         return $this->hasMany(Withdrawal::class);
+    }
+
+    public function smsGateways(): BelongsToMany
+    {
+        return $this->belongsToMany(Gateway::class, 'sms_gateway_user')
+            ->withTimestamps();
+    }
+
+    public function smsMessages(): HasMany
+    {
+        return $this->hasMany(Message::class);
     }
 }

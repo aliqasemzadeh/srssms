@@ -11,9 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gateways', function (Blueprint $table) {
+        Schema::create('sms_gateway_user', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('gateway_id')->constrained('sms_gateways')->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
+
+            $table->unique(['gateway_id', 'user_id']);
         });
     }
 
@@ -22,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gateways');
+        Schema::dropIfExists('sms_gateway_user');
     }
 };
