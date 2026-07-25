@@ -13,7 +13,6 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 use Spatie\Tags\Tag;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 new class extends Component
 {
@@ -247,10 +246,7 @@ new class extends Component
                     @foreach ($this->contacts as $contact)
                         <flux:table.row :key="$contact->id">
                             <flux:table.cell>
-                                <flux:checkbox
-                                    wire:click="toggleSelect({{ $contact->id }})"
-                                    :checked="in_array($contact->id, $selected, true)"
-                                />
+                                <flux:checkbox wire:model.live="selected" value="{{ $contact->id }}" />
                             </flux:table.cell>
                             <flux:table.cell variant="strong">
                                 <a href="{{ route('panels.user.phonebook.view', $contact) }}" class="hover:underline" wire:navigate>
