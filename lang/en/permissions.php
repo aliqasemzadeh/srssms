@@ -63,6 +63,22 @@ return [
                 'import' => 'Import Transactions',
                 'export' => 'Export Transactions',
             ],
+            'deposit' => [
+                'view' => 'View Deposits',
+                'create' => 'Create Deposit',
+                'edit' => 'Edit Deposit',
+                'delete' => 'Delete Deposit',
+                'import' => 'Import Deposits',
+                'export' => 'Export Deposits',
+            ],
+            'withdrawal' => [
+                'view' => 'View Withdrawals',
+                'create' => 'Create Withdrawal',
+                'edit' => 'Edit Withdrawal',
+                'delete' => 'Delete Withdrawal',
+                'import' => 'Import Withdrawals',
+                'export' => 'Export Withdrawals',
+            ],
         ],
         'system-management' => [
             'setting' => [

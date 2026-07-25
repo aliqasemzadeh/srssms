@@ -1,8 +1,11 @@
 <?php
 
-use App\Enums\WithdrawalStatusEnum;
 use App\Models\Finance\Currency;
+use App\Models\Finance\Deposit;
+use App\Models\Finance\Transaction;
+use App\Models\Finance\Wallet;
 use App\Models\Finance\Withdrawal;
+use App\Models\User;
 use Flux\DateRange;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -17,9 +20,7 @@ new class extends Component
 
     public string $search = '';
 
-    public string $status = '';
-
-    public string $method = '';
+    public string $type = '';
 
     public string $currencyId = '';
 
@@ -44,26 +45,24 @@ new class extends Component
     public string $sortDirection = 'desc';
 
     #[Computed]
-    public function withdrawals(): LengthAwarePaginator
+    public function transactions(): LengthAwarePaginator
     {
-        $allowedSorts = ['amount', 'fee', 'tax', 'amount_settled', 'created_at', 'status'];
+        $allowedSorts = ['amount', 'balance_after', 'created_at', 'type'];
 
         $sortBy = in_array($this->sortBy, $allowedSorts, true) ? $this->sortBy : 'created_at';
         $sortDirection = $this->sortDirection === 'asc' ? 'asc' : 'desc';
 
-        return Withdrawal::query()
+        return Transaction::query()
             ->with([
-                'user' => fn ($query) => $query->withTrashed(),
+                'wallet.user' => fn ($query) => $query->withTrashed(),
                 'wallet.currency' => fn ($query) => $query->withTrashed(),
-                'userAccount' => fn ($query) => $query->withTrashed(),
+                'reference',
                 'creator',
             ])
-            ->withCount('transactions')
             ->when($this->search, function ($query) {
                 $query->where(function ($query) {
-                    $query->where('tracking_code', 'like', "%{$this->search}%")
-                        ->orWhere('admin_note', 'like', "%{$this->search}%")
-                        ->orWhereHas('user', function ($query) {
+                    $query->where('description', 'like', "%{$this->search}%")
+                        ->orWhereHas('wallet.user', function ($query) {
                             $query->withTrashed()
                                 ->where(function ($query) {
                                     $query->where('first_name', 'like', "%{$this->search}%")
@@ -72,14 +71,10 @@ new class extends Component
                                         ->orWhere('mobile', 'like', "%{$this->search}%")
                                         ->orWhere('username', 'like', "%{$this->search}%");
                                 });
-                        })
-                        ->orWhereHas('transactions', function ($query) {
-                            $query->where('description', 'like', "%{$this->search}%");
                         });
                 });
             })
-            ->when($this->status, fn ($query) => $query->where('status', $this->status))
-            ->when($this->method, fn ($query) => $query->where('method', $this->method))
+            ->when($this->type, fn ($query) => $query->where('type', $this->type))
             ->when($this->currencyId, function ($query) {
                 $query->whereHas('wallet', fn ($query) => $query->where('currency_id', $this->currencyId));
             })
@@ -154,12 +149,7 @@ new class extends Component
         $this->resetPage();
     }
 
-    public function updatedStatus(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatedMethod(): void
+    public function updatedType(): void
     {
         $this->resetPage();
     }
@@ -211,8 +201,7 @@ new class extends Component
     {
         $this->reset([
             'search',
-            'status',
-            'method',
+            'type',
             'currencyId',
             'currencySearch',
             'amountOperator',
@@ -227,10 +216,10 @@ new class extends Component
         $this->resetPage();
     }
 
-    #[On('panels.administrator.finance-management.withdrawal.index.refresh')]
+    #[On('panels.administrator.finance-management.transaction.index.refresh')]
     public function refresh(): void
     {
-        unset($this->withdrawals);
+        unset($this->transactions);
         unset($this->currencies);
     }
 };
@@ -239,17 +228,16 @@ new class extends Component
 <div>
     @php
         $isFa = app()->getLocale() === 'fa';
-        $withdrawalMethods = config('finance.withdrawal_methods', []);
     @endphp
 
-    <x-slot name="title">{{ __('general.withdrawals') }} - {{ config('app.name') }}</x-slot>
+    <x-slot name="title">{{ __('general.transactions') }} - {{ config('app.name') }}</x-slot>
 
     <div class="space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-3">
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('panels.administrator.dashboard.index') }}" icon="home" wire:navigate />
                 <flux:breadcrumbs.item>{{ __('general.finance_management') }}</flux:breadcrumbs.item>
-                <flux:breadcrumbs.item>{{ __('general.withdrawals') }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ __('general.transactions') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
         </div>
 
@@ -261,19 +249,12 @@ new class extends Component
                 </flux:button>
             </div>
 
-            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
 
-                <flux:select wire:model.live="status" variant="listbox" searchable placeholder="{{ __('general.status') }}..." clearable>
-                    @foreach (WithdrawalStatusEnum::cases() as $statusOption)
-                        <flux:select.option value="{{ $statusOption->value }}">{{ $statusOption->label() }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-
-                <flux:select wire:model.live="method" variant="listbox" searchable placeholder="{{ __('general.method') }}..." clearable>
-                    @foreach ($withdrawalMethods as $methodKey => $methodLabel)
-                        <flux:select.option value="{{ $methodKey }}">{{ __($methodLabel) }}</flux:select.option>
-                    @endforeach
+                <flux:select wire:model.live="type" variant="listbox" searchable placeholder="{{ __('general.type') }}..." clearable>
+                    <flux:select.option value="credit">{{ __('general.transaction_type_credit') }}</flux:select.option>
+                    <flux:select.option value="debit">{{ __('general.transaction_type_debit') }}</flux:select.option>
                 </flux:select>
 
                 <flux:select wire:model.live="currencyId" variant="combobox" :filter="false" clearable placeholder="{{ __('general.currency') }}...">
@@ -282,7 +263,7 @@ new class extends Component
                     </x-slot>
 
                     @foreach ($this->currencies as $currency)
-                        <flux:select.option value="{{ $currency->id }}" wire:key="withdrawal-currency-{{ $currency->id }}">
+                        <flux:select.option value="{{ $currency->id }}" wire:key="transaction-currency-{{ $currency->id }}">
                             <span dir="ltr">{{ $currency->symbol }}</span> — {{ $currency->trashed() ? __('general.deleted') : $currency->name }}
                         </flux:select.option>
                     @endforeach
@@ -360,38 +341,31 @@ new class extends Component
                 @endif
             </div>
 
-            <flux:table :paginate="$this->withdrawals">
+            <flux:table :paginate="$this->transactions">
                 <flux:table.columns>
                     <flux:table.column>{{ __('general.user') }}</flux:table.column>
                     <flux:table.column>{{ __('general.currency') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.user_account') }}</flux:table.column>
+                    <flux:table.column sortable :sorted="$sortBy === 'type'" :direction="$sortDirection" wire:click="sort('type')">{{ __('general.type') }}</flux:table.column>
                     <flux:table.column sortable :sorted="$sortBy === 'amount'" :direction="$sortDirection" wire:click="sort('amount')">{{ __('general.amount') }}</flux:table.column>
-                    <flux:table.column sortable :sorted="$sortBy === 'fee'" :direction="$sortDirection" wire:click="sort('fee')">{{ __('general.fee') }}</flux:table.column>
-                    <flux:table.column sortable :sorted="$sortBy === 'amount_settled'" :direction="$sortDirection" wire:click="sort('amount_settled')">{{ __('general.amount_settled') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.method') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.tracking_code') }}</flux:table.column>
-                    <flux:table.column sortable :sorted="$sortBy === 'status'" :direction="$sortDirection" wire:click="sort('status')">{{ __('general.status') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.transactions') }}</flux:table.column>
+                    <flux:table.column sortable :sorted="$sortBy === 'balance_after'" :direction="$sortDirection" wire:click="sort('balance_after')">{{ __('general.balance_after') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.description') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.reference') }}</flux:table.column>
                     <flux:table.column>{{ __('general.creator') }}</flux:table.column>
                     <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">{{ __('general.created_at') }}</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
-                    @forelse ($this->withdrawals as $withdrawal)
+                    @forelse ($this->transactions as $transaction)
                         @php
-                            $user = $withdrawal->user;
-                            $currency = $withdrawal->wallet?->currency;
-                            $account = $withdrawal->userAccount;
+                            $wallet = $transaction->wallet;
+                            $user = $wallet?->user;
+                            $currency = $wallet?->currency;
                             $decimals = $currency?->decimals ?? 8;
                             $userLabel = ($user && ! $user->trashed()) ? $user->full_name : __('general.deleted');
                             $currencyLabel = ($currency && ! $currency->trashed()) ? $currency->name : __('general.deleted');
                             $currencySymbol = $currency?->symbol ?? __('general.deleted');
-                            $methodLabel = __('general.withdrawal_methods.'.$withdrawal->method);
-                            $accountLabel = $account
-                                ? trim(($account->trashed() ? __('general.deleted').' — ' : '').($account->account_owner ? $account->account_owner.' · ' : '').($account->account_number ?? '#'.$account->id))
-                                : '—';
                         @endphp
-                        <flux:table.row :key="$withdrawal->id">
+                        <flux:table.row :key="$transaction->id">
                             <flux:table.cell>
                                 <div class="space-y-0.5">
                                     <div class="font-medium">{{ $userLabel }}</div>
@@ -416,43 +390,50 @@ new class extends Component
                                 </div>
                             </flux:table.cell>
                             <flux:table.cell>
-                                <span dir="ltr">{{ $accountLabel }}</span>
+                                <flux:badge size="sm" color="{{ $transaction->isCredit() ? 'green' : 'red' }}">
+                                    {{ __('general.transaction_type_'.$transaction->type) }}
+                                </flux:badge>
                             </flux:table.cell>
                             <flux:table.cell variant="strong">
-                                <span dir="ltr" class="text-red-600 dark:text-red-400">
-                                    {{ number_format((float) $withdrawal->amount, $decimals) }}
+                                <span dir="ltr" class="{{ $transaction->isCredit() ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                    {{ $transaction->isCredit() ? '+' : '-' }}{{ number_format((float) $transaction->amount, $decimals) }}
                                 </span>
                             </flux:table.cell>
                             <flux:table.cell>
-                                <span dir="ltr">{{ number_format((float) $withdrawal->fee, $decimals) }}</span>
+                                <span dir="ltr">
+                                    {{ $transaction->balance_after !== null ? number_format((float) $transaction->balance_after, $decimals) : '—' }}
+                                </span>
                             </flux:table.cell>
                             <flux:table.cell>
-                                <span dir="ltr">{{ number_format((float) $withdrawal->amount_settled, $decimals) }}</span>
-                            </flux:table.cell>
-                            <flux:table.cell>{{ $methodLabel }}</flux:table.cell>
-                            <flux:table.cell>
-                                <span dir="ltr">{{ $withdrawal->tracking_code ?: '—' }}</span>
+                                {{ $transaction->description ?: '—' }}
                             </flux:table.cell>
                             <flux:table.cell>
-                                <flux:badge size="sm" color="{{ $withdrawal->status->color() }}">
-                                    {{ $withdrawal->status->label() }}
-                                </flux:badge>
+                                @if ($transaction->reference instanceof User)
+                                    {{ $transaction->reference->full_name }}
+                                @elseif ($transaction->reference instanceof Wallet)
+                                    #{{ $transaction->reference->id }}
+                                @elseif ($transaction->reference instanceof Currency)
+                                    <span dir="ltr">{{ $transaction->reference->symbol }}</span>
+                                @elseif ($transaction->reference instanceof Deposit)
+                                    {{ __('general.deposit') }} #{{ $transaction->reference->id }}
+                                @elseif ($transaction->reference instanceof Withdrawal)
+                                    {{ __('general.withdrawal') }} #{{ $transaction->reference->id }}
+                                @elseif ($transaction->reference)
+                                    {{ class_basename($transaction->reference_type) }} #{{ $transaction->reference_id }}
+                                @else
+                                    —
+                                @endif
                             </flux:table.cell>
                             <flux:table.cell>
-                                <flux:badge size="sm" color="{{ $withdrawal->transactions_count > 0 ? 'teal' : 'zinc' }}">
-                                    {{ $withdrawal->transactions_count }}
-                                </flux:badge>
+                                {{ $transaction->creator?->full_name ?? '—' }}
                             </flux:table.cell>
-                            <flux:table.cell>
-                                {{ $withdrawal->creator?->full_name ?? '—' }}
-                            </flux:table.cell>
-                            <flux:table.cell>{{ $withdrawal->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
+                            <flux:table.cell>{{ $transaction->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                         </flux:table.row>
                     @empty
                         <flux:table.row>
-                            <flux:table.cell colspan="12">
+                            <flux:table.cell colspan="9">
                                 <div class="flex flex-col items-center justify-center gap-2 py-10 text-center">
-                                    <flux:icon.arrow-up-from-line variant="outline" class="size-8 text-zinc-400" />
+                                    <flux:icon.arrow-left-right variant="outline" class="size-8 text-zinc-400" />
                                     <flux:text>{{ __('general.no_results_found') }}</flux:text>
                                 </div>
                             </flux:table.cell>

@@ -53,6 +53,15 @@
                 <div x-show="showItem($el)" x-cloak>
                     <flux:sidebar.item href="{{ route('panels.administrator.finance-management.wallet.index') }}" :current="request()->routeIs('panels.administrator.finance-management.wallet.index')" wire:navigate>{{ __('general.wallets') }}</flux:sidebar.item>
                 </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.finance-management.transaction.index') }}" :current="request()->routeIs('panels.administrator.finance-management.transaction.index')" wire:navigate>{{ __('general.transactions') }}</flux:sidebar.item>
+                </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.finance-management.deposit.index') }}" :current="request()->routeIs('panels.administrator.finance-management.deposit.index')" wire:navigate>{{ __('general.deposits') }}</flux:sidebar.item>
+                </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.finance-management.withdrawal.index') }}" :current="request()->routeIs('panels.administrator.finance-management.withdrawal.index')" wire:navigate>{{ __('general.withdrawals') }}</flux:sidebar.item>
+                </div>
             </flux:sidebar.group>
         </div>
 

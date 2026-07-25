@@ -16,6 +16,9 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/panels/administrator/user-management/permissions', 'pages::panels.administrator.user-management.permission.index')->name('panels.administrator.user-management.permission.index');
     Route::livewire('/panels/administrator/finance-management/currencies', 'pages::panels.administrator.finance-management.currency.index')->name('panels.administrator.finance-management.currency.index');
     Route::livewire('/panels/administrator/finance-management/wallets', 'pages::panels.administrator.finance-management.wallet.index')->name('panels.administrator.finance-management.wallet.index');
+    Route::livewire('/panels/administrator/finance-management/transactions', 'pages::panels.administrator.finance-management.transaction.index')->name('panels.administrator.finance-management.transaction.index');
+    Route::livewire('/panels/administrator/finance-management/deposits', 'pages::panels.administrator.finance-management.deposit.index')->name('panels.administrator.finance-management.deposit.index');
+    Route::livewire('/panels/administrator/finance-management/withdrawals', 'pages::panels.administrator.finance-management.withdrawal.index')->name('panels.administrator.finance-management.withdrawal.index');
     Route::livewire('/panels/administrator/system-management/settings', 'pages::panels.administrator.system-management.setting.index')->name('panels.administrator.system-management.setting.index');
     Route::livewire('/panels/administrator/system-management/functions', 'pages::panels.administrator.system-management.function.index')->name('panels.administrator.system-management.function.index');
     Route::livewire('/panels/administrator/system-management/backups', 'pages::panels.administrator.system-management.backup.index')->name('panels.administrator.system-management.backup.index');

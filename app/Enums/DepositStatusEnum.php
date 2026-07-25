@@ -16,6 +16,18 @@ enum DepositStatusEnum: string
         return __('general.statuses.'.$this->value);
     }
 
+    public function color(): string
+    {
+        return match ($this) {
+            self::Pending => 'amber',
+            self::Processing => 'sky',
+            self::Approved => 'indigo',
+            self::Completed => 'green',
+            self::Rejected => 'red',
+            self::Canceled => 'zinc',
+        };
+    }
+
     /**
      * @return array<string, string>
      */
