@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'direction' => 'rtl',
+    'page_direction' => 'rtl',
     'login' => 'ورود',
     'register' => 'ثبت‌نام',
     'mobile' => 'شماره همراه',

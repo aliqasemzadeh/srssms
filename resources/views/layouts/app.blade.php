@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ __('general.direction') }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ __('general.page_direction') }}">
 @include('layouts.shared.head')
 <body class="min-h-screen bg-white dark:bg-zinc-800 antialiased">
 <flux:sidebar sticky collapsible="mobile" class="bg-zinc-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-700">
