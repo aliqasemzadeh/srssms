@@ -14,8 +14,6 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
     public string $code = '';
 
-    public bool $remember = false;
-
     public function mount(): void
     {
         if (session()->has('otp.login.user_id')) {
@@ -78,7 +76,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
             'code' => __('general.verify_otp'),
         ]);
 
-        $result = $user->attemptLoginUsingOneTimePassword($this->code, $this->remember);
+        $result = $user->attemptLoginUsingOneTimePassword($this->code, remember: true);
 
         if (! $result->isOk()) {
             throw ValidationException::withMessages([
@@ -139,12 +137,10 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
             </div>
 
             <div class="space-y-6">
-                <flux:otp wire:model="code" length="6" submit="auto" class="mx-auto" />
+                <flux:otp wire:model="code" length="6" submit="auto" dir="ltr" class="mx-auto" />
                 <flux:error name="code" />
                 <flux:error name="otp" />
             </div>
-
-            <flux:checkbox wire:model="remember" label="{{ __('general.remember_me') }}" />
 
             <flux:button type="submit" variant="primary" color="teal" class="w-full">
                 {{ __('general.verify_otp') }}

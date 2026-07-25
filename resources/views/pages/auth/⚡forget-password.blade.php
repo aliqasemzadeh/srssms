@@ -240,7 +240,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
             </div>
 
             <div class="space-y-6">
-                <flux:otp wire:model="code" length="6" submit="auto" class="mx-auto" />
+                <flux:otp wire:model="code" length="6" submit="auto" dir="ltr" class="mx-auto" />
                 <flux:error name="code" />
                 <flux:error name="otp" />
             </div>

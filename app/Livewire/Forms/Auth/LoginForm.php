@@ -18,8 +18,6 @@ class LoginForm extends Form
 
     public string $password = '';
 
-    public bool $remember = false;
-
     public function updatedLoginType(): void
     {
         $this->resetValidation();
@@ -70,7 +68,7 @@ class LoginForm extends Form
             default => ['mobile' => $this->mobile, 'password' => $this->password],
         };
 
-        if (! Auth::attempt($credentials, $this->remember)) {
+        if (! Auth::attempt($credentials, remember: true)) {
             throw ValidationException::withMessages([
                 'form.'.$this->loginType => __('general.login_failed'),
             ]);

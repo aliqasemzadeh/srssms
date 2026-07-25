@@ -63,11 +63,9 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
         <flux:field>
             <flux:label>{{ __('general.password') }}</flux:label>
-            <flux:input type="password" wire:model="form.password" icon="lock" placeholder="••••••••" viewable />
+            <flux:input type="password" wire:model="form.password" icon="lock" placeholder="********" viewable />
             <flux:error name="form.password" />
         </flux:field>
-
-        <flux:checkbox wire:model="form.remember" label="{{ __('general.remember_me') }}" />
 
         <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
             <flux:link href="{{ route('password.request') }}" wire:navigate class="font-medium">
