@@ -157,6 +157,8 @@ return [
     'url'                    => ':Attribute معتبر نمی‌باشد.',
     'uuid'                   => ':Attribute باید یک UUID معتبر باشد.',
     'attributes'             => [
+        'account_number'           => 'شماره حساب',
+        'account_owner'            => 'صاحب حساب',
         'address'                  => 'نشانی',
         'affiliate_url'            => 'URL وابسته',
         'age'                      => 'سن',
@@ -181,6 +183,7 @@ return [
         'created_at'               => 'ایجاد شده در',
         'creator'                  => 'سازنده',
         'currency'                 => 'واحد پول',
+        'currency_id'              => 'ارز',
         'current_password'         => 'رمزعبور فعلی',
         'customer'                 => 'مشتری',
         'date'                     => 'تاریخ',

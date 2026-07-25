@@ -157,6 +157,8 @@ return [
     'url'                    => 'The :attribute field must be a valid URL.',
     'uuid'                   => 'The :attribute field must be a valid UUID.',
     'attributes'             => [
+        'account_number'           => 'account number',
+        'account_owner'            => 'account owner',
         'address'                  => 'address',
         'affiliate_url'            => 'affiliate URL',
         'age'                      => 'age',
@@ -181,6 +183,7 @@ return [
         'created_at'               => 'created at',
         'creator'                  => 'creator',
         'currency'                 => 'currency',
+        'currency_id'              => 'currency',
         'current_password'         => 'current password',
         'customer'                 => 'customer',
         'date'                     => 'date',
