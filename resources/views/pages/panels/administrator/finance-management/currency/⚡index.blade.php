@@ -56,6 +56,15 @@ new class extends Component
         $this->resetPage();
     }
 
+    public function clearFilters(): void
+    {
+        $this->reset([
+            'type',
+        ]);
+
+        $this->resetPage();
+    }
+
     #[On('panels.administrator.finance-management.currency.index.refresh')]
     public function refresh(): void
     {
@@ -76,21 +85,83 @@ new class extends Component
             </flux:breadcrumbs>
 
             @can('finance-management.currency.create')
-            <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.finance-management.currency.create.assign-data')">
-                {{ __('actions.create') }} {{ __('general.currency') }}
-            </flux:button>
+            <div class="sm:hidden shrink-0">
+                <flux:dropdown align="end">
+                    <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
+                    <flux:menu>
+                        <flux:menu.item
+                            icon="plus"
+                            wire:click="$dispatch('panels.administrator.finance-management.currency.create.assign-data')"
+                        >
+                            {{ __('actions.create') }} {{ __('general.currency') }}
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+            </div>
+
+            <div class="hidden items-center gap-2 sm:flex shrink-0">
+                <flux:button
+                    variant="primary"
+                    color="teal"
+                    icon="plus"
+                    wire:click="$dispatch('panels.administrator.finance-management.currency.create.assign-data')"
+                >
+                    {{ __('actions.create') }} {{ __('general.currency') }}
+                </flux:button>
+            </div>
             @endcan
         </div>
 
-        <flux:card>
-            <div class="mb-4 grid gap-3 md:grid-cols-2">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+        <flux:card class="space-y-4">
+            @php
+                $activeFilters = collect([
+                    $type,
+                ])->filter(fn ($v) => filled($v))->count();
+            @endphp
 
-                <flux:select wire:model.live="type" variant="listbox" searchable placeholder="{{ __('general.type') }}..." clearable>
-                    <flux:select.option value="fiat">{{ __('general.currency_type_fiat') }}</flux:select.option>
-                    <flux:select.option value="crypto">{{ __('general.currency_type_crypto') }}</flux:select.option>
-                    <flux:select.option value="commodity">{{ __('general.currency_type_commodity') }}</flux:select.option>
-                </flux:select>
+            <div class="flex items-center gap-3">
+                <flux:input
+                    wire:model.live.debounce.300ms="search"
+                    icon="search"
+                    placeholder="{{ __('general.search') }}..."
+                    clearable
+                    class="min-w-0 flex-1 max-w-xs"
+                />
+
+                <flux:dropdown align="end" class="shrink-0 ms-auto">
+                    <flux:button
+                        icon="funnel"
+                        icon:variant="micro"
+                        icon:class="text-zinc-400"
+                    >
+                        {{ __('general.filters') }}
+
+                        <x-slot name="iconTrailing">
+                            <flux:badge size="sm" class="-mr-1">
+                                <span class="tabular-nums">{{ $activeFilters }}</span>
+                            </flux:badge>
+                        </x-slot>
+                    </flux:button>
+
+                    <flux:popover class="w-[min(100vw-2rem,20rem)] max-h-[70vh] overflow-y-auto flex flex-col gap-4">
+                        <flux:select wire:model.live="type" variant="listbox" searchable placeholder="{{ __('general.type') }}..." clearable>
+                            <flux:select.option value="fiat">{{ __('general.currency_type_fiat') }}</flux:select.option>
+                            <flux:select.option value="crypto">{{ __('general.currency_type_crypto') }}</flux:select.option>
+                            <flux:select.option value="commodity">{{ __('general.currency_type_commodity') }}</flux:select.option>
+                        </flux:select>
+
+                        <flux:separator variant="subtle" />
+
+                        <flux:button
+                            variant="subtle"
+                            size="sm"
+                            class="justify-start -m-2 !px-2"
+                            wire:click="clearFilters"
+                        >
+                            {{ __('general.clear_filters') }}
+                        </flux:button>
+                    </flux:popover>
+                </flux:dropdown>
             </div>
 
             <flux:table :paginate="$this->currencies">

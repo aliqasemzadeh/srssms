@@ -200,7 +200,6 @@ new class extends Component
     public function clearFilters(): void
     {
         $this->reset([
-            'search',
             'type',
             'currencyId',
             'currencySearch',
@@ -242,103 +241,134 @@ new class extends Component
         </div>
 
         <flux:card class="space-y-4">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-                <flux:heading size="sm">{{ __('general.filters') }}</flux:heading>
-                <flux:button size="sm" variant="ghost" icon="funnel" icon:variant="outline" wire:click="clearFilters">
-                    {{ __('general.clear_filters') }}
-                </flux:button>
-            </div>
+            @php
+                $activeFilters = collect([
+                    $type,
+                    $currencyId,
+                    $amountOperator,
+                    $dateFrom,
+                    $dateTo,
+                    $dateRange,
+                ])->filter(fn ($v) => filled($v))->count();
+            @endphp
 
-            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+            <div class="flex items-center gap-3">
+                <flux:input
+                    wire:model.live.debounce.300ms="search"
+                    icon="search"
+                    placeholder="{{ __('general.search') }}..."
+                    clearable
+                    class="min-w-0 flex-1 max-w-xs"
+                />
 
-                <flux:select wire:model.live="type" variant="listbox" searchable placeholder="{{ __('general.type') }}..." clearable>
-                    <flux:select.option value="credit">{{ __('general.transaction_type_credit') }}</flux:select.option>
-                    <flux:select.option value="debit">{{ __('general.transaction_type_debit') }}</flux:select.option>
-                </flux:select>
+                <flux:dropdown align="end" class="shrink-0 ms-auto">
+                    <flux:button
+                        icon="funnel"
+                        icon:variant="micro"
+                        icon:class="text-zinc-400"
+                    >
+                        {{ __('general.filters') }}
 
-                <flux:select wire:model.live="currencyId" variant="combobox" :filter="false" clearable placeholder="{{ __('general.currency') }}...">
-                    <x-slot name="input">
-                        <flux:select.input wire:model.live.debounce.300ms="currencySearch" placeholder="{{ __('general.currency') }}..." />
-                    </x-slot>
+                        <x-slot name="iconTrailing">
+                            <flux:badge size="sm" class="-mr-1">
+                                <span class="tabular-nums">{{ $activeFilters }}</span>
+                            </flux:badge>
+                        </x-slot>
+                    </flux:button>
 
-                    @foreach ($this->currencies as $currency)
-                        <flux:select.option value="{{ $currency->id }}" wire:key="transaction-currency-{{ $currency->id }}">
-                            <span dir="ltr">{{ $currency->symbol }}</span> — {{ $currency->trashed() ? __('general.deleted') : $currency->name }}
-                        </flux:select.option>
-                    @endforeach
-                </flux:select>
+                    <flux:popover class="w-[min(100vw-2rem,20rem)] max-h-[70vh] overflow-y-auto flex flex-col gap-4">
+                        <flux:select wire:model.live="type" variant="listbox" searchable placeholder="{{ __('general.type') }}..." clearable>
+                            <flux:select.option value="credit">{{ __('general.transaction_type_credit') }}</flux:select.option>
+                            <flux:select.option value="debit">{{ __('general.transaction_type_debit') }}</flux:select.option>
+                        </flux:select>
 
-                <flux:select wire:model.live="amountOperator" variant="listbox" searchable placeholder="{{ __('general.amount_filter') }}..." clearable>
-                    <flux:select.option value="gt">{{ __('general.amount_greater_than') }}</flux:select.option>
-                    <flux:select.option value="lt">{{ __('general.amount_less_than') }}</flux:select.option>
-                    <flux:select.option value="between">{{ __('general.amount_between') }}</flux:select.option>
-                </flux:select>
-            </div>
+                        <flux:select wire:model.live="currencyId" variant="combobox" :filter="false" clearable placeholder="{{ __('general.currency') }}...">
+                            <x-slot name="input">
+                                <flux:select.input wire:model.live.debounce.300ms="currencySearch" placeholder="{{ __('general.currency') }}..." />
+                            </x-slot>
 
-            @if ($amountOperator === 'gt' || $amountOperator === 'lt')
-                <div class="max-w-sm">
-                    <flux:input
-                        wire:model.live.debounce.300ms="amountValue"
-                        type="number"
-                        min="0"
-                        step="0.00000001"
-                        label="{{ __('general.amount') }}"
-                        placeholder="100"
-                        dir="ltr"
-                        clearable
-                    />
-                </div>
-            @elseif ($amountOperator === 'between')
-                <div class="grid max-w-xl gap-3 md:grid-cols-2">
-                    <flux:input
-                        wire:model.live.debounce.300ms="amountMin"
-                        type="number"
-                        min="0"
-                        step="0.00000001"
-                        label="{{ __('general.amount_from') }}"
-                        placeholder="100"
-                        dir="ltr"
-                        clearable
-                    />
-                    <flux:input
-                        wire:model.live.debounce.300ms="amountMax"
-                        type="number"
-                        min="0"
-                        step="0.00000001"
-                        label="{{ __('general.amount_to') }}"
-                        placeholder="900"
-                        dir="ltr"
-                        clearable
-                    />
-                </div>
-            @endif
+                            @foreach ($this->currencies as $currency)
+                                <flux:select.option value="{{ $currency->id }}" wire:key="transaction-currency-{{ $currency->id }}">
+                                    <span dir="ltr">{{ $currency->symbol }}</span> — {{ $currency->trashed() ? __('general.deleted') : $currency->name }}
+                                </flux:select.option>
+                            @endforeach
+                        </flux:select>
 
-            <div class="grid gap-3 md:grid-cols-2">
-                @if ($isFa)
-                    <x-persian-date-picker
-                        wire:model.live="dateFrom"
-                        label="{{ __('general.date_from') }}"
-                        placeholder="{{ __('general.date_from') }}"
-                    />
-                    <x-persian-date-picker
-                        wire:model.live="dateTo"
-                        label="{{ __('general.date_to') }}"
-                        placeholder="{{ __('general.date_to') }}"
-                    />
-                @else
-                    <div class="max-w-xl md:col-span-2">
-                        <flux:date-picker
-                            mode="range"
-                            type="input"
-                            wire:model.live="dateRange"
-                            with-presets
-                            clearable
-                            label="{{ __('general.date_range') }}"
-                            placeholder="{{ __('general.date_range') }}"
-                        />
-                    </div>
-                @endif
+                        <flux:select wire:model.live="amountOperator" variant="listbox" searchable placeholder="{{ __('general.amount_filter') }}..." clearable>
+                            <flux:select.option value="gt">{{ __('general.amount_greater_than') }}</flux:select.option>
+                            <flux:select.option value="lt">{{ __('general.amount_less_than') }}</flux:select.option>
+                            <flux:select.option value="between">{{ __('general.amount_between') }}</flux:select.option>
+                        </flux:select>
+
+                        @if ($amountOperator === 'gt' || $amountOperator === 'lt')
+                            <flux:input
+                                wire:model.live.debounce.300ms="amountValue"
+                                type="number"
+                                min="0"
+                                step="0.00000001"
+                                label="{{ __('general.amount') }}"
+                                placeholder="100"
+                                dir="ltr"
+                                clearable
+                            />
+                        @elseif ($amountOperator === 'between')
+                            <flux:input
+                                wire:model.live.debounce.300ms="amountMin"
+                                type="number"
+                                min="0"
+                                step="0.00000001"
+                                label="{{ __('general.amount_from') }}"
+                                placeholder="100"
+                                dir="ltr"
+                                clearable
+                            />
+                            <flux:input
+                                wire:model.live.debounce.300ms="amountMax"
+                                type="number"
+                                min="0"
+                                step="0.00000001"
+                                label="{{ __('general.amount_to') }}"
+                                placeholder="900"
+                                dir="ltr"
+                                clearable
+                            />
+                        @endif
+
+                        @if ($isFa)
+                            <x-persian-date-picker
+                                wire:model.live="dateFrom"
+                                label="{{ __('general.date_from') }}"
+                                placeholder="{{ __('general.date_from') }}"
+                            />
+                            <x-persian-date-picker
+                                wire:model.live="dateTo"
+                                label="{{ __('general.date_to') }}"
+                                placeholder="{{ __('general.date_to') }}"
+                            />
+                        @else
+                            <flux:date-picker
+                                mode="range"
+                                type="input"
+                                wire:model.live="dateRange"
+                                with-presets
+                                clearable
+                                label="{{ __('general.date_range') }}"
+                                placeholder="{{ __('general.date_range') }}"
+                            />
+                        @endif
+
+                        <flux:separator variant="subtle" />
+
+                        <flux:button
+                            variant="subtle"
+                            size="sm"
+                            class="justify-start -m-2 !px-2"
+                            wire:click="clearFilters"
+                        >
+                            {{ __('general.clear_filters') }}
+                        </flux:button>
+                    </flux:popover>
+                </flux:dropdown>
             </div>
 
             <flux:table :paginate="$this->transactions">
