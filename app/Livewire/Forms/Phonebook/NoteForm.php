@@ -6,6 +6,7 @@ use App\Enums\Phonebook\ContactNoteStatusEnum;
 use App\Models\Phonebook\Contact;
 use App\Models\Phonebook\Note;
 use Carbon\Carbon;
+use Closure;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
@@ -54,7 +55,7 @@ class NoteForm extends Form
             'status' => ['nullable', 'string', Rule::enum(ContactNoteStatusEnum::class)],
             'remind_at' => [
                 'nullable',
-                function (string $attribute, mixed $value, \Closure $fail): void {
+                function (string $attribute, mixed $value, Closure $fail): void {
                     if (blank($value)) {
                         return;
                     }
@@ -67,12 +68,10 @@ class NoteForm extends Form
                         return;
                     }
 
-                    if ($date->startOfDay()->lte(now()->startOfDay())) {
+                    if ($date->lte(now()->startOfDay())) {
                         $fail(__('validation.after', [
                             'attribute' => __('general.remind_at'),
-                            'date' => __('validation.today') !== 'validation.today'
-                                ? __('validation.today')
-                                : (app()->getLocale() === 'fa' ? 'امروز' : 'today'),
+                            'date' => app()->getLocale() === 'fa' ? 'امروز' : 'today',
                         ]));
                     }
                 },
