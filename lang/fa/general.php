@@ -460,6 +460,8 @@ return [
     'providers' => 'پروایدرها',
     'sms_gateway' => 'درگاه پیامک',
     'sms_gateways' => 'درگاه‌های پیامک',
+    'select_sms_gateway' => 'انتخاب درگاه پیامک',
+    'no_usable_sms_gateway' => 'هیچ درگاه پیامک قابل استفاده‌ای برای شما تعریف نشده است.',
     'gateway_access_type' => 'نوع دسترسی',
     'gateway_usage_type' => 'نوع کاربری',
     'is_public' => 'عمومی',

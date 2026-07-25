@@ -460,6 +460,8 @@ return [
     'providers' => 'Providers',
     'sms_gateway' => 'SMS Gateway',
     'sms_gateways' => 'SMS Gateways',
+    'select_sms_gateway' => 'Select SMS gateway',
+    'no_usable_sms_gateway' => 'No usable SMS gateway is available for your account.',
     'gateway_access_type' => 'Access Type',
     'gateway_usage_type' => 'Usage Type',
     'is_public' => 'Public',

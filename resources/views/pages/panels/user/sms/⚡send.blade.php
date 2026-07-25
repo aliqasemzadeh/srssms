@@ -146,9 +146,16 @@ new class extends Component
 
     public function goToPreview(): mixed
     {
+        if (blank($this->gateway_id) || (int) $this->gateway_id === 0) {
+            $this->gateway_id = null;
+        }
+
         $this->validate([
-            'gateway_id' => ['required', 'integer'],
+            'gateway_id' => ['required', 'integer', 'exists:sms_gateways,id'],
             'body' => ['required', 'string', 'max:1000'],
+        ], [], [
+            'gateway_id' => __('general.sms_gateway'),
+            'body' => __('general.message_body'),
         ]);
 
         if ($this->resolvedRecipients->isEmpty()) {
@@ -183,7 +190,13 @@ new class extends Component
         <flux:card class="space-y-6">
             <flux:heading size="lg">{{ __('general.send_sms') }}</flux:heading>
 
-            <flux:select wire:model.live="gateway_id" variant="listbox" searchable label="{{ __('general.sms_gateway') }}">
+            @if ($this->gateways->isEmpty())
+                <flux:callout icon="triangle-alert" color="amber" variant="secondary">
+                    <flux:callout.heading>{{ __('general.no_usable_sms_gateway') }}</flux:callout.heading>
+                </flux:callout>
+            @endif
+
+            <flux:select wire:model.live="gateway_id" variant="listbox" searchable label="{{ __('general.sms_gateway') }}" placeholder="{{ __('general.select_sms_gateway') }}">
                 @foreach ($this->gateways as $gateway)
                     <flux:select.option value="{{ $gateway->id }}">
                         {{ $gateway->title }} — {{ number_format($gateway->sms_rate) }} {{ __('general.rial') }}/{{ __('general.part') }}
