@@ -62,6 +62,9 @@
                 <div x-show="showItem($el)" x-cloak>
                     <flux:sidebar.item href="{{ route('panels.administrator.finance-management.withdrawal.index') }}" :current="request()->routeIs('panels.administrator.finance-management.withdrawal.index')" wire:navigate>{{ __('general.withdrawals') }}</flux:sidebar.item>
                 </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.finance-management.payment.index') }}" :current="request()->routeIs('panels.administrator.finance-management.payment.*')" wire:navigate>{{ __('general.payments') }}</flux:sidebar.item>
+                </div>
             </flux:sidebar.group>
         </div>
 

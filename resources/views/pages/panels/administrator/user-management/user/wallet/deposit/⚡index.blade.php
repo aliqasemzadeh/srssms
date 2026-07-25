@@ -203,7 +203,7 @@ new class extends Component
         $currencySymbol = $currency?->symbol ?? __('general.deleted');
         $decimals = $currency?->decimals ?? 8;
         $isFa = app()->getLocale() === 'fa';
-        $depositMethods = config('finance.deposit_methods', []);
+        $depositMethods = \App\Support\PaymentGateways::depositMethodOptions();
     @endphp
 
     <x-slot name="title">{{ __('general.deposits') }} - {{ $currencySymbol }} - {{ $user->full_name }} - {{ config('app.name') }}</x-slot>
@@ -371,7 +371,7 @@ new class extends Component
                 <flux:table.rows>
                     @forelse ($this->deposits as $deposit)
                         @php
-                            $methodLabel = __('general.deposit_methods.'.$deposit->method);
+                            $methodLabel = \App\Support\PaymentGateways::methodLabel((string) $deposit->method);
                         @endphp
                         <flux:table.row :key="$deposit->id">
                             <flux:table.cell variant="strong">

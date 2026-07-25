@@ -80,7 +80,7 @@ new class extends Component
 ?>
 
 @php
-    $depositMethods = config('finance.deposit_methods', []);
+    $depositMethods = \App\Support\PaymentGateways::depositMethodOptions();
     $decimals = $form->decimals();
 @endphp
 

@@ -6,6 +6,7 @@ use App\Enums\DepositStatusEnum;
 use App\Models\Finance\Deposit;
 use App\Models\Finance\Wallet;
 use App\Models\User;
+use App\Support\PaymentGateways;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -87,7 +88,7 @@ class DepositForm extends Form
      */
     public function rules(): array
     {
-        $methods = array_keys(config('finance.deposit_methods', []));
+        $methods = array_keys(PaymentGateways::depositMethodOptions());
 
         return [
             'user_id' => ['required', 'integer', Rule::exists('users', 'id')],

@@ -238,7 +238,7 @@ new class extends Component
 <div>
     @php
         $isFa = app()->getLocale() === 'fa';
-        $depositMethods = config('finance.deposit_methods', []);
+        $depositMethods = \App\Support\PaymentGateways::depositMethodOptions();
     @endphp
 
     <x-slot name="title">{{ __('general.deposits') }} - {{ config('app.name') }}</x-slot>
@@ -274,8 +274,8 @@ new class extends Component
                 </flux:select>
 
                 <flux:select wire:model.live="method" variant="listbox" searchable placeholder="{{ __('general.method') }}..." clearable>
-                    @foreach ($depositMethods as $methodKey => $methodLabel)
-                        <flux:select.option value="{{ $methodKey }}">{{ __($methodLabel) }}</flux:select.option>
+                    @foreach ($depositMethods as $methodKey => $methodLabelKey)
+                        <flux:select.option value="{{ $methodKey }}">{{ \App\Support\PaymentGateways::methodLabel($methodKey) }}</flux:select.option>
                     @endforeach
                 </flux:select>
 
@@ -388,7 +388,7 @@ new class extends Component
                             $userLabel = ($user && ! $user->trashed()) ? $user->full_name : __('general.deleted');
                             $currencyLabel = ($currency && ! $currency->trashed()) ? $currency->name : __('general.deleted');
                             $currencySymbol = $currency?->symbol ?? __('general.deleted');
-                            $methodLabel = __('general.deposit_methods.'.$deposit->method);
+                            $methodLabel = \App\Support\PaymentGateways::methodLabel((string) $deposit->method);
                         @endphp
                         <flux:table.row :key="$deposit->id">
                             <flux:table.cell>

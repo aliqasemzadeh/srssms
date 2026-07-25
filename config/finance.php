@@ -64,9 +64,11 @@ return [
     | Values are translation keys resolved with __().
     |
     */
+    /*
+    | Gateway methods (gateway_{driver}) are built dynamically from
+    | PaymentSettings.enabled via App\Support\PaymentGateways.
+    */
     'deposit_methods' => [
-        'gateway_zarinpal' => 'general.deposit_methods.gateway_zarinpal',
-        'gateway_mellat' => 'general.deposit_methods.gateway_mellat',
         'receipt' => 'general.deposit_methods.receipt',
         'crypto_transfer' => 'general.deposit_methods.crypto_transfer',
     ],

@@ -79,6 +79,14 @@ return [
                 'import' => 'Import Withdrawals',
                 'export' => 'Export Withdrawals',
             ],
+            'payment' => [
+                'view' => 'View Gateway Payments',
+                'check' => 'Approve or Reject Gateway Payment',
+                'setting' => [
+                    'view' => 'View Payment Gateway Settings',
+                    'edit' => 'Edit Payment Gateway Settings',
+                ],
+            ],
         ],
         'system-management' => [
             'setting' => [
