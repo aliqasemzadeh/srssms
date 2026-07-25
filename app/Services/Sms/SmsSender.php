@@ -4,11 +4,13 @@ namespace App\Services\Sms;
 
 use App\Contracts\SmsSender as SmsSenderContract;
 use App\Enums\Sms\SmsDirectionEnum;
+use App\Enums\Sms\SmsMessageSourceEnum;
 use App\Enums\Sms\SmsMessageStatusEnum;
 use App\Jobs\Sms\SendSmsCampaignJob;
 use App\Models\Phonebook\Contact;
 use App\Models\Sms\Gateway;
 use App\Models\Sms\Message;
+use App\Models\Sms\Token;
 use App\Models\User;
 use App\Settings\SmsSettings;
 use Illuminate\Support\Facades\DB;
@@ -136,6 +138,8 @@ class SmsSender implements SmsSenderContract
         string $text,
         array $recipients,
         bool $bill = true,
+        SmsMessageSourceEnum $source = SmsMessageSourceEnum::Panel,
+        ?Token $token = null,
     ): Message {
         $gateway->loadMissing('provider');
 
@@ -159,7 +163,7 @@ class SmsSender implements SmsSenderContract
         $estimate = $this->billing->estimate($gateway, $text, $normalized->count());
         $analysis = $this->partCounter->analyze($text);
 
-        return DB::transaction(function () use ($gateway, $user, $text, $normalized, $estimate, $analysis, $bill): Message {
+        return DB::transaction(function () use ($gateway, $user, $text, $normalized, $estimate, $analysis, $bill, $source, $token): Message {
             if ($bill) {
                 $this->billing->assertSufficientBalance($user, $estimate['cost']);
             }
@@ -167,6 +171,8 @@ class SmsSender implements SmsSenderContract
             $message = Message::query()->create([
                 'gateway_id' => $gateway->id,
                 'user_id' => $user->id,
+                'source' => $source,
+                'token_id' => $token?->id,
                 'direction' => SmsDirectionEnum::Outbound,
                 'number' => $gateway->number,
                 'body' => $text,

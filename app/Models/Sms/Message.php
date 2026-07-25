@@ -4,6 +4,7 @@ namespace App\Models\Sms;
 
 use App\Enums\Sms\SmsDirectionEnum;
 use App\Enums\Sms\SmsEncodingEnum;
+use App\Enums\Sms\SmsMessageSourceEnum;
 use App\Enums\Sms\SmsMessageStatusEnum;
 use App\Models\Finance\Transaction;
 use App\Models\User;
@@ -16,6 +17,8 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 #[Fillable([
     'gateway_id',
     'user_id',
+    'source',
+    'token_id',
     'direction',
     'number',
     'body',
@@ -42,6 +45,7 @@ class Message extends Model
             'direction' => SmsDirectionEnum::class,
             'encoding' => SmsEncodingEnum::class,
             'status' => SmsMessageStatusEnum::class,
+            'source' => SmsMessageSourceEnum::class,
             'parts_count' => 'integer',
             'sms_rate' => 'integer',
             'cost' => 'integer',
@@ -59,6 +63,11 @@ class Message extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function token(): BelongsTo
+    {
+        return $this->belongsTo(Token::class);
     }
 
     public function recipients(): HasMany

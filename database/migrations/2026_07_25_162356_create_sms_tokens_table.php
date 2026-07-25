@@ -11,9 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tokens', function (Blueprint $table) {
+        Schema::create('sms_tokens', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
+            $table->string('name');
+            $table->string('token', 80)->unique();
+            $table->json('allowed_ips')->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->timestamp('last_used_at')->nullable();
             $table->timestamps();
+
+            $table->index('user_id');
+            $table->index('is_active');
         });
     }
 
@@ -22,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tokens');
+        Schema::dropIfExists('sms_tokens');
     }
 };

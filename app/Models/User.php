@@ -11,6 +11,7 @@ use App\Models\Phonebook\Group as PhonebookGroup;
 use App\Models\Phonebook\Note as PhonebookNote;
 use App\Models\Sms\Gateway;
 use App\Models\Sms\Message;
+use App\Models\Sms\Token;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -93,6 +94,11 @@ class User extends Authenticatable
     public function smsMessages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    public function smsTokens(): HasMany
+    {
+        return $this->hasMany(Token::class);
     }
 
     public function phonebookContacts(): HasMany
