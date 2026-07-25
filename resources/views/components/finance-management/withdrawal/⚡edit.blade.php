@@ -108,7 +108,7 @@ new class extends Component
     </div>
 
     <form wire:submit="save" class="space-y-6">
-        <flux:select wire:model.live="form.user_id" variant="combobox" :filter="false" searchable label="{{ __('general.user') }}">
+        <flux:select wire:model.live="form.user_id" variant="combobox" :filter="false" label="{{ __('general.user') }}">
             <x-slot name="input">
                 <flux:select.input wire:model.live.debounce.300ms="userSearch" placeholder="{{ __('general.search') }}..." />
             </x-slot>
@@ -120,7 +120,7 @@ new class extends Component
             @endforeach
         </flux:select>
 
-        <flux:select wire:model.live="form.wallet_id" variant="combobox" :filter="false" searchable label="{{ __('general.wallet') }}" :disabled="blank($form->user_id)">
+        <flux:select wire:model.live="form.wallet_id" variant="combobox" :filter="false" label="{{ __('general.wallet') }}" :disabled="blank($form->user_id)">
             <x-slot name="input">
                 <flux:select.input wire:model.live.debounce.300ms="walletSearch" placeholder="{{ __('general.search') }}..." />
             </x-slot>
@@ -132,7 +132,7 @@ new class extends Component
             @endforeach
         </flux:select>
 
-        <flux:select wire:model="form.user_account_id" variant="combobox" :filter="false" searchable label="{{ __('general.user_account') }}" :disabled="blank($form->wallet_id)">
+        <flux:select wire:model="form.user_account_id" variant="combobox" :filter="false" label="{{ __('general.user_account') }}" :disabled="blank($form->wallet_id)">
             <x-slot name="input">
                 <flux:select.input wire:model.live.debounce.300ms="userAccountSearch" placeholder="{{ __('general.search') }}..." />
             </x-slot>
