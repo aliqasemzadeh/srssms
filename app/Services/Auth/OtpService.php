@@ -47,7 +47,7 @@ class OtpService
         }
 
         throw ValidationException::withMessages([
-            'otp' => __('app.otp_throttle', [
+            'otp' => __('general.otp_throttle', [
                 'seconds' => $this->remainingSeconds($user, $purpose),
             ]),
         ]);

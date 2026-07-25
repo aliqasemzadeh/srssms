@@ -32,8 +32,8 @@ class OneTimePasswordNotification extends Notification implements ShouldQueue
         $minutes = config('one-time-passwords.default_expires_in_minutes', 5);
 
         return (new MailMessage)
-            ->subject(__('app.otp_mail_subject'))
-            ->line(__('app.otp_mail_body', [
+            ->subject(__('general.otp_mail_subject'))
+            ->line(__('general.otp_mail_body', [
                 'code' => $this->oneTimePassword->password,
                 'minutes' => $minutes,
             ]));
@@ -41,7 +41,7 @@ class OneTimePasswordNotification extends Notification implements ShouldQueue
 
     public function toSms(object $notifiable): string
     {
-        return __('app.otp_sms_body', [
+        return __('general.otp_sms_body', [
             'code' => $this->oneTimePassword->password,
             'minutes' => config('one-time-passwords.default_expires_in_minutes', 5),
         ]);

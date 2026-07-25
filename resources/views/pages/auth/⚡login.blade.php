@@ -1,4 +1,4 @@
-ï»¿<?php
+<?php
 
 use App\Livewire\Forms\Auth\LoginForm;
 use Flux\Flux;
@@ -63,7 +63,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
         <flux:field>
             <flux:label>{{ __('general.password') }}</flux:label>
-            <flux:input type="password" wire:model="form.password" icon="lock" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" viewable />
+            <flux:input type="password" wire:model="form.password" icon="lock" placeholder="••••••••" viewable />
             <flux:error name="form.password" />
         </flux:field>
 
@@ -71,10 +71,10 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
         <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
             <flux:link href="{{ route('password.request') }}" wire:navigate class="font-medium">
-                {{ __('app.forgot_password_link') }}
+                {{ __('general.forgot_password_link') }}
             </flux:link>
             <flux:link href="{{ route('login.otp') }}" wire:navigate class="font-medium">
-                {{ __('app.login_with_otp') }}
+                {{ __('general.login_with_otp') }}
             </flux:link>
         </div>
 

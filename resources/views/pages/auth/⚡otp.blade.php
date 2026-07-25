@@ -46,7 +46,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
         $this->step = 'verify';
         $this->code = '';
 
-        Flux::toast(__('app.otp_sent'));
+        Flux::toast(__('general.otp_sent'));
     }
 
     public function resend(OtpService $otp): void
@@ -59,7 +59,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
         $this->code = '';
 
-        Flux::toast(__('app.otp_sent'));
+        Flux::toast(__('general.otp_sent'));
     }
 
     public function verify(): void
@@ -68,21 +68,21 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
         if (! $user) {
             throw ValidationException::withMessages([
-                'code' => __('app.otp_invalid'),
+                'code' => __('general.otp_invalid'),
             ]);
         }
 
         $this->validate([
             'code' => ['required', 'digits:6'],
         ], attributes: [
-            'code' => __('app.verify_otp'),
+            'code' => __('general.verify_otp'),
         ]);
 
         $result = $user->attemptLoginUsingOneTimePassword($this->code, $this->remember);
 
         if (! $result->isOk()) {
             throw ValidationException::withMessages([
-                'code' => $result->validationMessage() ?: __('app.otp_invalid'),
+                'code' => $result->validationMessage() ?: __('general.otp_invalid'),
             ]);
         }
 
@@ -91,7 +91,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
         Flux::toast(__('general.login_success'));
 
-        return redirect()->intended('/');
+        $this->redirectIntended('/');
     }
 
     protected function loginUser(): ?User
@@ -111,13 +111,13 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 ?>
 
 <div>
-    <x-slot name="title">{{ __('app.login_with_otp') }} - {{ config('app.name') }}</x-slot>
+    <x-slot name="title">{{ __('general.login_with_otp') }} - {{ config('app.name') }}</x-slot>
 
     @if ($step === 'request')
         <form wire:submit="send" class="space-y-4">
             <div class="space-y-2 text-center">
-                <flux:heading size="lg">{{ __('app.login_with_otp') }}</flux:heading>
-                <flux:text>{{ __('app.login_with_otp_hint') }}</flux:text>
+                <flux:heading size="lg">{{ __('general.login_with_otp') }}</flux:heading>
+                <flux:text>{{ __('general.login_with_otp_hint') }}</flux:text>
             </div>
 
             <flux:field>
@@ -128,14 +128,14 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
             </flux:field>
 
             <flux:button type="submit" variant="primary" color="teal" class="w-full">
-                {{ __('app.send_otp') }}
+                {{ __('general.send_otp') }}
             </flux:button>
         </form>
     @else
         <form wire:submit="verify" class="space-y-8">
             <div class="max-w-64 mx-auto space-y-2">
-                <flux:heading size="lg" class="text-center">{{ __('app.otp_verify_heading') }}</flux:heading>
-                <flux:text class="text-center">{{ __('app.otp_verify_hint') }}</flux:text>
+                <flux:heading size="lg" class="text-center">{{ __('general.otp_verify_heading') }}</flux:heading>
+                <flux:text class="text-center">{{ __('general.otp_verify_hint') }}</flux:text>
             </div>
 
             <div class="space-y-6">
@@ -147,12 +147,12 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
             <flux:checkbox wire:model="remember" label="{{ __('general.remember_me') }}" />
 
             <flux:button type="submit" variant="primary" color="teal" class="w-full">
-                {{ __('app.verify_otp') }}
+                {{ __('general.verify_otp') }}
             </flux:button>
 
             <div class="text-center">
                 <flux:button type="button" variant="ghost" wire:click="resend" class="w-full">
-                    {{ __('app.resend_otp') }}
+                    {{ __('general.resend_otp') }}
                 </flux:button>
             </div>
         </form>
@@ -161,7 +161,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
     <div class="mt-4 space-y-2 text-center text-sm text-zinc-500 dark:text-zinc-400">
         <div>
             <flux:link href="{{ route('login') }}" wire:navigate class="font-medium">
-                {{ __('app.back_to_login') }}
+                {{ __('general.back_to_login') }}
             </flux:link>
         </div>
     </div>
