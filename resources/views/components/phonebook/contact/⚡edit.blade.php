@@ -17,11 +17,14 @@ new class extends Component
 {
     public ContactForm $form;
 
+    public string $tagSearch = '';
+
     #[On('panels.user.phonebook.contact.edit.assign-data')]
     public function assignData(int $contact): void
     {
         $model = Contact::query()->ownedBy(Auth::user())->with(['groups', 'tags'])->findOrFail($contact);
         $this->form->setModel($model);
+        $this->tagSearch = '';
         $this->resetValidation();
         unset($this->groups, $this->availableTags);
 
@@ -41,6 +44,25 @@ new class extends Component
             ->where('type', Contact::tagTypeFor(Auth::user()))
             ->orderBy('order_column')
             ->get();
+    }
+
+    public function createTag(): void
+    {
+        $name = trim($this->tagSearch);
+
+        if ($name === '' || mb_strlen($name) < 1) {
+            return;
+        }
+
+        $tag = Tag::findOrCreate($name, Contact::tagTypeFor(Auth::user()));
+        $tagName = (string) $tag->name;
+
+        if (! in_array($tagName, $this->form->tags, true)) {
+            $this->form->tags[] = $tagName;
+        }
+
+        $this->tagSearch = '';
+        unset($this->availableTags);
     }
 
     public function save(): void
@@ -97,11 +119,19 @@ new class extends Component
             @endforeach
         </flux:select>
 
-        <flux:pillbox wire:model="form.tags" multiple searchable label="{{ __('general.phonebook_tags') }}">
+        <flux:select wire:model="form.tags" variant="combobox" multiple label="{{ __('general.phonebook_tags') }}">
+            <x-slot name="input">
+                <flux:select.input wire:model="tagSearch" placeholder="{{ __('general.search_phonebook_tags') }}" />
+            </x-slot>
+
             @foreach ($this->availableTags as $tag)
-                <flux:pillbox.option value="{{ $tag->name }}">{{ $tag->name }}</flux:pillbox.option>
+                <flux:select.option value="{{ $tag->name }}" :wire:key="$tag->id">{{ $tag->name }}</flux:select.option>
             @endforeach
-        </flux:pillbox>
+
+            <flux:select.option.create wire:click="createTag" min-length="1">
+                {{ __('general.create_phonebook_tag') }} "<span wire:text="tagSearch"></span>"
+            </flux:select.option.create>
+        </flux:select>
 
         <flux:button type="submit" variant="primary" color="orange" class="w-full">{{ __('actions.save') }}</flux:button>
     </form>
