@@ -108,6 +108,14 @@ return [
                 'view' => 'View Logs',
             ],
         ],
+        'support-system' => [
+            'ticket' => [
+                'view' => 'View Tickets',
+                'reply' => 'Reply to Tickets',
+                'update' => 'Update Ticket Status',
+                'delete' => 'Delete Tickets',
+            ],
+        ],
         'sms-management' => [
             'provider' => [
                 'view' => 'View Providers',

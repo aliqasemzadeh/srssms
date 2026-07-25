@@ -12,6 +12,7 @@ use App\Models\Phonebook\Note as PhonebookNote;
 use App\Models\Sms\Gateway;
 use App\Models\Sms\Message;
 use App\Models\Sms\Token;
+use App\Models\Support\Ticket;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -114,5 +115,10 @@ class User extends Authenticatable
     public function phonebookNotes(): HasMany
     {
         return $this->hasMany(PhonebookNote::class);
+    }
+
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class);
     }
 }
