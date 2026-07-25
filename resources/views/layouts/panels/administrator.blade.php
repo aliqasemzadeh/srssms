@@ -6,7 +6,7 @@
 <x-sidebar-menu-search>
     <flux:sidebar.nav>
         <div x-show="showItem($el)" x-cloak>
-            <flux:sidebar.item icon="home" href="{{ route('panels.administrator.dashboard.index') }}" :current="request()->routeIs('panels.administrator.dashboard.index')">{{ __('general.dashboard') }}</flux:sidebar.item>
+            <flux:sidebar.item icon="home" href="{{ route('panels.administrator.dashboard.index') }}" :current="request()->routeIs('panels.administrator.dashboard.index')" wire:navigate>{{ __('general.dashboard') }}</flux:sidebar.item>
         </div>
 
         @canany([
