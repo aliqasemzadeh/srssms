@@ -55,7 +55,6 @@ class TagForm extends Form
         }
 
         $this->tag->name = $this->name;
-        $this->tag->slug = Str::slug($this->name);
         $this->tag->save();
     }
 }

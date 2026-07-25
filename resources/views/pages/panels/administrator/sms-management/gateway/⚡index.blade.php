@@ -139,6 +139,7 @@ new class extends Component
                     <flux:table.column>{{ __('general.gateway_access_type') }}</flux:table.column>
                     <flux:table.column>{{ __('general.gateway_usage_type') }}</flux:table.column>
                     <flux:table.column>{{ __('general.is_public') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.sms_rate') }}</flux:table.column>
                     <flux:table.column>{{ __('general.gateway_users') }}</flux:table.column>
                     <flux:table.column>{{ __('general.status') }}</flux:table.column>
                     <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">{{ __('general.created_at') }}</flux:table.column>
@@ -161,6 +162,9 @@ new class extends Component
                                 <flux:badge size="sm" color="{{ $gateway->is_public ? 'green' : 'zinc' }}">
                                     {{ $gateway->is_public ? __('general.yes') : __('general.no') }}
                                 </flux:badge>
+                            </flux:table.cell>
+                            <flux:table.cell>
+                                <span dir="ltr">{{ number_format($gateway->sms_rate) }}</span>
                             </flux:table.cell>
                             <flux:table.cell>
                                 <flux:badge size="sm" color="zinc">{{ $gateway->users_count }}</flux:badge>
