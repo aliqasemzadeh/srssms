@@ -56,7 +56,7 @@ class PaymentController extends Controller
             $invoice = (new Invoice)->amount($gatewayAmount);
 
             $redirection = Payment::via($driver)
-                ->callbackUrl(route('payment.callback', $deposit))
+                ->callbackUrl(secure_url(route('payment.callback', $deposit, absolute: false)))
                 ->purchase($invoice, function ($paymentDriver, string $transactionId) use ($deposit, $driver, $gatewayAmount): void {
                     $meta = is_array($deposit->meta) ? $deposit->meta : [];
                     $meta['driver'] = $driver;
