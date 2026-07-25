@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Enums\DepositStatusEnum;
 use App\Livewire\Forms\DepositForm;
 use App\Models\Finance\Deposit;
@@ -11,6 +12,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public DepositForm $form;
 
     public string $userSearch = '';
@@ -20,6 +23,8 @@ new class extends Component
     #[On('panels.administrator.finance-management.deposit.edit.assign-data')]
     public function assignData(int $deposit): void
     {
+        $this->authorizePermission('finance-management.deposit.edit');
+
         $this->form->setModel(Deposit::query()->findOrFail($deposit));
         $this->userSearch = '';
         $this->walletSearch = '';
@@ -64,6 +69,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('finance-management.deposit.edit');
+
         $this->form->update();
 
         $this->dispatch('panels.administrator.finance-management.deposit.index.refresh');

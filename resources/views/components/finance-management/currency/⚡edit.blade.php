@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\CurrencyForm;
 use App\Models\Finance\Currency;
 use Flux\Flux;
@@ -9,6 +10,8 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     use WithFileUploads;
 
     public CurrencyForm $form;
@@ -16,6 +19,8 @@ new class extends Component
     #[On('panels.administrator.finance-management.currency.edit.assign-data')]
     public function assignData(int $currency): void
     {
+        $this->authorizePermission('finance-management.currency.edit');
+
         $this->form->setModel(Currency::findOrFail($currency));
         $this->resetValidation();
 
@@ -31,6 +36,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('finance-management.currency.edit');
+
         $this->form->update();
 
         $this->dispatch('panels.administrator.finance-management.currency.index.refresh');

@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\Finance\Wallet;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -7,11 +8,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?Wallet $wallet = null;
 
     #[On('panels.administrator.user-management.user.wallet.edit.assign-data')]
     public function assignData(int $wallet): void
     {
+        $this->authorizePermission('finance-management.wallet.view');
+
         $this->wallet = Wallet::query()
             ->with([
                 'user' => fn ($query) => $query->withTrashed(),

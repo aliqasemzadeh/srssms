@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\Settings\MaintenanceSettingsForm;
 use App\Settings\MaintenanceSettings;
 use Flux\Flux;
@@ -8,6 +9,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public MaintenanceSettingsForm $form;
 
     public function mount(MaintenanceSettings $settings): void
@@ -17,6 +20,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('system-management.setting.edit');
+
         $settings = $this->form->store();
 
         if ($settings->is_maintenance_mode) {

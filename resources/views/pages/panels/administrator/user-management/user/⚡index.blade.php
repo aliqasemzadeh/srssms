@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\User;
 use App\Services\Auth\ImpersonationService;
 use Flux\Flux;
@@ -11,6 +12,8 @@ use Livewire\WithPagination;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     use WithPagination;
 
     public string $search = '';
@@ -55,6 +58,8 @@ new class extends Component
 
     public function impersonate(User $user, ImpersonationService $impersonation): void
     {
+        $this->authorizePermission('user-management.user.impersonate');
+
         $impersonation->start($user);
 
         Flux::toast(__('app.impersonation_started'));
@@ -81,9 +86,11 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.users') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
+@can('user-management.user.create')
             <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.create.assign-data')">
                 {{ __('actions.create') }} {{ __('general.user') }}
             </flux:button>
+@endcan
         </div>
 
         <flux:card>
@@ -120,22 +127,32 @@ new class extends Component
                                         <flux:button size="xs" variant="primary" color="cyan" icon="credit-card" icon:variant="outline" :href="route('panels.administrator.user-management.user.user-account.index', $user)" wire:navigate />
                                     </flux:tooltip>
                                     @if ($user->id !== auth()->id())
+@can('user-management.user.impersonate')
                                         <flux:tooltip content="{{ __('actions.impersonate') }}">
                                             <flux:button size="xs" variant="primary" color="amber" icon="venetian-mask" icon:variant="outline" wire:click="impersonate({{ $user->id }})" wire:confirm="{{ __('general.are_you_sure') }}" />
                                         </flux:tooltip>
+@endcan
                                     @endif
+@can('user-management.user.edit')
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.edit.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
+@endcan
+@can('user-management.user.edit')
                                     <flux:tooltip content="{{ __('general.user_roles') }}">
                                         <flux:button size="xs" variant="primary" color="indigo" icon="shield" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.roles.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
+@endcan
+@can('user-management.user.edit')
                                     <flux:tooltip content="{{ __('general.user_permissions') }}">
                                         <flux:button size="xs" variant="primary" color="violet" icon="key" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.permissions.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
+@endcan
+@can('user-management.user.delete')
                                     <flux:tooltip content="{{ __('general.delete') }}">
                                         <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.delete.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
+@endcan
                                 </div>
                             </flux:table.cell>
                         </flux:table.row>

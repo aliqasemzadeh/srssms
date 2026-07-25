@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\RoleForm;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -8,11 +9,15 @@ use Spatie\Permission\Models\Role;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public RoleForm $form;
 
     #[On('panels.administrator.user-management.role.edit.assign-data')]
     public function assignData(int $role): void
     {
+        $this->authorizePermission('user-management.role.edit');
+
         $this->form->setModel(Role::findById($role));
         $this->resetValidation();
 
@@ -21,6 +26,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('user-management.role.edit');
+
         $this->form->update();
 
         $this->dispatch('panels.administrator.user-management.role.index.refresh');

@@ -98,9 +98,11 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.user_accounts') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
+            @can('user-management.user.edit')
             <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.user-account.create.assign-data')">
                 {{ __('actions.create') }} {{ __('general.user_account') }}
             </flux:button>
+            @endcan
         </div>
 
         <flux:card>
@@ -170,12 +172,16 @@ new class extends Component
                             <flux:table.cell>{{ $userAccount->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
+                                    @can('user-management.user.edit')
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.user-account.edit.assign-data', { userAccount: {{ $userAccount->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
+                                    @can('user-management.user.edit')
                                     <flux:tooltip content="{{ __('general.delete') }}">
                                         <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.user-account.delete.assign-data', { userAccount: {{ $userAccount->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
                                 </div>
                             </flux:table.cell>
                         </flux:table.row>

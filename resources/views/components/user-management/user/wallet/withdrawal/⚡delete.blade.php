@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\Finance\Wallet;
 use App\Models\Finance\Withdrawal;
 use App\Models\User;
@@ -9,6 +10,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public User $user;
 
     public Wallet $wallet;
@@ -28,6 +31,8 @@ new class extends Component
     #[On('panels.administrator.user-management.user.wallet.withdrawal.delete.assign-data')]
     public function assignData(int $withdrawal): void
     {
+        $this->authorizePermission('finance-management.withdrawal.delete');
+
         $this->withdrawal = Withdrawal::query()
             ->where('wallet_id', $this->wallet->id)
             ->with([
@@ -40,6 +45,8 @@ new class extends Component
 
     public function delete(): void
     {
+        $this->authorizePermission('finance-management.withdrawal.delete');
+
         if (! $this->withdrawal) {
             return;
         }

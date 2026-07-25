@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\Settings\PaymentSettingsForm;
 use App\Settings\PaymentSettings;
 use App\Support\PaymentGateways;
@@ -8,6 +9,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public PaymentSettingsForm $form;
 
     public string $selectedDriver = 'zarinpal';
@@ -20,6 +23,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('finance-management.payment.setting.edit');
+
         $this->form->store();
 
         app(PaymentSettings::class)->refreshCache();
@@ -154,9 +159,11 @@ new class extends Component
                 </div>
             </flux:card>
 
+            @can('finance-management.payment.setting.edit')
             <flux:button type="submit" variant="primary" color="teal" icon="save" class="w-full">
                 {{ __('general.save') }}
             </flux:button>
+            @endcan
         </form>
     </div>
 </div>

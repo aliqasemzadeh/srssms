@@ -103,9 +103,11 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.sms_gateways') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
+            @can('sms-management.gateway.create')
             <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.sms-management.gateway.create.assign-data')">
                 {{ __('actions.create') }} {{ __('general.sms_gateway') }}
             </flux:button>
+            @endcan
         </div>
 
         <flux:card>
@@ -177,15 +179,21 @@ new class extends Component
                             <flux:table.cell>{{ $gateway->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
+                                    @can('sms-management.gateway.user.view')
                                     <flux:tooltip content="{{ __('general.gateway_users') }}">
                                         <flux:button size="xs" variant="primary" color="teal" icon="users" icon:variant="outline" href="{{ route('panels.administrator.sms-management.gateway.user.index', $gateway) }}" wire:navigate />
                                     </flux:tooltip>
+                                    @endcan
+                                    @can('sms-management.gateway.edit')
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.gateway.edit.assign-data', { gateway: {{ $gateway->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
+                                    @can('sms-management.gateway.delete')
                                     <flux:tooltip content="{{ __('general.delete') }}">
                                         <flux:button size="xs" variant="danger" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.gateway.delete.assign-data', { gateway: {{ $gateway->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
                                 </div>
                             </flux:table.cell>
                         </flux:table.row>

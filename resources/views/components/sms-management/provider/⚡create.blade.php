@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\ProviderForm;
 use App\Services\Sms\SmsManager;
 use Flux\Flux;
@@ -8,11 +9,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ProviderForm $form;
 
     #[On('panels.administrator.sms-management.provider.create.assign-data')]
     public function assignData(): void
     {
+        $this->authorizePermission('sms-management.provider.create');
+
         $this->form->resetForCreate();
         $this->resetValidation();
 
@@ -26,6 +31,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('sms-management.provider.create');
+
         $this->form->store();
         $this->form->resetForCreate();
         $this->dispatch('panels.administrator.sms-management.provider.index.refresh');

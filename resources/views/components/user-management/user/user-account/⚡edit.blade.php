@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Enums\UserAccountTypeEnum;
 use App\Livewire\Forms\UserAccountForm;
 use App\Models\UserAccount;
@@ -11,6 +12,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public UserAccountForm $form;
 
     public string $currencySearch = '';
@@ -18,6 +21,8 @@ new class extends Component
     #[On('panels.administrator.user-management.user.user-account.edit.assign-data')]
     public function assignData(int $userAccount): void
     {
+        $this->authorizePermission('user-management.user.edit');
+
         $account = UserAccount::query()
             ->with([
                 'user' => fn ($query) => $query->withTrashed(),
@@ -40,6 +45,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('user-management.user.edit');
+
         $this->form->update();
 
         $this->dispatch('panels.administrator.user-management.user.user-account.index.refresh');

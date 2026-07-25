@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\PermissionForm;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -7,11 +8,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public PermissionForm $form;
 
     #[On('panels.administrator.user-management.permission.create.assign-data')]
     public function assignData(): void
     {
+        $this->authorizePermission('user-management.permission.create');
+
         $this->form->reset();
         $this->resetValidation();
 
@@ -20,6 +25,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('user-management.permission.create');
+
         $created = $this->form->store();
 
         $this->form->reset();

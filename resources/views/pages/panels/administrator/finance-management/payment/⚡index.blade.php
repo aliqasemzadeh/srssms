@@ -253,6 +253,7 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.payments') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
+            @can('finance-management.payment.setting.view')
             <flux:button
                 class="shrink-0"
                 variant="primary"
@@ -263,6 +264,7 @@ new class extends Component
             >
                 {{ __('general.payment_settings') }}
             </flux:button>
+            @endcan
         </div>
 
         <flux:card class="space-y-4">
@@ -455,30 +457,32 @@ new class extends Component
                             <flux:table.cell>{{ $deposit->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
-                                    @if ($canCheck)
-                                        <flux:tooltip content="{{ __('general.approve') }}">
-                                            <flux:button
-                                                size="xs"
-                                                variant="primary"
-                                                color="green"
-                                                icon="check"
-                                                icon:variant="outline"
-                                                wire:click="$dispatch('panels.administrator.finance-management.payment.check.assign-data', { deposit: {{ $deposit->id }}, decision: 'approved' })"
-                                            />
-                                        </flux:tooltip>
-                                        <flux:tooltip content="{{ __('general.reject') }}">
-                                            <flux:button
-                                                size="xs"
-                                                variant="primary"
-                                                color="red"
-                                                icon="x"
-                                                icon:variant="outline"
-                                                wire:click="$dispatch('panels.administrator.finance-management.payment.check.assign-data', { deposit: {{ $deposit->id }}, decision: 'rejected' })"
-                                            />
-                                        </flux:tooltip>
-                                    @else
-                                        <flux:text size="sm" class="text-zinc-400">—</flux:text>
-                                    @endif
+                                    @can('finance-management.payment.check')
+                                        @if ($canCheck)
+                                            <flux:tooltip content="{{ __('general.approve') }}">
+                                                <flux:button
+                                                    size="xs"
+                                                    variant="primary"
+                                                    color="green"
+                                                    icon="check"
+                                                    icon:variant="outline"
+                                                    wire:click="$dispatch('panels.administrator.finance-management.payment.check.assign-data', { deposit: {{ $deposit->id }}, decision: 'approved' })"
+                                                />
+                                            </flux:tooltip>
+                                            <flux:tooltip content="{{ __('general.reject') }}">
+                                                <flux:button
+                                                    size="xs"
+                                                    variant="primary"
+                                                    color="red"
+                                                    icon="x"
+                                                    icon:variant="outline"
+                                                    wire:click="$dispatch('panels.administrator.finance-management.payment.check.assign-data', { deposit: {{ $deposit->id }}, decision: 'rejected' })"
+                                                />
+                                            </flux:tooltip>
+                                        @else
+                                            <flux:text size="sm" class="text-zinc-400">—</flux:text>
+                                        @endif
+                                    @endcan
                                 </div>
                             </flux:table.cell>
                         </flux:table.row>

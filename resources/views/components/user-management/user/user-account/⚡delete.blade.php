@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Enums\UserAccountTypeEnum;
 use App\Models\UserAccount;
 use Flux\Flux;
@@ -8,11 +9,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?UserAccount $userAccount = null;
 
     #[On('panels.administrator.user-management.user.user-account.delete.assign-data')]
     public function assignData(int $userAccount): void
     {
+        $this->authorizePermission('user-management.user.edit');
+
         $this->userAccount = UserAccount::query()
             ->with([
                 'currency' => fn ($query) => $query->withTrashed(),
@@ -24,6 +29,8 @@ new class extends Component
 
     public function delete(): void
     {
+        $this->authorizePermission('user-management.user.edit');
+
         if (! $this->userAccount) {
             return;
         }

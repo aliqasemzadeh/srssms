@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\Sms\Provider;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -7,11 +8,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?Provider $provider = null;
 
     #[On('panels.administrator.sms-management.provider.delete.assign-data')]
     public function assignData(int $provider): void
     {
+        $this->authorizePermission('sms-management.provider.delete');
+
         $this->provider = Provider::query()->findOrFail($provider);
 
         Flux::modal('sms-management.provider.delete')->show();
@@ -19,6 +24,8 @@ new class extends Component
 
     public function delete(): void
     {
+        $this->authorizePermission('sms-management.provider.delete');
+
         if (! $this->provider) {
             return;
         }

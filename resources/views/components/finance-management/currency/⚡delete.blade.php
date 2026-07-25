@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\Finance\Currency;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -7,11 +8,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?Currency $currency = null;
 
     #[On('panels.administrator.finance-management.currency.delete.assign-data')]
     public function assignData(int $currency): void
     {
+        $this->authorizePermission('finance-management.currency.delete');
+
         $this->currency = Currency::findOrFail($currency);
 
         Flux::modal('finance-management.currency.delete')->show();
@@ -19,6 +24,8 @@ new class extends Component
 
     public function delete(): void
     {
+        $this->authorizePermission('finance-management.currency.delete');
+
         if (! $this->currency) {
             return;
         }

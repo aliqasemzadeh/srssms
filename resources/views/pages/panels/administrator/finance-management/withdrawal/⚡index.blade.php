@@ -252,9 +252,11 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.withdrawals') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
+            @can('finance-management.withdrawal.create')
             <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.finance-management.withdrawal.create.assign-data')">
                 {{ __('actions.create') }} {{ __('general.withdrawal') }}
             </flux:button>
+            @endcan
         </div>
 
         <flux:card class="space-y-4">
@@ -454,12 +456,16 @@ new class extends Component
                             <flux:table.cell>{{ $withdrawal->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
+                                    @can('finance-management.withdrawal.edit')
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.finance-management.withdrawal.edit.assign-data', { withdrawal: {{ $withdrawal->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
+                                    @can('finance-management.withdrawal.delete')
                                     <flux:tooltip content="{{ __('general.delete') }}">
                                         <flux:button size="xs" variant="danger" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.finance-management.withdrawal.delete.assign-data', { withdrawal: {{ $withdrawal->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
                                 </div>
                             </flux:table.cell>
                         </flux:table.row>

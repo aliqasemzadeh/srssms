@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\Settings\WelcomePageSettingsForm;
 use App\Settings\WelcomePageSettings;
 use Flux\Flux;
@@ -7,6 +8,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public WelcomePageSettingsForm $form;
 
     public string $newPhrase = '';
@@ -61,6 +64,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('system-management.setting.edit');
+
         $this->form->store();
 
         Flux::toast(__('general.settings_saved'));

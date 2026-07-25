@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\Settings\SmsSettingsForm;
 use App\Models\Finance\Currency;
 use App\Models\Sms\Gateway;
@@ -12,6 +13,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public SmsSettingsForm $form;
 
     public function mount(SmsSettings $settings): void
@@ -41,12 +44,16 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('sms-management.setting.edit');
+
         $this->form->store();
         Flux::toast(__('general.settings_saved'));
     }
 
     public function applyRateToAll(): void
     {
+        $this->authorizePermission('sms-management.setting.edit');
+
         $count = $this->form->applyRateToAllGateways();
         Flux::toast(__('general.sms_rate_applied_to_gateways', ['count' => $count]));
     }
@@ -120,13 +127,17 @@ new class extends Component
                 />
 
                 <div class="flex flex-wrap gap-3">
+                    @can('sms-management.setting.edit')
                     <flux:button type="submit" variant="primary" color="teal" class="w-full sm:w-auto">
                         {{ __('actions.save') }}
                     </flux:button>
+                    @endcan
 
+                    @can('sms-management.setting.edit')
                     <flux:button type="button" variant="primary" color="orange" class="w-full sm:w-auto" wire:click="applyRateToAll" wire:confirm="{{ __('general.apply_sms_rate_confirm') }}">
                         {{ __('general.apply_sms_rate_to_all') }}
                     </flux:button>
+                    @endcan
                 </div>
             </flux:card>
         </form>

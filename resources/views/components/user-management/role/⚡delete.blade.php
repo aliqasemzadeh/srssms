@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use Flux\Flux;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -7,11 +8,15 @@ use Spatie\Permission\Models\Role;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?Role $role = null;
 
     #[On('panels.administrator.user-management.role.delete.assign-data')]
     public function assignData(int $role): void
     {
+        $this->authorizePermission('user-management.role.delete');
+
         $this->role = Role::findById($role);
 
         Flux::modal('user-management.role.delete')->show();
@@ -19,6 +24,8 @@ new class extends Component
 
     public function delete(): void
     {
+        $this->authorizePermission('user-management.role.delete');
+
         if (! $this->role) {
             return;
         }

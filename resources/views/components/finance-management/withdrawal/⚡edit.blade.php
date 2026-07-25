@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Enums\WithdrawalStatusEnum;
 use App\Livewire\Forms\WithdrawalForm;
 use App\Models\Finance\Withdrawal;
@@ -11,6 +12,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public WithdrawalForm $form;
 
     public string $userSearch = '';
@@ -22,6 +25,8 @@ new class extends Component
     #[On('panels.administrator.finance-management.withdrawal.edit.assign-data')]
     public function assignData(int $withdrawal): void
     {
+        $this->authorizePermission('finance-management.withdrawal.edit');
+
         $this->form->setModel(Withdrawal::query()->findOrFail($withdrawal));
         $this->userSearch = '';
         $this->walletSearch = '';
@@ -85,6 +90,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('finance-management.withdrawal.edit');
+
         $this->form->update();
 
         $this->dispatch('panels.administrator.finance-management.withdrawal.index.refresh');

@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Enums\UserAccountTypeEnum;
 use App\Livewire\Forms\UserAccountForm;
 use App\Models\User;
@@ -12,6 +13,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public User $user;
 
     public UserAccountForm $form;
@@ -26,6 +29,8 @@ new class extends Component
     #[On('panels.administrator.user-management.user.user-account.create.assign-data')]
     public function assignData(): void
     {
+        $this->authorizePermission('user-management.user.edit');
+
         $this->form->setUser($this->user);
         $this->currencySearch = '';
         $this->resetValidation();
@@ -41,6 +46,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('user-management.user.edit');
+
         $this->form->user = $this->user;
         $this->form->store();
 

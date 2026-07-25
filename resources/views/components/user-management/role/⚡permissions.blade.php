@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Concerns\InteractsWithPermissionLabels;
 use Flux\Flux;
 use Illuminate\Support\Collection;
@@ -12,6 +13,8 @@ use Spatie\Permission\Models\Role;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     use InteractsWithPermissionLabels;
 
     public ?Role $role = null;
@@ -30,6 +33,8 @@ new class extends Component
     #[On('panels.administrator.user-management.role.permissions.assign-data')]
     public function assignData(int $role): void
     {
+        $this->authorizePermission('user-management.role.edit');
+
         $this->role = Role::findById($role);
         $this->granted_ids = $this->role->permissions()->pluck('id')->map(fn ($id) => (int) $id)->all();
         $this->reset('grantedSearch', 'grantableSearch', 'pending_action', 'pending_id');
@@ -80,6 +85,8 @@ new class extends Component
 
     public function confirm(string $action, ?int $id = null): void
     {
+        $this->authorizePermission('user-management.role.edit');
+
         if (($action === 'grant-all' && $this->grantable->isEmpty())
             || ($action === 'revoke-all' && $this->granted->isEmpty())) {
             return;
@@ -93,6 +100,8 @@ new class extends Component
 
     public function apply(): void
     {
+        $this->authorizePermission('user-management.role.edit');
+
         if (! $this->role || $this->pending_action === '') {
             return;
         }

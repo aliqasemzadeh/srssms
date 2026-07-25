@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\WalletForm;
 use App\Models\User;
 use Flux\Flux;
@@ -10,6 +11,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public User $user;
 
     public WalletForm $form;
@@ -24,6 +27,8 @@ new class extends Component
     #[On('panels.administrator.user-management.user.wallet.create.assign-data')]
     public function assignData(?int $currencyId = null): void
     {
+        $this->authorizePermission('finance-management.wallet.create');
+
         $this->form->setUser($this->user);
         $this->currencySearch = '';
         $this->resetValidation();
@@ -56,6 +61,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('finance-management.wallet.create');
+
         $this->form->setUser($this->user);
         $this->form->store();
 

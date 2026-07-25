@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Concerns\InteractsWithPermissionLabels;
 use App\Models\User;
 use Flux\Flux;
@@ -12,6 +13,8 @@ use Spatie\Permission\Models\Permission;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     use InteractsWithPermissionLabels;
 
     public ?User $user = null;
@@ -30,6 +33,8 @@ new class extends Component
     #[On('panels.administrator.user-management.user.permissions.assign-data')]
     public function assignData(User $user): void
     {
+        $this->authorizePermission('user-management.user.edit');
+
         $this->user = $user;
         $this->granted_ids = $user->permissions()->pluck('id')->map(fn ($id) => (int) $id)->all();
         $this->reset('grantedSearch', 'grantableSearch', 'pending_action', 'pending_id');
@@ -84,6 +89,8 @@ new class extends Component
 
     public function confirm(string $action, ?int $id = null): void
     {
+        $this->authorizePermission('user-management.user.edit');
+
         if (($action === 'grant-all' && $this->grantable->isEmpty())
             || ($action === 'revoke-all' && $this->granted->isEmpty())) {
             return;
@@ -97,6 +104,8 @@ new class extends Component
 
     public function apply(): void
     {
+        $this->authorizePermission('user-management.user.edit');
+
         if (! $this->user || $this->pending_action === '') {
             return;
         }

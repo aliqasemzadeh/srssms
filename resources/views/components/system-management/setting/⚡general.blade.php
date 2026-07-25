@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\Settings\GeneralSettingsForm;
 use App\Settings\GeneralSettings;
 use Flux\Flux;
@@ -9,6 +10,8 @@ use Livewire\WithFileUploads;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     use WithFileUploads;
 
     public GeneralSettingsForm $form;
@@ -26,6 +29,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('system-management.setting.edit');
+
         $previousLocale = app()->getLocale();
 
         $this->form->store();

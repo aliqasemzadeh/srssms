@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\Settings\SocialSettingsForm;
 use App\Settings\SocialSettings;
 use Flux\Flux;
@@ -7,6 +8,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public SocialSettingsForm $form;
 
     public function mount(SocialSettings $settings): void
@@ -16,6 +19,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('system-management.setting.edit');
+
         $this->form->store();
 
         Flux::toast(__('general.settings_saved'));

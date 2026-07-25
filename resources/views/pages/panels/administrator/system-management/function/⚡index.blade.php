@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Jobs\System\UpdateProjectJob;
 use Flux\Flux;
 use Illuminate\Support\Facades\Artisan;
@@ -9,6 +10,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     #[Validate('required|string|max:255')]
     public string $command = '';
 
@@ -30,6 +33,8 @@ new class extends Component
 
     public function softUpdate(): void
     {
+        $this->authorizePermission('system-management.function.run');
+
         UpdateProjectJob::dispatch(runComposer: false);
 
         Log::info('Soft update queued.', ['user_id' => auth()->id()]);
@@ -39,6 +44,8 @@ new class extends Component
 
     public function fullUpdate(): void
     {
+        $this->authorizePermission('system-management.function.run');
+
         UpdateProjectJob::dispatch(runComposer: true);
 
         Log::info('Full update queued.', ['user_id' => auth()->id()]);
@@ -48,6 +55,8 @@ new class extends Component
 
     public function runQuickCommand(string $command): void
     {
+        $this->authorizePermission('system-management.function.run');
+
         if (! in_array($command, $this->quickCommands, true)) {
             Flux::toast(variant: 'danger', text: __('general.command_not_allowed'));
 
@@ -63,6 +72,8 @@ new class extends Component
 
     public function runCommand(): void
     {
+        $this->authorizePermission('system-management.function.run');
+
         $this->validate();
 
         $command = trim((string) preg_replace('/^php\s+artisan\s+/i', '', trim($this->command)));
@@ -120,16 +131,20 @@ new class extends Component
                 </div>
 
                 <div class="space-y-3">
+                    @can('system-management.function.run')
                     <flux:button variant="primary" color="amber" icon="refresh-cw" class="w-full" wire:click="softUpdate" wire:confirm="{{ __('general.are_you_sure') }}">
                         {{ __('general.soft_update') }}
                     </flux:button>
+                    @endcan
                     <flux:text size="sm" class="text-center">{{ __('general.soft_update_hint') }}</flux:text>
 
                     <flux:separator variant="subtle" />
 
+                    @can('system-management.function.run')
                     <flux:button variant="primary" color="red" icon="rocket" class="w-full" wire:click="fullUpdate" wire:confirm="{{ __('general.are_you_sure') }}">
                         {{ __('general.full_update') }}
                     </flux:button>
+                    @endcan
                     <flux:text size="sm" class="text-center">{{ __('general.full_update_hint') }}</flux:text>
                 </div>
             </flux:card>
@@ -147,18 +162,26 @@ new class extends Component
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
+                    @can('system-management.function.run')
                     <flux:button variant="primary" color="blue" icon="route" class="w-full" wire:click="runQuickCommand('route:clear')">
                         route:clear
                     </flux:button>
+                    @endcan
+                    @can('system-management.function.run')
                     <flux:button variant="primary" color="orange" icon="database" class="w-full" wire:click="runQuickCommand('cache:clear')">
                         cache:clear
                     </flux:button>
+                    @endcan
+                    @can('system-management.function.run')
                     <flux:button variant="primary" color="violet" icon="eye" class="w-full" wire:click="runQuickCommand('view:clear')">
                         view:clear
                     </flux:button>
+                    @endcan
+                    @can('system-management.function.run')
                     <flux:button variant="primary" color="teal" icon="settings" class="w-full" wire:click="runQuickCommand('config:clear')">
                         config:clear
                     </flux:button>
+                    @endcan
                 </div>
             </flux:card>
         </div>
@@ -175,14 +198,16 @@ new class extends Component
                 </div>
             </div>
 
-            <form wire:submit="runCommand" class="flex items-start gap-3">
-                <div class="flex-1" dir="ltr">
-                    <flux:input wire:model="command" icon="terminal" placeholder="route:list" class="font-mono" />
-                </div>
-                <flux:button type="submit" variant="primary" color="green" icon="play">
-                    {{ __('general.run') }}
-                </flux:button>
-            </form>
+            @can('system-management.function.run')
+                <form wire:submit="runCommand" class="flex items-start gap-3">
+                    <div class="flex-1" dir="ltr">
+                        <flux:input wire:model="command" icon="terminal" placeholder="route:list" class="font-mono" />
+                    </div>
+                    <flux:button type="submit" variant="primary" color="green" icon="play">
+                        {{ __('general.run') }}
+                    </flux:button>
+                </form>
+            @endcan
 
             @if ($output !== '')
                 <div class="space-y-2">

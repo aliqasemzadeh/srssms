@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Enums\DepositStatusEnum;
 use App\Models\Finance\Deposit;
 use App\Support\PaymentGateways;
@@ -11,6 +12,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?Deposit $deposit = null;
 
     public string $status = '';
@@ -20,6 +23,8 @@ new class extends Component
     #[On('panels.administrator.finance-management.payment.check.assign-data')]
     public function assignData(int $deposit, string $decision = 'approved'): void
     {
+        $this->authorizePermission('finance-management.payment.check');
+
         $this->deposit = Deposit::query()
             ->with([
                 'user' => fn ($query) => $query->withTrashed(),
@@ -41,6 +46,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('finance-management.payment.check');
+
         if (! $this->deposit) {
             return;
         }

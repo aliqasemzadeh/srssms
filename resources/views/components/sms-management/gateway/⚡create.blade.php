@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Enums\Sms\SmsGatewayAccessTypeEnum;
 use App\Enums\Sms\SmsGatewayUsageTypeEnum;
 use App\Livewire\Forms\GatewayForm;
@@ -13,11 +14,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public GatewayForm $form;
 
     #[On('panels.administrator.sms-management.gateway.create.assign-data')]
     public function assignData(): void
     {
+        $this->authorizePermission('sms-management.gateway.create');
+
         $this->form->reset();
         $this->form->access_type = SmsGatewayAccessTypeEnum::Shared->value;
         $this->form->usage_type = SmsGatewayUsageTypeEnum::Service->value;
@@ -38,6 +43,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('sms-management.gateway.create');
+
         $this->form->store();
         $this->form->reset();
         $this->dispatch('panels.administrator.sms-management.gateway.index.refresh');

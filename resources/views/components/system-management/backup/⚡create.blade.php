@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Jobs\System\RunBackupJob;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -8,6 +9,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     #[Validate('required|in:both,database,files')]
     public string $type = 'both';
 
@@ -17,6 +20,8 @@ new class extends Component
     #[On('panels.administrator.system-management.backup.create.assign-data')]
     public function assignData(): void
     {
+        $this->authorizePermission('system-management.backup.create');
+
         $this->reset(['type', 'destination']);
 
         Flux::modal('backup-create-modal')->show();
@@ -24,6 +29,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('system-management.backup.create');
+
         $this->validate();
 
         RunBackupJob::dispatch($this->type, $this->destination);

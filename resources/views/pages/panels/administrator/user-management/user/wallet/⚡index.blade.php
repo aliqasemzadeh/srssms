@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\Finance\Currency;
 use App\Models\Finance\Wallet;
 use App\Models\User;
@@ -13,6 +14,8 @@ use Livewire\WithPagination;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     use WithPagination;
 
     public User $user;
@@ -74,6 +77,8 @@ new class extends Component
 
     public function addWallet(int $currencyId): void
     {
+        $this->authorizePermission('finance-management.wallet.create');
+
         $currency = Currency::query()
             ->whereKey($currencyId)
             ->where('is_active', true)
@@ -118,6 +123,8 @@ new class extends Component
 
     public function refreshBalance(int $walletId): void
     {
+        $this->authorizePermission('finance-management.wallet.edit');
+
         $wallet = Wallet::query()
             ->where('user_id', $this->user->id)
             ->findOrFail($walletId);
@@ -150,9 +157,11 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.wallets') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
+            @can('finance-management.wallet.create')
             <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.wallet.create.assign-data')">
                 {{ __('actions.create') }} {{ __('general.wallet') }}
             </flux:button>
+            @endcan
         </div>
 
         <flux:card>
@@ -290,21 +299,29 @@ new class extends Component
                                                 wire:navigate
                                             />
                                         </flux:tooltip>
+                                        @can('finance-management.wallet.edit')
                                         <flux:tooltip content="{{ __('general.refresh_balance') }}">
                                             <flux:button size="xs" variant="primary" color="amber" icon="refresh-cw" icon:variant="outline" wire:click="refreshBalance({{ $wallet->id }})" />
                                         </flux:tooltip>
+                                        @endcan
+                                        @can('finance-management.wallet.view')
                                         <flux:tooltip content="{{ __('general.edit') }}">
                                             <flux:button size="xs" variant="primary" color="blue" icon="eye" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.wallet.edit.assign-data', { wallet: {{ $wallet->id }} })" />
                                         </flux:tooltip>
+                                        @endcan
+                                        @can('finance-management.wallet.delete')
                                         <flux:tooltip content="{{ __('general.delete') }}">
                                             <flux:button size="xs" variant="danger" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.wallet.delete.assign-data', { wallet: {{ $wallet->id }} })" />
                                         </flux:tooltip>
+                                        @endcan
                                     </div>
                                 @else
                                     <div class="flex justify-end" wire:click.stop>
+                                        @can('finance-management.wallet.create')
                                         <flux:tooltip content="{{ __('general.click_to_add_wallet') }}">
                                             <flux:button size="xs" variant="primary" color="teal" icon="plus" icon:variant="outline" wire:click="addWallet({{ $currency->id }})" />
                                         </flux:tooltip>
+                                        @endcan
                                     </div>
                                 @endif
                             </flux:table.cell>

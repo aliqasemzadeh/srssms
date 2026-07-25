@@ -67,9 +67,11 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.permissions') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
+            @can('user-management.permission.create')
             <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.permission.create.assign-data')">
                 {{ __('actions.create') }} {{ __('general.permission') }}
             </flux:button>
+            @endcan
         </div>
 
         <flux:card>
@@ -111,18 +113,26 @@ new class extends Component
                             <flux:table.cell>{{ $permission->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
+                                    @can('user-management.permission.edit')
                                     <flux:tooltip content="{{ __('general.permission_roles') }}">
                                         <flux:button size="xs" variant="primary" color="indigo" icon="shield" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.permission.roles.assign-data', { permission: {{ $permission->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
+                                    @can('user-management.permission.edit')
                                     <flux:tooltip content="{{ __('general.permission_users') }}">
                                         <flux:button size="xs" variant="primary" color="cyan" icon="users" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.permission.users.assign-data', { permission: {{ $permission->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
+                                    @can('user-management.permission.edit')
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.permission.edit.assign-data', { permission: {{ $permission->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
+                                    @can('user-management.permission.delete')
                                     <flux:tooltip content="{{ __('general.delete') }}">
                                         <flux:button size="xs" variant="danger" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.permission.delete.assign-data', { permission: {{ $permission->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
                                 </div>
                             </flux:table.cell>
                         </flux:table.row>

@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\User;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -7,11 +8,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?User $user = null;
 
     #[On('panels.administrator.user-management.user.delete.assign-data')]
     public function assignData(User $user): void
     {
+        $this->authorizePermission('user-management.user.delete');
+
         $this->user = $user;
 
         Flux::modal('user-delete-modal')->show();
@@ -19,6 +24,8 @@ new class extends Component
 
     public function delete(): void
     {
+        $this->authorizePermission('user-management.user.delete');
+
         if (! $this->user) {
             return;
         }

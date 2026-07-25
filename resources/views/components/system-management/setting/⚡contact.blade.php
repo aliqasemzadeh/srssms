@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\Settings\ContactSettingsForm;
 use App\Settings\ContactSettings;
 use Flux\Flux;
@@ -7,6 +8,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ContactSettingsForm $form;
 
     public string $newPhoneNumber = '';
@@ -45,6 +48,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('system-management.setting.edit');
+
         $this->form->store();
 
         Flux::toast(__('general.settings_saved'));

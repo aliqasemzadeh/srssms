@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\Sms\Gateway;
 use App\Models\User;
 use Flux\Flux;
@@ -11,6 +12,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?Gateway $gateway = null;
 
     public ?int $user_id = null;
@@ -20,6 +23,8 @@ new class extends Component
     #[On('panels.administrator.sms-management.gateway.user.access.assign-data')]
     public function assignData(int $gateway): void
     {
+        $this->authorizePermission('sms-management.gateway.user.create');
+
         $this->gateway = Gateway::query()->findOrFail($gateway);
         $this->user_id = null;
         $this->userSearch = '';
@@ -65,6 +70,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('sms-management.gateway.user.create');
+
         if (! $this->gateway) {
             return;
         }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use Flux\Flux;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
@@ -15,6 +16,8 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     use WithPagination;
 
     public string $search = '';
@@ -77,6 +80,8 @@ new class extends Component
 
     public function download(string $path): ?StreamedResponse
     {
+        $this->authorizePermission('system-management.backup.download');
+
         if (! $this->validatePath($path)) {
             Flux::toast(variant: 'danger', text: __('general.backup_not_found'));
 
@@ -90,6 +95,8 @@ new class extends Component
 
     public function delete(string $path): void
     {
+        $this->authorizePermission('system-management.backup.delete');
+
         if (! $this->validatePath($path)) {
             Flux::toast(variant: 'danger', text: __('general.backup_not_found'));
 
@@ -109,6 +116,8 @@ new class extends Component
 
     public function deleteAll(): void
     {
+        $this->authorizePermission('system-management.backup.delete');
+
         $paths = array_column($this->backupFiles(), 'path');
 
         Storage::disk('local')->delete($paths);
@@ -151,24 +160,32 @@ new class extends Component
                     <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
 
                     <flux:menu>
+                        @can('system-management.backup.create')
                         <flux:menu.item icon="plus" wire:click="$dispatch('panels.administrator.system-management.backup.create.assign-data')">
                             {{ __('actions.create') }} {{ __('general.backup') }}
                         </flux:menu.item>
+                        @endcan
                         <flux:menu.separator />
+                        @can('system-management.backup.delete')
                         <flux:menu.item variant="danger" icon="trash" wire:click="deleteAll" wire:confirm="{{ __('general.are_you_sure') }}">
                             {{ __('general.delete_all_backups') }}
                         </flux:menu.item>
+                        @endcan
                     </flux:menu>
                 </flux:dropdown>
             </div>
 
             <div class="hidden items-center gap-2 sm:flex shrink-0">
-                <flux:button variant="primary" color="red" icon="trash" wire:click="deleteAll" wire:confirm="{{ __('general.are_you_sure') }}">
-                    {{ __('general.delete_all_backups') }}
-                </flux:button>
-                <flux:button variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.system-management.backup.create.assign-data')">
-                    {{ __('actions.create') }} {{ __('general.backup') }}
-                </flux:button>
+                @can('system-management.backup.delete')
+                    <flux:button variant="primary" color="red" icon="trash" wire:click="deleteAll" wire:confirm="{{ __('general.are_you_sure') }}">
+                        {{ __('general.delete_all_backups') }}
+                    </flux:button>
+                @endcan
+                @can('system-management.backup.create')
+                    <flux:button variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.system-management.backup.create.assign-data')">
+                        {{ __('actions.create') }} {{ __('general.backup') }}
+                    </flux:button>
+                @endcan
             </div>
         </div>
 
@@ -203,12 +220,16 @@ new class extends Component
                             <flux:table.cell>{{ $backup['date'] }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
+                                    @can('system-management.backup.download')
                                     <flux:tooltip content="{{ __('general.download') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="download" icon:variant="outline" wire:click="download('{{ $backup['path'] }}')" />
                                     </flux:tooltip>
+                                    @endcan
+                                    @can('system-management.backup.delete')
                                     <flux:tooltip content="{{ __('general.delete') }}">
                                         <flux:button size="xs" variant="primary" color="red" icon="trash" icon:variant="outline" wire:click="delete('{{ $backup['path'] }}')" wire:confirm="{{ __('general.are_you_sure') }}" />
                                     </flux:tooltip>
+                                    @endcan
                                 </div>
                             </flux:table.cell>
                         </flux:table.row>

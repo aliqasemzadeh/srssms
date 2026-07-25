@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\Finance\Deposit;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -7,11 +8,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?Deposit $deposit = null;
 
     #[On('panels.administrator.finance-management.deposit.delete.assign-data')]
     public function assignData(int $deposit): void
     {
+        $this->authorizePermission('finance-management.deposit.delete');
+
         $this->deposit = Deposit::query()
             ->with([
                 'user' => fn ($query) => $query->withTrashed(),
@@ -24,6 +29,8 @@ new class extends Component
 
     public function delete(): void
     {
+        $this->authorizePermission('finance-management.deposit.delete');
+
         if (! $this->deposit) {
             return;
         }

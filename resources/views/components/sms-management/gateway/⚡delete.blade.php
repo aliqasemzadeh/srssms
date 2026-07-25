@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Models\Sms\Gateway;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -7,11 +8,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public ?Gateway $gateway = null;
 
     #[On('panels.administrator.sms-management.gateway.delete.assign-data')]
     public function assignData(int $gateway): void
     {
+        $this->authorizePermission('sms-management.gateway.delete');
+
         $this->gateway = Gateway::query()->findOrFail($gateway);
 
         Flux::modal('sms-management.gateway.delete')->show();
@@ -19,6 +24,8 @@ new class extends Component
 
     public function delete(): void
     {
+        $this->authorizePermission('sms-management.gateway.delete');
+
         if (! $this->gateway) {
             return;
         }

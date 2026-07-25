@@ -85,9 +85,11 @@ new class extends Component
                 <flux:button variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.administrator.sms-management.gateway.index') }}" wire:navigate>
                     {{ __('general.sms_gateways') }}
                 </flux:button>
+                @can('sms-management.gateway.user.create')
                 <flux:button variant="primary" color="teal" icon="user-plus" wire:click="$dispatch('panels.administrator.sms-management.gateway.user.access.assign-data', { gateway: {{ $gateway->id }} })">
                     {{ __('general.gateway_access') }}
                 </flux:button>
+                @endcan
             </div>
         </div>
 
@@ -120,9 +122,11 @@ new class extends Component
                             <flux:table.cell>{{ $user->email }}</flux:table.cell>
                             <flux:table.cell>{{ $user->pivot->created_at?->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
+                                @can('sms-management.gateway.user.delete')
                                 <flux:tooltip content="{{ __('general.revoke_access') }}">
                                     <flux:button size="xs" variant="danger" icon="user-minus" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.gateway.user.delete.assign-data', { gateway: {{ $gateway->id }}, user: {{ $user->id }} })" />
                                 </flux:tooltip>
+                                @endcan
                             </flux:table.cell>
                         </flux:table.row>
                     @endforeach

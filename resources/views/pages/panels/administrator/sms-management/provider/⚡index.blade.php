@@ -81,9 +81,11 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.providers') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
+            @can('sms-management.provider.create')
             <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.sms-management.provider.create.assign-data')">
                 {{ __('actions.create') }} {{ __('general.provider') }}
             </flux:button>
+            @endcan
         </div>
 
         <flux:card>
@@ -125,12 +127,16 @@ new class extends Component
                             <flux:table.cell>{{ $provider->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
+                                    @can('sms-management.provider.edit')
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.provider.edit.assign-data', { provider: {{ $provider->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
+                                    @can('sms-management.provider.delete')
                                     <flux:tooltip content="{{ __('general.delete') }}">
                                         <flux:button size="xs" variant="danger" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.provider.delete.assign-data', { provider: {{ $provider->id }} })" />
                                     </flux:tooltip>
+                                    @endcan
                                 </div>
                             </flux:table.cell>
                         </flux:table.row>

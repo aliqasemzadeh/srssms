@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\UserForm;
 use Flux\Flux;
 use Livewire\Attributes\On;
@@ -7,11 +8,15 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public UserForm $form;
 
     #[On('panels.administrator.user-management.user.create.assign-data')]
     public function assignData(): void
     {
+        $this->authorizePermission('user-management.user.create');
+
         $this->form->reset();
 
         Flux::modal('user-create-modal')->show();
@@ -19,6 +24,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('user-management.user.create');
+
         $this->form->store();
 
         $this->form->reset();

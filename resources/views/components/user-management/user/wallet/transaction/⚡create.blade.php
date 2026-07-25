@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Concerns\AuthorizesAdministratorPermissions;
 use App\Livewire\Forms\TransactionForm;
 use App\Models\Finance\Wallet;
 use App\Models\User;
@@ -11,6 +12,8 @@ use Livewire\Component;
 
 new class extends Component
 {
+    use AuthorizesAdministratorPermissions;
+
     public User $user;
 
     public Wallet $wallet;
@@ -33,6 +36,8 @@ new class extends Component
     #[On('panels.administrator.user-management.user.wallet.transaction.create.assign-data')]
     public function assignData(): void
     {
+        $this->authorizePermission('finance-management.transaction.create');
+
         $this->wallet->refresh()->load([
             'currency' => fn ($query) => $query->withTrashed(),
         ]);
@@ -70,6 +75,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizePermission('finance-management.transaction.create');
+
         $this->wallet->refresh()->load([
             'currency' => fn ($query) => $query->withTrashed(),
         ]);
