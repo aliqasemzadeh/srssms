@@ -3,11 +3,22 @@
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Sms\SendController;
 use App\Http\Controllers\SmsController;
+use App\Settings\ContactSettings;
+use App\Settings\GeneralSettings;
+use App\Settings\WelcomePageSettings;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', function (
+    GeneralSettings $general,
+    WelcomePageSettings $welcome,
+    ContactSettings $contact,
+) {
+    return view('welcome', [
+        'general' => $general,
+        'welcome' => $welcome,
+        'contact' => $contact,
+    ]);
+})->name('home');
 
 Route::match(['get', 'post'], '/payment/callback/{deposit}', [PaymentController::class, 'callback'])
     ->name('payment.callback');

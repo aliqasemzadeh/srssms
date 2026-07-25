@@ -25,6 +25,7 @@ new class extends Component
         <flux:tab.group>
             <flux:tabs wire:model.live="tab" variant="segmented" scrollable>
                 <flux:tab name="general" icon="settings">{{ __('general.general_settings') }}</flux:tab>
+                <flux:tab name="welcome-page" icon="home">{{ __('general.welcome_page_settings') }}</flux:tab>
                 <flux:tab name="maintenance" icon="construction">{{ __('general.maintenance_settings') }}</flux:tab>
                 <flux:tab name="security" icon="shield">{{ __('general.security_settings') }}</flux:tab>
                 <flux:tab name="contact" icon="phone">{{ __('general.contact_settings') }}</flux:tab>
@@ -33,6 +34,10 @@ new class extends Component
 
             <flux:tab.panel name="general">
                 <livewire:system-management.setting.general :key="'setting-general'" />
+            </flux:tab.panel>
+
+            <flux:tab.panel name="welcome-page">
+                <livewire:system-management.setting.welcome-page :key="'setting-welcome-page'" />
             </flux:tab.panel>
 
             <flux:tab.panel name="maintenance">
