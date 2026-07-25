@@ -200,7 +200,7 @@ new class extends Component
     <div class="space-y-6">
         <flux:breadcrumbs>
             <flux:breadcrumbs.item href="{{ route('panels.user.dashboard.index') }}" icon="home" wire:navigate />
-            <flux:breadcrumbs.item href="{{ route('panels.user.sms.index') }}" wire:navigate>{{ __('general.sms_messages') }}</flux:breadcrumbs.item>
+            <flux:breadcrumbs.item href="{{ route('panels.user.sms.message.index') }}" wire:navigate>{{ __('general.sms_messages') }}</flux:breadcrumbs.item>
             <flux:breadcrumbs.item>{{ __('general.send_sms') }}</flux:breadcrumbs.item>
         </flux:breadcrumbs>
 

@@ -129,7 +129,7 @@ new class extends Component
 
         Flux::toast(__('general.sms_queued_successfully'));
 
-        return $this->redirect(route('panels.user.sms.index'), navigate: true);
+        return $this->redirect(route('panels.user.sms.message.index'), navigate: true);
     }
 };
 ?>

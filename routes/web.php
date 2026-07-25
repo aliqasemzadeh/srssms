@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Sms\SendController;
 use App\Http\Controllers\SmsController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,9 @@ Route::match(['get', 'post'], '/payment/callback/{deposit}', [PaymentController:
 
 Route::post('/sms/webhook/{provider}/{type}', [SmsController::class, 'webhook'])
     ->name('sms.webhook');
+
+Route::match(['get', 'post'], '/api/sms/send', [SendController::class, 'send'])
+    ->name('api.sms.send');
 
 Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/payment/pay/{deposit}', [PaymentController::class, 'pay'])
@@ -58,9 +62,13 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/panels/user/phonebook/notes', 'pages::panels.user.phonebook.note.index')->name('panels.user.phonebook.note.index');
     Route::livewire('/panels/user/phonebook/{contact}', 'pages::panels.user.phonebook.view')->name('panels.user.phonebook.view');
 
-    Route::livewire('/panels/user/sms', 'pages::panels.user.sms.index')->name('panels.user.sms.index');
+    Route::livewire('/panels/user/sms/messages', 'pages::panels.user.sms.message.index')->name('panels.user.sms.message.index');
+    Route::livewire('/panels/user/sms/messages/{message}', 'pages::panels.user.sms.message.detail')->name('panels.user.sms.message.detail');
     Route::livewire('/panels/user/sms/send', 'pages::panels.user.sms.send')->name('panels.user.sms.send');
     Route::livewire('/panels/user/sms/preview', 'pages::panels.user.sms.preview')->name('panels.user.sms.preview');
+    Route::livewire('/panels/user/sms/tokens', 'pages::panels.user.sms.token.index')->name('panels.user.sms.token.index');
+    Route::livewire('/panels/user/sms/tokens/logs', 'pages::panels.user.sms.token.logs')->name('panels.user.sms.token.logs');
+    Route::livewire('/panels/user/sms/tokens/doc', 'pages::panels.user.sms.token.doc')->name('panels.user.sms.token.doc');
 });
 
 require __DIR__.'/auth.php';

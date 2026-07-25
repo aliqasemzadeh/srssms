@@ -51,10 +51,19 @@
                 :expanded="request()->routeIs('panels.user.sms.*')"
             >
                 <div x-show="showItem($el)" x-cloak>
-                    <flux:sidebar.item href="{{ route('panels.user.sms.index') }}" :current="request()->routeIs('panels.user.sms.index')" wire:navigate>{{ __('general.sms_messages') }}</flux:sidebar.item>
+                    <flux:sidebar.item href="{{ route('panels.user.sms.message.index') }}" :current="request()->routeIs('panels.user.sms.message.*')" wire:navigate>{{ __('general.sms_messages') }}</flux:sidebar.item>
                 </div>
                 <div x-show="showItem($el)" x-cloak>
                     <flux:sidebar.item href="{{ route('panels.user.sms.send') }}" :current="request()->routeIs('panels.user.sms.send') || request()->routeIs('panels.user.sms.preview')" wire:navigate>{{ __('general.send_sms') }}</flux:sidebar.item>
+                </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.user.sms.token.index') }}" :current="request()->routeIs('panels.user.sms.token.index')" wire:navigate>{{ __('general.sms_tokens') }}</flux:sidebar.item>
+                </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.user.sms.token.logs') }}" :current="request()->routeIs('panels.user.sms.token.logs')" wire:navigate>{{ __('general.sms_token_logs') }}</flux:sidebar.item>
+                </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.user.sms.token.doc') }}" :current="request()->routeIs('panels.user.sms.token.doc')" wire:navigate>{{ __('general.sms_api_docs') }}</flux:sidebar.item>
                 </div>
             </flux:sidebar.group>
         </div>

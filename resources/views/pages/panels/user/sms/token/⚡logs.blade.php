@@ -167,12 +167,12 @@ new class extends Component
             <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 <flux:input wire:model.live.debounce.300ms="search" icon="search" label="{{ __('general.search') }}" placeholder="{{ __('general.search') }}..." clearable />
 
-                <flux:select wire:model.live="tokenId" variant="listbox" searchable clearable :placeholder="__('general.sms_token')">
-                    <x-slot name="search">
-                        <flux:select.search wire:model.live="tokenSearch" class="mx-3 mt-3 mb-1" :placeholder="__('general.search').'...'" />
+                <flux:select wire:model.live="tokenId" variant="combobox" :filter="false" clearable placeholder="{{ __('general.sms_token') }}...">
+                    <x-slot name="input">
+                        <flux:select.input wire:model.live.debounce.300ms="tokenSearch" placeholder="{{ __('general.sms_token') }}..." />
                     </x-slot>
                     @foreach ($this->tokens as $token)
-                        <flux:select.option value="{{ $token->id }}">{{ $token->name }}</flux:select.option>
+                        <flux:select.option value="{{ $token->id }}" wire:key="token-filter-{{ $token->id }}">{{ $token->name }}</flux:select.option>
                     @endforeach
                 </flux:select>
             </div>
