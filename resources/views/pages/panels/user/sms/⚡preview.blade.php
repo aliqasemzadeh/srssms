@@ -179,7 +179,7 @@ new class extends Component
             @endif
 
             <div class="flex flex-wrap gap-3">
-                <flux:button variant="ghost" :href="route('panels.user.sms.send')" wire:navigate>{{ __('actions.back') }}</flux:button>
+                <flux:button variant="ghost" :href="route('panels.user.sms.send')" wire:navigate>{{ __('general.back') }}</flux:button>
                 <flux:button
                     variant="primary"
                     color="teal"
