@@ -145,6 +145,34 @@
         @endcanany
 
         @canany([
+            'support-system.ticket.view',
+        ])
+            <div
+                data-sidebar-menu-group
+                data-sidebar-menu-heading="{{ __('general.support_system') }}"
+                x-show="matches($el)"
+                x-cloak
+            >
+                <flux:sidebar.group
+                    expandable
+                    icon="life-buoy"
+                    heading="{{ __('general.support_system') }}"
+                    class="grid"
+                    :expanded="request()->routeIs('panels.administrator.support-system.*')"
+                >
+                    @can('support-system.ticket.view')
+                        <div x-show="showItem($el)" x-cloak>
+                            <flux:sidebar.item href="{{ route('panels.administrator.support-system.ticket.new') }}" :current="request()->routeIs('panels.administrator.support-system.ticket.new')" wire:navigate>{{ __('general.new_tickets') }}</flux:sidebar.item>
+                        </div>
+                        <div x-show="showItem($el)" x-cloak>
+                            <flux:sidebar.item href="{{ route('panels.administrator.support-system.ticket.index') }}" :current="request()->routeIs('panels.administrator.support-system.ticket.index') || request()->routeIs('panels.administrator.support-system.ticket.view')" wire:navigate>{{ __('general.all_tickets') }}</flux:sidebar.item>
+                        </div>
+                    @endcan
+                </flux:sidebar.group>
+            </div>
+        @endcanany
+
+        @canany([
             'system-management.setting.view',
             'system-management.function.view',
             'system-management.backup.view',

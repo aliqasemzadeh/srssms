@@ -71,6 +71,28 @@
             </flux:sidebar.group>
         </div>
 
+        <div
+            data-sidebar-menu-group
+            data-sidebar-menu-heading="{{ __('general.tickets') }}"
+            x-show="matches($el)"
+            x-cloak
+        >
+            <flux:sidebar.group
+                expandable
+                icon="life-buoy"
+                heading="{{ __('general.tickets') }}"
+                class="grid"
+                :expanded="request()->routeIs('panels.user.ticket.*')"
+            >
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.user.ticket.index') }}" :current="request()->routeIs('panels.user.ticket.index') || request()->routeIs('panels.user.ticket.view')" wire:navigate>{{ __('general.my_tickets') }}</flux:sidebar.item>
+                </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.user.ticket.create') }}" :current="request()->routeIs('panels.user.ticket.create')" wire:navigate>{{ __('general.create_ticket') }}</flux:sidebar.item>
+                </div>
+            </flux:sidebar.group>
+        </div>
+
         <div x-show="showItem($el)" x-cloak>
             <flux:sidebar.item icon="wallet" href="{{ route('panels.user.wallet.index') }}" :current="request()->routeIs('panels.user.wallet.*')" wire:navigate>{{ __('general.wallet') }}</flux:sidebar.item>
         </div>

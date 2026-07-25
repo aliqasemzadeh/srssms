@@ -145,6 +145,15 @@ Route::middleware('auth')->group(function () {
             Route::livewire('/panels/administrator/system-management/backups', 'pages::panels.administrator.system-management.backup.index')
                 ->name('panels.administrator.system-management.backup.index');
         });
+
+        Route::middleware('permission:support-system.ticket.view')->group(function () {
+            Route::livewire('/panels/administrator/support-system/tickets/new', 'pages::panels.administrator.support-system.ticket.new')
+                ->name('panels.administrator.support-system.ticket.new');
+            Route::livewire('/panels/administrator/support-system/tickets', 'pages::panels.administrator.support-system.ticket.index')
+                ->name('panels.administrator.support-system.ticket.index');
+            Route::livewire('/panels/administrator/support-system/tickets/{ticket}', 'pages::panels.administrator.support-system.ticket.view')
+                ->name('panels.administrator.support-system.ticket.view');
+        });
     });
 
     // User Panel
@@ -169,6 +178,10 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/panels/user/sms/tokens/logs', 'pages::panels.user.sms.token.logs')->name('panels.user.sms.token.logs');
     Route::livewire('/panels/user/sms/tokens/doc', 'pages::panels.user.sms.token.doc')->name('panels.user.sms.token.doc');
     Route::livewire('/panels/user/sms/tokens/sample', 'pages::panels.user.sms.token.sample')->name('panels.user.sms.token.sample');
+
+    Route::livewire('/panels/user/tickets', 'pages::panels.user.ticket.index')->name('panels.user.ticket.index');
+    Route::livewire('/panels/user/tickets/create', 'pages::panels.user.ticket.create')->name('panels.user.ticket.create');
+    Route::livewire('/panels/user/tickets/{ticket}', 'pages::panels.user.ticket.view')->name('panels.user.ticket.view');
 });
 
 require __DIR__.'/auth.php';
