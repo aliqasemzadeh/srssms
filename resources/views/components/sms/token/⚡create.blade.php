@@ -58,7 +58,7 @@ new class extends Component
         </flux:button>
     @else
         <form wire:submit="save" class="space-y-6">
-            <flux:input wire:model="form.name" label="{{ __('general.name') }}" icon="tag" />
+            <flux:input wire:model="form.name" label="{{ __('general.name') }}" icon="hash" />
             <flux:textarea
                 wire:model="form.allowed_ips"
                 label="{{ __('general.allowed_ips') }}"
