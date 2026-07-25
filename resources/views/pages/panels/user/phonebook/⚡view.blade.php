@@ -137,32 +137,36 @@ new class extends Component
                 <flux:timeline>
                     @forelse ($this->timeline as $item)
                         <flux:timeline.item>
-                            <x-slot:icon>
+                            <flux:timeline.indicator color="{{ $item['type'] === 'sms' ? 'sky' : 'amber' }}">
                                 @if ($item['type'] === 'sms')
-                                    <flux:icon.message-square class="size-4" />
+                                    <flux:icon.message-square variant="micro" />
                                 @else
-                                    <flux:icon.sticky-note class="size-4" />
+                                    <flux:icon.sticky-note variant="micro" />
                                 @endif
-                            </x-slot:icon>
+                            </flux:timeline.indicator>
 
-                            <flux:heading size="sm">{{ $item['title'] }}</flux:heading>
-                            <flux:text class="text-xs text-zinc-500">{{ $item['at']?->toDynamicFormat('Y/m/d H:i') }}</flux:text>
-                            <flux:text class="mt-1">{{ $item['body'] }}</flux:text>
+                            <flux:timeline.content>
+                                <flux:heading size="sm">
+                                    {{ $item['title'] }}
+                                    <flux:text inline class="text-xs text-zinc-500">· {{ $item['at']?->toDynamicFormat('Y/m/d H:i') }}</flux:text>
+                                </flux:heading>
+                                <flux:text class="mt-1">{{ $item['body'] }}</flux:text>
 
-                            <div class="mt-2 flex flex-wrap gap-2">
-                                @if ($item['type'] === 'note' && $item['status'])
-                                    <flux:badge size="sm" color="{{ $item['status']->color() }}">{{ $item['status']->label() }}</flux:badge>
-                                @endif
-                                @if ($item['type'] === 'note' && $item['remind_at'])
-                                    <flux:badge size="sm" color="amber">{{ __('general.remind_at') }}: {{ $item['remind_at']->toDynamicFormat('Y/m/d') }}</flux:badge>
-                                @endif
-                                @if ($item['type'] === 'sms' && $item['status'])
-                                    <flux:badge size="sm" color="{{ $item['status']->color() }}">{{ $item['status']->label() }}</flux:badge>
-                                @endif
-                                @if ($item['type'] === 'sms' && $item['cost'])
-                                    <flux:badge size="sm" color="zinc">{{ number_format($item['cost']) }} {{ __('general.rial') }}</flux:badge>
-                                @endif
-                            </div>
+                                <div class="mt-2 flex flex-wrap gap-2">
+                                    @if ($item['type'] === 'note' && $item['status'])
+                                        <flux:badge size="sm" color="{{ $item['status']->color() }}">{{ $item['status']->label() }}</flux:badge>
+                                    @endif
+                                    @if ($item['type'] === 'note' && $item['remind_at'])
+                                        <flux:badge size="sm" color="amber">{{ __('general.remind_at') }}: {{ $item['remind_at']->toDynamicFormat('Y/m/d') }}</flux:badge>
+                                    @endif
+                                    @if ($item['type'] === 'sms' && $item['status'])
+                                        <flux:badge size="sm" color="{{ $item['status']->color() }}">{{ $item['status']->label() }}</flux:badge>
+                                    @endif
+                                    @if ($item['type'] === 'sms' && $item['cost'])
+                                        <flux:badge size="sm" color="zinc">{{ number_format($item['cost']) }} {{ __('general.rial') }}</flux:badge>
+                                    @endif
+                                </div>
+                            </flux:timeline.content>
                         </flux:timeline.item>
                     @empty
                         <flux:text>{{ __('general.no_communications') }}</flux:text>
