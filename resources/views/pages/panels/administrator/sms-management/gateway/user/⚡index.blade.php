@@ -81,7 +81,23 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.gateway_users') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <div class="flex gap-2">
+            <div class="sm:hidden shrink-0">
+                <flux:dropdown align="end">
+                    <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
+                    <flux:menu>
+                        <flux:menu.item icon="arrow-right" href="{{ route('panels.administrator.sms-management.gateway.index') }}" wire:navigate>
+                            {{ __('general.sms_gateways') }}
+                        </flux:menu.item>
+                        @can('sms-management.gateway.user.create')
+                        <flux:menu.item icon="user-plus" wire:click="$dispatch('panels.administrator.sms-management.gateway.user.access.assign-data', { gateway: {{ $gateway->id }} })">
+                            {{ __('general.gateway_access') }}
+                        </flux:menu.item>
+                        @endcan
+                    </flux:menu>
+                </flux:dropdown>
+            </div>
+
+            <div class="hidden items-center gap-2 sm:flex shrink-0">
                 <flux:button variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.administrator.sms-management.gateway.index') }}" wire:navigate>
                     {{ __('general.sms_gateways') }}
                 </flux:button>
@@ -102,7 +118,7 @@ new class extends Component
 
         <flux:card>
             <div class="mb-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable class="min-w-0 flex-1 max-w-xs" />
             </div>
 
             <flux:table :paginate="$this->users">

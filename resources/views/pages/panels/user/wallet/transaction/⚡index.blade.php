@@ -69,6 +69,15 @@ new class extends Component
     {
         $this->resetPage();
     }
+
+    public function clearFilters(): void
+    {
+        $this->reset([
+            'type',
+        ]);
+
+        $this->resetPage();
+    }
 };
 ?>
 
@@ -93,16 +102,28 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.transactions') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <flux:button
-                class="shrink-0"
-                variant="primary"
-                color="teal"
-                icon="plus"
-                href="{{ route('panels.user.wallet.charge', ['currency' => $wallet->currency_id]) }}"
-                wire:navigate
-            >
-                {{ __('general.charge_wallet') }}
-            </flux:button>
+            <div class="sm:hidden shrink-0">
+                <flux:dropdown align="end">
+                    <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
+                    <flux:menu>
+                        <flux:menu.item icon="plus" href="{{ route('panels.user.wallet.charge', ['currency' => $wallet->currency_id]) }}" wire:navigate>
+                            {{ __('general.charge_wallet') }}
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+            </div>
+
+            <div class="hidden items-center gap-2 sm:flex shrink-0">
+                <flux:button
+                    variant="primary"
+                    color="teal"
+                    icon="plus"
+                    href="{{ route('panels.user.wallet.charge', ['currency' => $wallet->currency_id]) }}"
+                    wire:navigate
+                >
+                    {{ __('general.charge_wallet') }}
+                </flux:button>
+            </div>
         </div>
 
         <div class="grid gap-4 md:grid-cols-2">
@@ -130,13 +151,54 @@ new class extends Component
         </div>
 
         <flux:card class="space-y-4">
-            <div class="grid gap-3 md:grid-cols-2">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+            @php
+                $activeFilters = collect([
+                    $type,
+                ])->filter(fn ($v) => filled($v))->count();
+            @endphp
 
-                <flux:select wire:model.live="type" variant="listbox" searchable placeholder="{{ __('general.type') }}..." clearable>
-                    <flux:select.option value="credit">{{ __('general.transaction_type_credit') }}</flux:select.option>
-                    <flux:select.option value="debit">{{ __('general.transaction_type_debit') }}</flux:select.option>
-                </flux:select>
+            <div class="flex items-center gap-3">
+                <flux:input
+                    wire:model.live.debounce.300ms="search"
+                    icon="search"
+                    placeholder="{{ __('general.search') }}..."
+                    clearable
+                    class="min-w-0 flex-1 max-w-xs"
+                />
+
+                <flux:dropdown align="end" class="shrink-0 ms-auto">
+                    <flux:button
+                        icon="funnel"
+                        icon:variant="micro"
+                        icon:class="text-zinc-400"
+                    >
+                        {{ __('general.filters') }}
+
+                        <x-slot name="iconTrailing">
+                            <flux:badge size="sm" class="-mr-1">
+                                <span class="tabular-nums">{{ $activeFilters }}</span>
+                            </flux:badge>
+                        </x-slot>
+                    </flux:button>
+
+                    <flux:popover class="w-[min(100vw-2rem,20rem)] max-h-[70vh] overflow-y-auto flex flex-col gap-4">
+                        <flux:select wire:model.live="type" variant="listbox" searchable placeholder="{{ __('general.type') }}..." clearable>
+                            <flux:select.option value="credit">{{ __('general.transaction_type_credit') }}</flux:select.option>
+                            <flux:select.option value="debit">{{ __('general.transaction_type_debit') }}</flux:select.option>
+                        </flux:select>
+
+                        <flux:separator variant="subtle" />
+
+                        <flux:button
+                            variant="subtle"
+                            size="sm"
+                            class="justify-start -m-2 !px-2"
+                            wire:click="clearFilters"
+                        >
+                            {{ __('general.clear_filters') }}
+                        </flux:button>
+                    </flux:popover>
+                </flux:dropdown>
             </div>
 
             <flux:table :paginate="$this->transactions">

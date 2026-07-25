@@ -86,16 +86,29 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.users') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-@can('user-management.user.create')
-            <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.create.assign-data')">
-                {{ __('actions.create') }} {{ __('general.user') }}
-            </flux:button>
-@endcan
+            @can('user-management.user.create')
+            <div class="sm:hidden shrink-0">
+                <flux:dropdown align="end">
+                    <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
+                    <flux:menu>
+                        <flux:menu.item icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.create.assign-data')">
+                            {{ __('actions.create') }} {{ __('general.user') }}
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+            </div>
+
+            <div class="hidden items-center gap-2 sm:flex shrink-0">
+                <flux:button variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.create.assign-data')">
+                    {{ __('actions.create') }} {{ __('general.user') }}
+                </flux:button>
+            </div>
+            @endcan
         </div>
 
         <flux:card>
             <div class="mb-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." />
+                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." class="min-w-0 flex-1 max-w-xs" />
             </div>
 
             <flux:table :paginate="$this->users">

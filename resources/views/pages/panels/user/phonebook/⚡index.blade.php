@@ -104,6 +104,17 @@ new class extends Component
         $this->resetPage();
     }
 
+    public function clearFilters(): void
+    {
+        $this->reset([
+            'groupId',
+            'tagId',
+            'personType',
+        ]);
+
+        $this->resetPage();
+    }
+
     public function selectPage(): void
     {
         $pageIds = $this->contacts->pluck('id')->map(fn ($id) => (int) $id)->all();
@@ -168,7 +179,25 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.phonebook') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <div class="flex flex-wrap gap-2">
+            <div class="sm:hidden shrink-0">
+                <flux:dropdown align="end">
+                    <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
+                    <flux:menu>
+                        <flux:menu.item icon="upload" wire:click="$dispatch('panels.user.phonebook.contact.import.assign-data')">
+                            {{ __('actions.import') }}
+                        </flux:menu.item>
+                        <flux:menu.item icon="download" wire:click="export">
+                            {{ __('actions.export') }}
+                        </flux:menu.item>
+                        <flux:menu.separator />
+                        <flux:menu.item icon="plus" wire:click="$dispatch('panels.user.phonebook.contact.create.assign-data')">
+                            {{ __('actions.create') }} {{ __('general.contact') }}
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+            </div>
+
+            <div class="hidden items-center gap-2 sm:flex shrink-0">
                 <flux:tooltip content="{{ __('actions.import') }}">
                     <flux:button size="sm" variant="primary" color="teal" icon="upload" icon:variant="outline" wire:click="$dispatch('panels.user.phonebook.contact.import.assign-data')" />
                 </flux:tooltip>
@@ -198,30 +227,73 @@ new class extends Component
             </flux:callout>
         @endif
 
-        <flux:card>
-            <div class="mb-4 grid gap-3 md:grid-cols-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+        <flux:card class="space-y-4">
+            @php
+                $activeFilters = collect([
+                    $groupId,
+                    $tagId,
+                    $personType,
+                ])->filter(fn ($v) => filled($v))->count();
+            @endphp
 
-                <flux:select wire:model.live="groupId" variant="listbox" searchable placeholder="{{ __('general.phonebook_group') }}..." clearable>
-                    @foreach ($this->groups as $group)
-                        <flux:select.option value="{{ $group->id }}">{{ $group->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+            <div class="flex items-center gap-3">
+                <flux:input
+                    wire:model.live.debounce.300ms="search"
+                    icon="search"
+                    placeholder="{{ __('general.search') }}..."
+                    clearable
+                    class="min-w-0 flex-1 max-w-xs"
+                />
 
-                <flux:select wire:model.live="tagId" variant="listbox" searchable placeholder="{{ __('general.phonebook_tag') }}..." clearable>
-                    @foreach ($this->tags as $tag)
-                        <flux:select.option value="{{ $tag->id }}">{{ $tag->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+                <flux:dropdown align="end" class="shrink-0 ms-auto">
+                    <flux:button
+                        icon="funnel"
+                        icon:variant="micro"
+                        icon:class="text-zinc-400"
+                    >
+                        {{ __('general.filters') }}
 
-                <flux:select wire:model.live="personType" variant="listbox" searchable placeholder="{{ __('general.person_type') }}..." clearable>
-                    @foreach (ContactPersonTypeEnum::options() as $value => $label)
-                        <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+                        <x-slot name="iconTrailing">
+                            <flux:badge size="sm" class="-mr-1">
+                                <span class="tabular-nums">{{ $activeFilters }}</span>
+                            </flux:badge>
+                        </x-slot>
+                    </flux:button>
+
+                    <flux:popover class="w-[min(100vw-2rem,20rem)] max-h-[70vh] overflow-y-auto flex flex-col gap-4">
+                        <flux:select wire:model.live="groupId" variant="listbox" searchable placeholder="{{ __('general.phonebook_group') }}..." clearable>
+                            @foreach ($this->groups as $group)
+                                <flux:select.option value="{{ $group->id }}">{{ $group->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+
+                        <flux:select wire:model.live="tagId" variant="listbox" searchable placeholder="{{ __('general.phonebook_tag') }}..." clearable>
+                            @foreach ($this->tags as $tag)
+                                <flux:select.option value="{{ $tag->id }}">{{ $tag->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+
+                        <flux:select wire:model.live="personType" variant="listbox" searchable placeholder="{{ __('general.person_type') }}..." clearable>
+                            @foreach (ContactPersonTypeEnum::options() as $value => $label)
+                                <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+
+                        <flux:separator variant="subtle" />
+
+                        <flux:button
+                            variant="subtle"
+                            size="sm"
+                            class="justify-start -m-2 !px-2"
+                            wire:click="clearFilters"
+                        >
+                            {{ __('general.clear_filters') }}
+                        </flux:button>
+                    </flux:popover>
+                </flux:dropdown>
             </div>
 
-            <div class="mb-3">
+            <div>
                 <flux:button size="xs" variant="ghost" wire:click="selectPage">{{ __('general.select_page') }}</flux:button>
             </div>
 

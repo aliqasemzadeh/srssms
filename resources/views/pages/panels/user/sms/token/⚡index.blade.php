@@ -70,7 +70,27 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.sms_tokens') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="sm:hidden shrink-0">
+                <flux:dropdown align="end">
+                    <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
+                    <flux:menu>
+                        <flux:menu.item icon="book-open" :href="route('panels.user.sms.token.doc')" wire:navigate>
+                            {{ __('general.sms_api_docs') }}
+                        </flux:menu.item>
+                        <flux:menu.item icon="code" :href="route('panels.user.sms.token.sample')" wire:navigate>
+                            {{ __('general.sms_api_samples') }}
+                        </flux:menu.item>
+                        <flux:menu.item icon="scroll-text" :href="route('panels.user.sms.token.logs')" wire:navigate>
+                            {{ __('general.sms_token_logs') }}
+                        </flux:menu.item>
+                        <flux:menu.item icon="plus" wire:click="$dispatch('panels.user.sms.token.create.assign-data')">
+                            {{ __('actions.create') }} {{ __('general.sms_token') }}
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+            </div>
+
+            <div class="hidden items-center gap-2 sm:flex shrink-0">
                 <flux:button variant="primary" color="zinc" icon="book-open" :href="route('panels.user.sms.token.doc')" wire:navigate>
                     {{ __('general.sms_api_docs') }}
                 </flux:button>
@@ -80,7 +100,7 @@ new class extends Component
                 <flux:button variant="primary" color="sky" icon="scroll-text" :href="route('panels.user.sms.token.logs')" wire:navigate>
                     {{ __('general.sms_token_logs') }}
                 </flux:button>
-                <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.user.sms.token.create.assign-data')">
+                <flux:button variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.user.sms.token.create.assign-data')">
                     {{ __('actions.create') }} {{ __('general.sms_token') }}
                 </flux:button>
             </div>
@@ -88,7 +108,7 @@ new class extends Component
 
         <flux:card>
             <div class="mb-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable class="min-w-0 flex-1 max-w-xs" />
             </div>
 
             <flux:table :paginate="$this->tokens">

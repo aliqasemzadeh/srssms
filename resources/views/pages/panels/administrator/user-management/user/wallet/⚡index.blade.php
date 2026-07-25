@@ -158,15 +158,28 @@ new class extends Component
             </flux:breadcrumbs>
 
             @can('finance-management.wallet.create')
-            <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.wallet.create.assign-data')">
-                {{ __('actions.create') }} {{ __('general.wallet') }}
-            </flux:button>
+            <div class="sm:hidden shrink-0">
+                <flux:dropdown align="end">
+                    <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
+                    <flux:menu>
+                        <flux:menu.item icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.wallet.create.assign-data')">
+                            {{ __('actions.create') }} {{ __('general.wallet') }}
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+            </div>
+
+            <div class="hidden items-center gap-2 sm:flex shrink-0">
+                <flux:button variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.user-management.user.wallet.create.assign-data')">
+                    {{ __('actions.create') }} {{ __('general.wallet') }}
+                </flux:button>
+            </div>
             @endcan
         </div>
 
         <flux:card>
             <div class="mb-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable class="min-w-0 flex-1 max-w-xs" />
             </div>
 
             <flux:table :paginate="$this->currencies">

@@ -142,6 +142,19 @@ new class extends Component
     {
         $this->resetPage();
     }
+
+    public function clearFilters(): void
+    {
+        $this->reset([
+            'tokenId',
+            'tokenSearch',
+            'dateFrom',
+            'dateTo',
+            'dateRange',
+        ]);
+
+        $this->resetPage();
+    }
 };
 ?>
 
@@ -158,48 +171,103 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.sms_token_logs') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <flux:button variant="primary" color="zinc" icon="arrow-right" :href="route('panels.user.sms.token.index')" wire:navigate>
-                {{ __('general.sms_tokens') }}
-            </flux:button>
+            <div class="sm:hidden shrink-0">
+                <flux:dropdown align="end">
+                    <flux:button icon:trailing="chevron-down">{{ __('general.actions') }}</flux:button>
+                    <flux:menu>
+                        <flux:menu.item icon="arrow-right" :href="route('panels.user.sms.token.index')" wire:navigate>
+                            {{ __('general.sms_tokens') }}
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+            </div>
+
+            <div class="hidden items-center gap-2 sm:flex shrink-0">
+                <flux:button variant="primary" color="zinc" icon="arrow-right" :href="route('panels.user.sms.token.index')" wire:navigate>
+                    {{ __('general.sms_tokens') }}
+                </flux:button>
+            </div>
         </div>
 
         <flux:card class="space-y-4">
-            <div class="grid items-end gap-3 md:grid-cols-2 xl:grid-cols-4">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" label="{{ __('general.search') }}" placeholder="{{ __('general.search') }}..." clearable />
+            @php
+                $activeFilters = collect([
+                    $tokenId,
+                    $dateFrom,
+                    $dateTo,
+                    $dateRange,
+                ])->filter(fn ($v) => filled($v))->count();
+            @endphp
 
-                <flux:select wire:model.live="tokenId" variant="combobox" :filter="false" clearable label="{{ __('general.sms_token') }}" placeholder="{{ __('general.sms_token') }}...">
-                    <x-slot name="input">
-                        <flux:select.input wire:model.live.debounce.300ms="tokenSearch" placeholder="{{ __('general.sms_token') }}..." />
-                    </x-slot>
-                    @foreach ($this->tokens as $token)
-                        <flux:select.option value="{{ $token->id }}" wire:key="token-filter-{{ $token->id }}">{{ $token->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+            <div class="flex items-center gap-3">
+                <flux:input
+                    wire:model.live.debounce.300ms="search"
+                    icon="search"
+                    placeholder="{{ __('general.search') }}..."
+                    clearable
+                    class="min-w-0 flex-1 max-w-xs"
+                />
 
-                @if ($isFa)
-                    <x-persian-date-picker
-                        wire:model.live="dateFrom"
-                        label="{{ __('general.date_from') }}"
-                        placeholder="{{ __('general.date_from') }}"
-                    />
-                    <x-persian-date-picker
-                        wire:model.live="dateTo"
-                        label="{{ __('general.date_to') }}"
-                        placeholder="{{ __('general.date_to') }}"
-                    />
-                @else
-                    <div class="md:col-span-2">
-                        <flux:date-picker
-                            mode="range"
-                            type="input"
-                            wire:model.live="dateRange"
-                            with-presets
-                            clearable
-                            label="{{ __('general.date_range') }}"
-                            placeholder="{{ __('general.date_range') }}"
-                        />
-                    </div>
-                @endif
+                <flux:dropdown align="end" class="shrink-0 ms-auto">
+                    <flux:button
+                        icon="funnel"
+                        icon:variant="micro"
+                        icon:class="text-zinc-400"
+                    >
+                        {{ __('general.filters') }}
+
+                        <x-slot name="iconTrailing">
+                            <flux:badge size="sm" class="-mr-1">
+                                <span class="tabular-nums">{{ $activeFilters }}</span>
+                            </flux:badge>
+                        </x-slot>
+                    </flux:button>
+
+                    <flux:popover class="w-[min(100vw-2rem,20rem)] max-h-[70vh] overflow-y-auto flex flex-col gap-4">
+                        <flux:select wire:model.live="tokenId" variant="combobox" :filter="false" clearable placeholder="{{ __('general.sms_token') }}...">
+                            <x-slot name="input">
+                                <flux:select.input wire:model.live.debounce.300ms="tokenSearch" placeholder="{{ __('general.sms_token') }}..." />
+                            </x-slot>
+                            @foreach ($this->tokens as $token)
+                                <flux:select.option value="{{ $token->id }}" wire:key="token-filter-{{ $token->id }}">{{ $token->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+
+                        @if ($isFa)
+                            <x-persian-date-picker
+                                wire:model.live="dateFrom"
+                                label="{{ __('general.date_from') }}"
+                                placeholder="{{ __('general.date_from') }}"
+                            />
+                            <x-persian-date-picker
+                                wire:model.live="dateTo"
+                                label="{{ __('general.date_to') }}"
+                                placeholder="{{ __('general.date_to') }}"
+                            />
+                        @else
+                            <flux:date-picker
+                                mode="range"
+                                type="input"
+                                wire:model.live="dateRange"
+                                with-presets
+                                clearable
+                                label="{{ __('general.date_range') }}"
+                                placeholder="{{ __('general.date_range') }}"
+                            />
+                        @endif
+
+                        <flux:separator variant="subtle" />
+
+                        <flux:button
+                            variant="subtle"
+                            size="sm"
+                            class="justify-start -m-2 !px-2"
+                            wire:click="clearFilters"
+                        >
+                            {{ __('general.clear_filters') }}
+                        </flux:button>
+                    </flux:popover>
+                </flux:dropdown>
             </div>
 
             <flux:table :paginate="$this->logs">
