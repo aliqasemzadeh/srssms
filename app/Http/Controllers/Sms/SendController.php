@@ -18,7 +18,7 @@ class SendController extends Controller
     public function send(Request $request, SmsSender $smsSender): JsonResponse
     {
         $payload = $this->requestPayload($request);
-        $ip = $request->ip();
+        $ip = $this->resolveClientIp($request);
         $tokenModel = null;
         $messageId = null;
 
@@ -258,15 +258,24 @@ class SendController extends Controller
         ?int $messageId,
         array $result,
     ): JsonResponse {
+        $clientIp = $this->resolveClientIp($request, $ip);
+
         $safeRequest = $payload;
         if (isset($safeRequest['token'])) {
             $safeRequest['token'] = '***';
         }
 
+        $safeRequest['_meta'] = [
+            'ip' => $clientIp,
+            'forwarded_for' => $request->header('X-Forwarded-For'),
+            'real_ip' => $request->header('X-Real-IP'),
+            'user_agent' => $request->userAgent(),
+        ];
+
         TokenLog::query()->create([
             'token_id' => $token?->id,
             'user_id' => $token?->user_id,
-            'ip' => $ip,
+            'ip' => $clientIp,
             'method' => $request->method(),
             'path' => '/'.$request->path(),
             'request' => $safeRequest,
@@ -276,5 +285,32 @@ class SendController extends Controller
         ]);
 
         return response()->json($result['body'], $result['status']);
+    }
+
+    protected function resolveClientIp(Request $request, ?string $fallback = null): ?string
+    {
+        $ip = $request->ip() ?: $fallback;
+
+        if (filled($ip)) {
+            return trim((string) $ip);
+        }
+
+        $forwarded = $request->header('X-Forwarded-For');
+
+        if (filled($forwarded)) {
+            $first = trim(explode(',', (string) $forwarded)[0]);
+
+            if ($first !== '') {
+                return $first;
+            }
+        }
+
+        $realIp = $request->header('X-Real-IP');
+
+        if (filled($realIp)) {
+            return trim((string) $realIp);
+        }
+
+        return null;
     }
 }

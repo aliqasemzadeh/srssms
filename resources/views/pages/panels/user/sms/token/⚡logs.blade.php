@@ -164,10 +164,10 @@ new class extends Component
         </div>
 
         <flux:card class="space-y-4">
-            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div class="grid items-end gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <flux:input wire:model.live.debounce.300ms="search" icon="search" label="{{ __('general.search') }}" placeholder="{{ __('general.search') }}..." clearable />
 
-                <flux:select wire:model.live="tokenId" variant="combobox" :filter="false" clearable placeholder="{{ __('general.sms_token') }}...">
+                <flux:select wire:model.live="tokenId" variant="combobox" :filter="false" clearable label="{{ __('general.sms_token') }}" placeholder="{{ __('general.sms_token') }}...">
                     <x-slot name="input">
                         <flux:select.input wire:model.live.debounce.300ms="tokenSearch" placeholder="{{ __('general.sms_token') }}..." />
                     </x-slot>
@@ -175,9 +175,7 @@ new class extends Component
                         <flux:select.option value="{{ $token->id }}" wire:key="token-filter-{{ $token->id }}">{{ $token->name }}</flux:select.option>
                     @endforeach
                 </flux:select>
-            </div>
 
-            <div class="grid gap-3 md:grid-cols-2">
                 @if ($isFa)
                     <x-persian-date-picker
                         wire:model.live="dateFrom"
@@ -190,7 +188,7 @@ new class extends Component
                         placeholder="{{ __('general.date_to') }}"
                     />
                 @else
-                    <div class="max-w-xl md:col-span-2">
+                    <div class="md:col-span-2">
                         <flux:date-picker
                             mode="range"
                             type="input"
@@ -243,6 +241,24 @@ new class extends Component
 
         @if ($this->detailLog)
             <div class="space-y-4">
+                <div class="grid gap-3 sm:grid-cols-2">
+                    <div>
+                        <flux:text class="text-sm opacity-70">{{ __('general.ip') }}</flux:text>
+                        <div class="font-mono" dir="ltr">{{ $this->detailLog->ip ?: '—' }}</div>
+                    </div>
+                    <div>
+                        <flux:text class="text-sm opacity-70">{{ __('general.method') }}</flux:text>
+                        <div dir="ltr">{{ $this->detailLog->method }} {{ $this->detailLog->path }}</div>
+                    </div>
+                    <div>
+                        <flux:text class="text-sm opacity-70">{{ __('general.status_code') }}</flux:text>
+                        <flux:badge size="sm" color="{{ $this->detailLog->status_code >= 400 ? 'red' : 'green' }}">{{ $this->detailLog->status_code }}</flux:badge>
+                    </div>
+                    <div>
+                        <flux:text class="text-sm opacity-70">{{ __('general.created_at') }}</flux:text>
+                        <div>{{ $this->detailLog->created_at->toDynamicFormat('Y/m/d H:i:s') }}</div>
+                    </div>
+                </div>
                 <div>
                     <flux:text class="mb-2 text-sm opacity-70">{{ __('general.request') }}</flux:text>
                     <pre class="overflow-x-auto rounded-lg bg-zinc-100 p-4 text-xs dark:bg-zinc-800" dir="ltr">{{ json_encode($this->detailLog->request, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
