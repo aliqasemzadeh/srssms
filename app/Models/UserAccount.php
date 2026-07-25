@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserAccountTypeEnum;
 use App\Models\Finance\Currency;
 use App\Models\Finance\Withdrawal;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -36,6 +37,7 @@ class UserAccount extends Model
     protected function casts(): array
     {
         return [
+            'type' => UserAccountTypeEnum::class,
             'meta' => 'array',
             'is_active' => 'boolean',
         ];
