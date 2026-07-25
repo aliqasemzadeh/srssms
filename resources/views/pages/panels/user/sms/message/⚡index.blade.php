@@ -114,7 +114,11 @@ new class extends Component
         </div>
 
         <flux:card class="space-y-4">
-            <div class="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <div @class([
+                'grid gap-3 md:grid-cols-2',
+                'xl:grid-cols-4' => $isFa,
+                'xl:grid-cols-3' => ! $isFa,
+            ])>
                 <flux:input wire:model.live.debounce.300ms="search" icon="search" label="{{ __('general.search') }}" placeholder="{{ __('general.search') }}..." clearable />
 
                 <flux:select wire:model.live="source" variant="listbox" searchable clearable placeholder="{{ __('general.source') }}...">
@@ -122,9 +126,7 @@ new class extends Component
                         <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                     @endforeach
                 </flux:select>
-            </div>
 
-            <div class="grid gap-3 md:grid-cols-2">
                 @if ($isFa)
                     <x-persian-date-picker
                         wire:model.live="dateFrom"
@@ -137,17 +139,15 @@ new class extends Component
                         placeholder="{{ __('general.date_to') }}"
                     />
                 @else
-                    <div class="max-w-xl md:col-span-2">
-                        <flux:date-picker
-                            mode="range"
-                            type="input"
-                            wire:model.live="dateRange"
-                            with-presets
-                            clearable
-                            label="{{ __('general.date_range') }}"
-                            placeholder="{{ __('general.date_range') }}"
-                        />
-                    </div>
+                    <flux:date-picker
+                        mode="range"
+                        type="input"
+                        wire:model.live="dateRange"
+                        with-presets
+                        clearable
+                        label="{{ __('general.date_range') }}"
+                        placeholder="{{ __('general.date_range') }}"
+                    />
                 @endif
             </div>
 

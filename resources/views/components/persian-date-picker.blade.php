@@ -32,8 +32,16 @@
     ]);
 @endphp
 
-<div class="antialiased sans-serif" x-data="window.persianDatePicker({{ $entangle }}, '{{ $value }}')" x-cloak>
-    <flux:field :name="$name" :label="$label" :description="$description" :required="$required">
+<div class="antialiased sans-serif" x-data="window.persianDatePicker({{ $entangle }}, '{{ $value }}')">
+    <flux:field>
+        @if ($label)
+            <flux:label>{{ $label }}{{ $required ? ' *' : '' }}</flux:label>
+        @endif
+
+        @if ($description)
+            <flux:description>{{ $description }}</flux:description>
+        @endif
+
         <div class="relative w-full">
             <div class="relative">
                 <flux:input

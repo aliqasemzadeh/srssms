@@ -540,6 +540,8 @@ return [
     'phonebook_groups' => 'گروه‌ها',
     'phonebook_tag' => 'تگ',
     'phonebook_tags' => 'تگ‌ها',
+    'create_phonebook_tag' => 'ایجاد',
+    'search_phonebook_tags' => 'جستجو یا ایجاد تگ...',
     'notes' => 'یادداشت‌ها',
     'note' => 'یادداشت',
     'company' => 'شرکت',

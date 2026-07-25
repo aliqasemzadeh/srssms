@@ -540,6 +540,8 @@ return [
     'phonebook_groups' => 'Groups',
     'phonebook_tag' => 'Tag',
     'phonebook_tags' => 'Tags',
+    'create_phonebook_tag' => 'Create',
+    'search_phonebook_tags' => 'Search or create a tag...',
     'notes' => 'Notes',
     'note' => 'Note',
     'company' => 'Company',
