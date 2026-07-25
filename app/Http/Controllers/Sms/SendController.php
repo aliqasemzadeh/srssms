@@ -21,8 +21,6 @@ class SendController extends Controller
         $ip = $request->ip();
         $tokenModel = null;
         $messageId = null;
-        $statusCode = 200;
-        $response = [];
 
         try {
             $tokenValue = $this->resolveTokenValue($request, $payload);

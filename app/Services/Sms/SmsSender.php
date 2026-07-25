@@ -65,6 +65,7 @@ class SmsSender implements SmsSenderContract
             $message = Message::query()->create([
                 'gateway_id' => $gateway->id,
                 'user_id' => $user?->id,
+                'source' => SmsMessageSourceEnum::Panel,
                 'direction' => SmsDirectionEnum::Outbound,
                 'number' => $gateway->number,
                 'body' => $text,
