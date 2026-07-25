@@ -108,9 +108,11 @@ new class extends Component
 };
 ?>
 
-@php($isFa = app()->getLocale() === 'fa')
-
 <div>
+    @php
+        $isFa = app()->getLocale() === 'fa';
+    @endphp
+
     <x-slot name="title">{{ __('general.sms_messages') }} - {{ config('app.name') }}</x-slot>
 
     <div class="space-y-6">
