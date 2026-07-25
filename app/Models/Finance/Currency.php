@@ -2,6 +2,7 @@
 
 namespace App\Models\Finance;
 
+use App\Models\UserAccount;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -38,5 +39,10 @@ class Currency extends Model
     public function wallets(): HasMany
     {
         return $this->hasMany(Wallet::class);
+    }
+
+    public function userAccounts(): HasMany
+    {
+        return $this->hasMany(UserAccount::class);
     }
 }

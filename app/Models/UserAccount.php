@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Models\Finance;
+namespace App\Models;
 
-use App\Models\User;
+use App\Models\Finance\Currency;
+use App\Models\Finance\Withdrawal;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,13 +13,22 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 #[Fillable([
     'user_id',
     'currency_id',
-    'balance',
-    'locked_balance',
+    'type',
+    'account_number',
+    'account_owner',
+    'status',
+    'meta',
     'is_active',
 ])]
-class Wallet extends Model
+class UserAccount extends Model
 {
     use SoftDeletes;
+
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_APPROVED = 'approved';
+
+    public const STATUS_REJECTED = 'rejected';
 
     /**
      * @return array<string, string>
@@ -26,8 +36,7 @@ class Wallet extends Model
     protected function casts(): array
     {
         return [
-            'balance' => 'decimal:8',
-            'locked_balance' => 'decimal:8',
+            'meta' => 'array',
             'is_active' => 'boolean',
         ];
     }
@@ -42,23 +51,23 @@ class Wallet extends Model
         return $this->belongsTo(Currency::class)->withTrashed();
     }
 
-    public function transactions(): HasMany
-    {
-        return $this->hasMany(Transaction::class);
-    }
-
-    public function deposits(): HasMany
-    {
-        return $this->hasMany(Deposit::class);
-    }
-
     public function withdrawals(): HasMany
     {
         return $this->hasMany(Withdrawal::class);
     }
 
-    public function getAvailableBalanceAttribute(): string
+    public function isPending(): bool
     {
-        return bcsub((string) $this->balance, (string) $this->locked_balance, 8);
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->status === self::STATUS_APPROVED;
+    }
+
+    public function isRejected(): bool
+    {
+        return $this->status === self::STATUS_REJECTED;
     }
 }

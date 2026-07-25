@@ -1,7 +1,9 @@
 <?php
 
 use App\Models\Finance\Currency;
+use App\Models\Finance\Deposit;
 use App\Models\Finance\Wallet;
+use App\Models\Finance\Withdrawal;
 use App\Models\User;
 
 return [
@@ -27,6 +29,14 @@ return [
         'currency' => [
             'model' => Currency::class,
             'label' => 'general.currency',
+        ],
+        'deposit' => [
+            'model' => Deposit::class,
+            'label' => 'general.deposit',
+        ],
+        'withdrawal' => [
+            'model' => Withdrawal::class,
+            'label' => 'general.withdrawal',
         ],
     ],
 
@@ -78,21 +88,4 @@ return [
         'crypto' => 'general.withdrawal_methods.crypto',
     ],
 
-    /*
-    |--------------------------------------------------------------------------
-    | Statuses
-    |--------------------------------------------------------------------------
-    |
-    | Shared status labels for finance-related records.
-    | Values are translation keys resolved with __().
-    |
-    */
-    'statuses' => [
-        'approved' => 'general.statuses.approved',
-        'pending' => 'general.statuses.pending',
-        'processing' => 'general.statuses.processing',
-        'completed' => 'general.statuses.completed',
-        'rejected' => 'general.statuses.rejected',
-        'canceled' => 'general.statuses.canceled',
-    ],
 ];
