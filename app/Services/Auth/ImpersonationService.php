@@ -26,10 +26,6 @@ class ImpersonationService
             ]);
         }
 
-        if ($actor->cannot(self::PERMISSION)) {
-            abort(403);
-        }
-
         if ($actor->is($target)) {
             throw ValidationException::withMessages([
                 'impersonate' => __('app.cannot_impersonate_self'),

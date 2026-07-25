@@ -21,6 +21,7 @@
     <flux:spacer />
     @include('layouts.shared.user', ['class' => 'lg:hidden'])
 </flux:header>
+<livewire:impersonation-banner :key="'impersonation-banner'" />
 <flux:main>
     {{ $slot }}
 </flux:main>

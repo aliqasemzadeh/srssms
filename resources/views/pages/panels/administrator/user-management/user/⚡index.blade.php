@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\User;
+use App\Services\Auth\ImpersonationService;
+use Flux\Flux;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
@@ -49,6 +51,15 @@ new class extends Component
     public function updatedSearch(): void
     {
         $this->resetPage();
+    }
+
+    public function impersonate(User $user, ImpersonationService $impersonation): void
+    {
+        $impersonation->start($user);
+
+        Flux::toast(__('app.impersonation_started'));
+
+        $this->redirect(route('panels.user.dashboard.index'), navigate: true);
     }
 
     #[On('panels.administrator.user-management.user.index.refresh')]
@@ -108,6 +119,11 @@ new class extends Component
                                     <flux:tooltip content="{{ __('general.user_accounts') }}">
                                         <flux:button size="xs" variant="primary" color="cyan" icon="credit-card" icon:variant="outline" :href="route('panels.administrator.user-management.user.user-account.index', $user)" wire:navigate />
                                     </flux:tooltip>
+                                    @if ($user->id !== auth()->id())
+                                        <flux:tooltip content="{{ __('actions.impersonate') }}">
+                                            <flux:button size="xs" variant="primary" color="amber" icon="venetian-mask" icon:variant="outline" wire:click="impersonate({{ $user->id }})" wire:confirm="{{ __('general.are_you_sure') }}" />
+                                        </flux:tooltip>
+                                    @endif
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.edit.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
