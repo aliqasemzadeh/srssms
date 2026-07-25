@@ -8,8 +8,6 @@ use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use RuntimeException;
-use Throwable;
 
 new class extends Component
 {
@@ -73,7 +71,7 @@ new class extends Component
     {
         try {
             return app(SmsBillingService::class)->resolveWallet(Auth::user())->available_balance;
-        } catch (Throwable) {
+        } catch (\Throwable) {
             return null;
         }
     }
@@ -89,7 +87,7 @@ new class extends Component
             app(SmsBillingService::class)->assertSufficientBalance(Auth::user(), $this->estimate['cost']);
 
             return true;
-        } catch (Throwable) {
+        } catch (\Throwable) {
             return false;
         }
     }
@@ -121,7 +119,7 @@ new class extends Component
                 $payload,
                 bill: true,
             );
-        } catch (RuntimeException $e) {
+        } catch (\RuntimeException $e) {
             Flux::toast($e->getMessage());
 
             return null;
