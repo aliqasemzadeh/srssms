@@ -21,9 +21,11 @@ class SabanovinDriver implements SmsDriver
             throw new RuntimeException('Sabanovin API key is missing on the provider.');
         }
 
+        // Do not url-encode the API key: Sabanovin keys contain ":" (e.g. sa123:token)
+        // and encoding it to %3A makes the provider return 401 invalid API key.
         $url = sprintf(
             'https://api.sabanovin.com/v1/%s/sms/send.json',
-            rawurlencode($apiKey)
+            $apiKey
         );
 
         try {
