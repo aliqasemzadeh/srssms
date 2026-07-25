@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\Sms\SmsGatewayAccessTypeEnum;
+use App\Enums\Sms\SmsGatewayUsageTypeEnum;
 use App\Models\Sms\Gateway;
 use App\Models\Sms\Provider;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -16,6 +18,10 @@ new class extends Component
     public string $search = '';
 
     public string $providerId = '';
+
+    public string $accessType = '';
+
+    public string $usageType = '';
 
     public string $sortBy = 'created_at';
 
@@ -34,6 +40,8 @@ new class extends Component
                 });
             })
             ->when($this->providerId, fn ($query) => $query->where('provider_id', $this->providerId))
+            ->when($this->accessType, fn ($query) => $query->where('access_type', $this->accessType))
+            ->when($this->usageType, fn ($query) => $query->where('usage_type', $this->usageType))
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate(config('general.per_page', 10));
     }
@@ -66,6 +74,16 @@ new class extends Component
         $this->resetPage();
     }
 
+    public function updatedAccessType(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedUsageType(): void
+    {
+        $this->resetPage();
+    }
+
     #[On('panels.administrator.sms-management.gateway.index.refresh')]
     public function refresh(): void
     {
@@ -91,12 +109,24 @@ new class extends Component
         </div>
 
         <flux:card>
-            <div class="mb-4 grid gap-3 md:grid-cols-2">
+            <div class="mb-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
                 <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
 
                 <flux:select wire:model.live="providerId" variant="listbox" searchable placeholder="{{ __('general.provider') }}..." clearable>
                     @foreach ($this->providers as $provider)
                         <flux:select.option value="{{ $provider->id }}">{{ $provider->name }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+
+                <flux:select wire:model.live="accessType" variant="listbox" searchable placeholder="{{ __('general.gateway_access_type') }}..." clearable>
+                    @foreach (SmsGatewayAccessTypeEnum::options() as $value => $label)
+                        <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+
+                <flux:select wire:model.live="usageType" variant="listbox" searchable placeholder="{{ __('general.gateway_usage_type') }}..." clearable>
+                    @foreach (SmsGatewayUsageTypeEnum::options() as $value => $label)
+                        <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                     @endforeach
                 </flux:select>
             </div>
@@ -106,6 +136,9 @@ new class extends Component
                     <flux:table.column sortable :sorted="$sortBy === 'title'" :direction="$sortDirection" wire:click="sort('title')">{{ __('general.title') }}</flux:table.column>
                     <flux:table.column sortable :sorted="$sortBy === 'number'" :direction="$sortDirection" wire:click="sort('number')">{{ __('general.gateway_number') }}</flux:table.column>
                     <flux:table.column>{{ __('general.provider') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.gateway_access_type') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.gateway_usage_type') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.is_public') }}</flux:table.column>
                     <flux:table.column>{{ __('general.gateway_users') }}</flux:table.column>
                     <flux:table.column>{{ __('general.status') }}</flux:table.column>
                     <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">{{ __('general.created_at') }}</flux:table.column>
@@ -118,6 +151,17 @@ new class extends Component
                             <flux:table.cell variant="strong">{{ $gateway->title }}</flux:table.cell>
                             <flux:table.cell><span dir="ltr">{{ $gateway->number }}</span></flux:table.cell>
                             <flux:table.cell>{{ $gateway->provider?->name }}</flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="{{ $gateway->access_type->color() }}">{{ $gateway->access_type->label() }}</flux:badge>
+                            </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="{{ $gateway->usage_type->color() }}">{{ $gateway->usage_type->label() }}</flux:badge>
+                            </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="{{ $gateway->is_public ? 'green' : 'zinc' }}">
+                                    {{ $gateway->is_public ? __('general.yes') : __('general.no') }}
+                                </flux:badge>
+                            </flux:table.cell>
                             <flux:table.cell>
                                 <flux:badge size="sm" color="zinc">{{ $gateway->users_count }}</flux:badge>
                             </flux:table.cell>

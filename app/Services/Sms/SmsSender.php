@@ -145,8 +145,18 @@ class SmsSender implements SmsSenderContract
             ->with('provider')
             ->where('is_active', true)
             ->whereHas('provider', fn ($query) => $query->where('is_active', true))
+            ->public()
             ->orderBy('id')
             ->first();
+
+        if (! $gateway) {
+            $gateway = Gateway::query()
+                ->with('provider')
+                ->where('is_active', true)
+                ->whereHas('provider', fn ($query) => $query->where('is_active', true))
+                ->orderBy('id')
+                ->first();
+        }
 
         if (! $gateway) {
             throw new RuntimeException('No active SMS gateway is configured.');

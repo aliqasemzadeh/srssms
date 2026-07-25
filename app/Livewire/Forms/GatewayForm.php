@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Forms;
 
+use App\Enums\Sms\SmsGatewayAccessTypeEnum;
+use App\Enums\Sms\SmsGatewayUsageTypeEnum;
 use App\Models\Sms\Gateway;
 use App\Models\Sms\Provider;
 use Illuminate\Validation\Rule;
@@ -17,6 +19,12 @@ class GatewayForm extends Form
 
     public string $title = '';
 
+    public string $access_type = 'shared';
+
+    public string $usage_type = 'service';
+
+    public bool $is_public = false;
+
     public bool $is_active = true;
 
     public function setModel(Gateway $gateway): void
@@ -25,6 +33,9 @@ class GatewayForm extends Form
         $this->provider_id = $gateway->provider_id;
         $this->number = $gateway->number;
         $this->title = $gateway->title;
+        $this->access_type = $gateway->access_type->value;
+        $this->usage_type = $gateway->usage_type->value;
+        $this->is_public = $gateway->is_public;
         $this->is_active = $gateway->is_active;
     }
 
@@ -44,6 +55,9 @@ class GatewayForm extends Form
                     ->ignore($this->gateway?->id),
             ],
             'title' => ['required', 'string', 'max:255'],
+            'access_type' => ['required', 'string', Rule::enum(SmsGatewayAccessTypeEnum::class)],
+            'usage_type' => ['required', 'string', Rule::enum(SmsGatewayUsageTypeEnum::class)],
+            'is_public' => ['boolean'],
             'is_active' => ['boolean'],
         ];
     }
@@ -58,6 +72,9 @@ class GatewayForm extends Form
             'provider_id' => $this->provider_id,
             'number' => $this->number,
             'title' => $this->title,
+            'access_type' => $this->access_type,
+            'usage_type' => $this->usage_type,
+            'is_public' => $this->is_public,
             'is_active' => $this->is_active,
         ]);
     }
@@ -76,6 +93,9 @@ class GatewayForm extends Form
             'provider_id' => $this->provider_id,
             'number' => $this->number,
             'title' => $this->title,
+            'access_type' => $this->access_type,
+            'usage_type' => $this->usage_type,
+            'is_public' => $this->is_public,
             'is_active' => $this->is_active,
         ]);
     }

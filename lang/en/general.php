@@ -460,6 +460,18 @@ return [
     'providers' => 'Providers',
     'sms_gateway' => 'SMS Gateway',
     'sms_gateways' => 'SMS Gateways',
+    'gateway_access_type' => 'Access Type',
+    'gateway_usage_type' => 'Usage Type',
+    'is_public' => 'Public',
+    'is_public_hint' => 'A public gateway (e.g. OTP) is available to everyone without assignment.',
+    'sms_gateway_access_types' => [
+        'dedicated' => 'Dedicated',
+        'shared' => 'Shared',
+    ],
+    'sms_gateway_usage_types' => [
+        'advertising' => 'Advertising',
+        'service' => 'Service',
+    ],
     'sms_message' => 'SMS Message',
     'sms_messages' => 'SMS Messages',
     'sms_settings' => 'SMS Settings',

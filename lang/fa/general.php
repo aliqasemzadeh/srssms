@@ -460,6 +460,18 @@ return [
     'providers' => 'پروایدرها',
     'sms_gateway' => 'درگاه پیامک',
     'sms_gateways' => 'درگاه‌های پیامک',
+    'gateway_access_type' => 'نوع دسترسی',
+    'gateway_usage_type' => 'نوع کاربری',
+    'is_public' => 'عمومی',
+    'is_public_hint' => 'درگاه عمومی (مثل OTP) برای همه کاربران آزاد است و نیازی به تخصیص ندارد.',
+    'sms_gateway_access_types' => [
+        'dedicated' => 'اختصاصی',
+        'shared' => 'اشتراکی',
+    ],
+    'sms_gateway_usage_types' => [
+        'advertising' => 'تبلیغاتی',
+        'service' => 'خدماتی',
+    ],
     'sms_message' => 'پیامک',
     'sms_messages' => 'پیامک‌ها',
     'sms_settings' => 'تنظیمات پیامک',
