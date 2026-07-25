@@ -105,6 +105,9 @@ new class extends Component
                                     <flux:tooltip content="{{ __('general.wallets') }}">
                                         <flux:button size="xs" variant="primary" color="teal" icon="wallet" icon:variant="outline" :href="route('panels.administrator.user-management.user.wallet.index', $user)" wire:navigate />
                                     </flux:tooltip>
+                                    <flux:tooltip content="{{ __('general.user_accounts') }}">
+                                        <flux:button size="xs" variant="primary" color="cyan" icon="credit-card" icon:variant="outline" :href="route('panels.administrator.user-management.user.user-account.index', $user)" wire:navigate />
+                                    </flux:tooltip>
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.user-management.user.edit.assign-data', { user: {{ $user->id }} })" />
                                     </flux:tooltip>
