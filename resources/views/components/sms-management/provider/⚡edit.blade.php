@@ -59,11 +59,17 @@ new class extends Component
             <div class="space-y-4" wire:key="provider-edit-credentials-{{ $form->driver }}">
                 <flux:heading size="sm">{{ __('general.credentials') }}</flux:heading>
                 @foreach ($credentialKeys as $key)
+                    @php
+                        $isSecret = str_contains($key, 'token') || str_contains($key, 'key') || str_contains($key, 'password');
+                    @endphp
                     <flux:input
                         wire:model="form.credentials.{{ $key }}"
                         label="{{ __('general.'.$key) }}"
-                        type="{{ str_contains($key, 'token') || str_contains($key, 'key') ? 'password' : 'text' }}"
-                        dir="ltr"
+                        type="{{ $isSecret ? 'password' : 'text' }}"
+                        input:class="text-left"
+                        :copyable="$isSecret"
+                        :clearable="$isSecret"
+                        :viewable="$isSecret"
                     />
                 @endforeach
             </div>
