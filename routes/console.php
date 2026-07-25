@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\Phonebook\DispatchDueNoteRemindersJob;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -23,3 +24,8 @@ Schedule::command('backup:clean', ['--disable-notifications' => true])
 Schedule::command('backup:run', ['--disable-notifications' => true])
     ->dailyAt('01:30')
     ->appendOutputTo(storage_path('logs/backup.log'));
+
+Schedule::job(new DispatchDueNoteRemindersJob)
+    ->dailyAt('08:00')
+    ->name('phonebook-note-reminders')
+    ->withoutOverlapping();

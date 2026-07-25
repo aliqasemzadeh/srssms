@@ -58,6 +58,8 @@ new class extends Component
 
         <flux:input wire:model="form.number" label="{{ __('general.gateway_number') }}" icon="hash" dir="ltr" />
 
+        <flux:input wire:model="form.sms_rate" type="number" min="0" label="{{ __('general.sms_rate') }}" description="{{ __('general.sms_rate_hint') }}" dir="ltr" />
+
         <flux:select wire:model="form.access_type" variant="listbox" searchable label="{{ __('general.gateway_access_type') }}">
             @foreach (SmsGatewayAccessTypeEnum::options() as $value => $label)
                 <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>

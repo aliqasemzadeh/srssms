@@ -4,6 +4,7 @@ use App\Enums\Sms\SmsGatewayAccessTypeEnum;
 use App\Enums\Sms\SmsGatewayUsageTypeEnum;
 use App\Livewire\Forms\GatewayForm;
 use App\Models\Sms\Provider;
+use App\Settings\SmsSettings;
 use Flux\Flux;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -22,6 +23,7 @@ new class extends Component
         $this->form->usage_type = SmsGatewayUsageTypeEnum::Service->value;
         $this->form->is_public = false;
         $this->form->is_active = true;
+        $this->form->sms_rate = (string) (app(SmsSettings::class)->default_sms_rate ?: '1500');
         $this->resetValidation();
         unset($this->providers);
 
@@ -61,6 +63,8 @@ new class extends Component
         <flux:input wire:model="form.title" label="{{ __('general.title') }}" icon="radio-tower" />
 
         <flux:input wire:model="form.number" label="{{ __('general.gateway_number') }}" icon="hash" dir="ltr" />
+
+        <flux:input wire:model="form.sms_rate" type="number" min="0" label="{{ __('general.sms_rate') }}" description="{{ __('general.sms_rate_hint') }}" dir="ltr" />
 
         <flux:select wire:model="form.access_type" variant="listbox" searchable label="{{ __('general.gateway_access_type') }}">
             @foreach (SmsGatewayAccessTypeEnum::options() as $value => $label)

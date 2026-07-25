@@ -6,6 +6,7 @@ use App\Enums\Sms\SmsGatewayAccessTypeEnum;
 use App\Enums\Sms\SmsGatewayUsageTypeEnum;
 use App\Models\Sms\Gateway;
 use App\Models\Sms\Provider;
+use App\Settings\SmsSettings;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
 
@@ -27,6 +28,8 @@ class GatewayForm extends Form
 
     public bool $is_active = true;
 
+    public string $sms_rate = '1500';
+
     public function setModel(Gateway $gateway): void
     {
         $this->gateway = $gateway;
@@ -37,6 +40,7 @@ class GatewayForm extends Form
         $this->usage_type = $gateway->usage_type->value;
         $this->is_public = $gateway->is_public;
         $this->is_active = $gateway->is_active;
+        $this->sms_rate = (string) ($gateway->sms_rate ?: app(SmsSettings::class)->default_sms_rate);
     }
 
     /**
@@ -59,6 +63,7 @@ class GatewayForm extends Form
             'usage_type' => ['required', 'string', Rule::enum(SmsGatewayUsageTypeEnum::class)],
             'is_public' => ['boolean'],
             'is_active' => ['boolean'],
+            'sms_rate' => ['required', 'integer', 'min:0'],
         ];
     }
 
@@ -76,6 +81,7 @@ class GatewayForm extends Form
             'usage_type' => $this->usage_type,
             'is_public' => $this->is_public,
             'is_active' => $this->is_active,
+            'sms_rate' => (int) $this->sms_rate,
         ]);
     }
 
@@ -97,6 +103,7 @@ class GatewayForm extends Form
             'usage_type' => $this->usage_type,
             'is_public' => $this->is_public,
             'is_active' => $this->is_active,
+            'sms_rate' => (int) $this->sms_rate,
         ]);
     }
 }

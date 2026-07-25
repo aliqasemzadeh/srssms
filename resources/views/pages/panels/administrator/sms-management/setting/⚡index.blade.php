@@ -33,6 +33,12 @@ new class extends Component
         $this->form->store();
         Flux::toast(__('general.settings_saved'));
     }
+
+    public function applyRateToAll(): void
+    {
+        $count = $this->form->applyRateToAllGateways();
+        Flux::toast(__('general.sms_rate_applied_to_gateways', ['count' => $count]));
+    }
 };
 ?>
 
@@ -78,9 +84,24 @@ new class extends Component
                     @endforeach
                 </flux:select>
 
-                <flux:button type="submit" variant="primary" color="teal" class="w-full sm:w-auto">
-                    {{ __('actions.save') }}
-                </flux:button>
+                <flux:input
+                    wire:model="form.default_sms_rate"
+                    type="number"
+                    min="0"
+                    label="{{ __('general.default_sms_rate') }}"
+                    description="{{ __('general.default_sms_rate_hint') }}"
+                    dir="ltr"
+                />
+
+                <div class="flex flex-wrap gap-3">
+                    <flux:button type="submit" variant="primary" color="teal" class="w-full sm:w-auto">
+                        {{ __('actions.save') }}
+                    </flux:button>
+
+                    <flux:button type="button" variant="primary" color="orange" class="w-full sm:w-auto" wire:click="applyRateToAll" wire:confirm="{{ __('general.apply_sms_rate_confirm') }}">
+                        {{ __('general.apply_sms_rate_to_all') }}
+                    </flux:button>
+                </div>
             </flux:card>
         </form>
     </div>
