@@ -28,13 +28,17 @@ new class extends Component
 
     public function mount(PaymentSettings $settings): void
     {
-        $enabled = PaymentGateways::enabledDrivers();
+        $enabled = PaymentGateways::enabledIranianDrivers();
 
         if ($this->currency !== '' && $this->currency_id === '') {
             $this->currency_id = $this->currency;
         }
 
-        if ($this->driver === '') {
+        if ($this->currency_id === '' && $this->currencies->isNotEmpty()) {
+            $this->currency_id = (string) $this->currencies->first()->id;
+        }
+
+        if ($this->driver === '' || ! in_array($this->driver, $enabled, true)) {
             $default = $settings->default;
             $this->driver = in_array($default, $enabled, true)
                 ? $default
@@ -53,16 +57,30 @@ new class extends Component
     }
 
     #[Computed]
+    public function selectedCurrency(): ?Currency
+    {
+        if ($this->currency_id === '') {
+            return null;
+        }
+
+        return $this->currencies->firstWhere('id', (int) $this->currency_id);
+    }
+
+    #[Computed]
     public function drivers(): array
     {
-        return collect(PaymentGateways::enabledDrivers())
+        return collect(PaymentGateways::enabledIranianDrivers())
             ->mapWithKeys(fn (string $driver): array => [$driver => PaymentGateways::driverLabel($driver)])
             ->all();
     }
 
     public function submit()
     {
-        $enabled = PaymentGateways::enabledDrivers();
+        $enabled = PaymentGateways::enabledIranianDrivers();
+        $minAmount = PaymentGateways::minChargeAmount();
+        $rawAmount = PaymentGateways::normalizeAmount($this->amount);
+
+        $this->amount = $rawAmount;
 
         $this->validate([
             'currency_id' => [
@@ -76,11 +94,11 @@ new class extends Component
             'amount' => [
                 'required',
                 'numeric',
-                'min:'.PaymentGateways::minChargeAmount($this->driver ?: ($enabled[0] ?? 'zarinpal')),
+                'min:'.$minAmount,
             ],
         ], [
             'amount.min' => __('general.min_charge_amount', [
-                'amount' => number_format(PaymentGateways::minChargeAmount($this->driver ?: ($enabled[0] ?? 'zarinpal'))),
+                'amount' => number_format($minAmount),
             ]),
         ]);
 
@@ -94,9 +112,9 @@ new class extends Component
         $driver = $this->driver;
         $gatewayAmount = PaymentGateways::toGatewayAmount($this->amount, $driver, $currency->symbol);
 
-        if ($gatewayAmount < PaymentGateways::minChargeAmount($driver)) {
+        if ($gatewayAmount < 1) {
             $this->addError('amount', __('general.min_charge_amount', [
-                'amount' => number_format(PaymentGateways::minChargeAmount($driver)),
+                'amount' => number_format($minAmount),
             ]));
 
             return null;
@@ -138,6 +156,7 @@ new class extends Component
                 'meta' => [
                     'driver' => $driver,
                     'gateway_amount' => $gatewayAmount,
+                    'amount_unit' => 'rial',
                 ],
             ]);
         });
@@ -155,7 +174,7 @@ new class extends Component
         <div class="flex flex-wrap items-center justify-between gap-3">
             <flux:breadcrumbs>
                 <flux:breadcrumbs.item href="{{ route('panels.user.dashboard.index') }}" icon="home" wire:navigate />
-                <flux:breadcrumbs.item href="{{ route('panels.user.wallet.index') }}" wire:navigate>{{ __('general.wallets') }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item href="{{ route('panels.user.wallet.index') }}" wire:navigate>{{ __('general.wallet') }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ __('general.charge_wallet') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
@@ -167,7 +186,7 @@ new class extends Component
                 href="{{ route('panels.user.wallet.index') }}"
                 wire:navigate
             >
-                {{ __('general.wallets') }}
+                {{ __('general.wallet') }}
             </flux:button>
         </div>
 
@@ -189,7 +208,7 @@ new class extends Component
             @else
                 <form wire:submit="submit" class="space-y-6">
                     <flux:select
-                        wire:model="currency_id"
+                        wire:model.live="currency_id"
                         variant="listbox"
                         searchable
                         label="{{ __('general.currency') }}"
@@ -202,16 +221,19 @@ new class extends Component
                         @endforeach
                     </flux:select>
 
-                    <flux:input
-                        wire:model="amount"
-                        type="number"
-                        min="{{ \App\Support\PaymentGateways::minChargeAmount($driver ?: 'zarinpal') }}"
-                        step="1"
-                        label="{{ __('general.amount') }}"
-                        description="{{ __('general.gateway_amount_hint') }}"
-                        placeholder="10000"
-                        dir="ltr"
-                    />
+                    <flux:field>
+                        <flux:label>{{ __('general.amount') }} ({{ __('general.rial') }})</flux:label>
+                        <flux:description>{{ __('general.gateway_amount_hint') }}</flux:description>
+
+                        <x-finance.money-input
+                            wire:model="amount"
+                            :decimals="0"
+                            :currency="$this->selectedCurrency"
+                            :symbol="$this->selectedCurrency?->symbol ?? __('general.rial')"
+                        />
+
+                        <flux:error name="amount" />
+                    </flux:field>
 
                     <flux:select
                         wire:model="driver"

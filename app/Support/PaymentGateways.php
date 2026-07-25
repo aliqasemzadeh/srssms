@@ -195,41 +195,58 @@ class PaymentGateways
     }
 
     /**
-     * Convert wallet amount to integer unit expected by Shetabit driver (Toman or Rial).
+     * Convert wallet amount (always Rial) to integer unit expected by Shetabit driver.
      */
     public static function toGatewayAmount(string|float|int $amount, string $driver, ?string $currencySymbol = null): int
     {
         $amountInt = (int) round((float) $amount);
         $driverCurrency = strtoupper((string) config("payment.drivers.{$driver}.currency", 'T'));
-        $symbol = strtoupper(trim((string) $currencySymbol));
 
-        $isRial = in_array($symbol, ['IRR', 'RIAL'], true)
-            || str_contains($symbol, 'IRR')
-            || str_contains((string) $currencySymbol, 'ریال');
-
-        $isToman = in_array($symbol, ['IRT', 'TMN', 'TOMAN'], true)
-            || str_contains($symbol, 'IRT')
-            || str_contains((string) $currencySymbol, 'تومان');
-
+        // Charge amounts are stored/entered in Rial.
         if ($driverCurrency === 'T') {
-            if ($isRial) {
-                return max(1, intdiv($amountInt, 10));
-            }
-
-            return max(1, $amountInt);
-        }
-
-        if ($isToman) {
-            return max(1, $amountInt * 10);
+            return max(1, intdiv($amountInt, 10));
         }
 
         return max(1, $amountInt);
     }
 
-    public static function minChargeAmount(string $driver): int
+    /**
+     * Minimum charge amount in Rial (wallet unit).
+     */
+    public static function minChargeAmount(string $driver = ''): int
     {
-        $driverCurrency = strtoupper((string) config("payment.drivers.{$driver}.currency", 'T'));
+        return 10000;
+    }
 
-        return $driverCurrency === 'R' ? 10000 : 1000;
+    public static function isIranianDriver(string $driver): bool
+    {
+        if ($driver === 'local') {
+            return true;
+        }
+
+        $currency = strtoupper((string) config("payment.drivers.{$driver}.currency", ''));
+
+        return in_array($currency, ['T', 'R'], true);
+    }
+
+    /**
+     * Enabled Iranian gateways only (excludes stripe/paypal/xendit, etc.).
+     *
+     * @return array<int, string>
+     */
+    public static function enabledIranianDrivers(): array
+    {
+        return array_values(array_filter(
+            self::enabledDrivers(),
+            fn (string $driver): bool => self::isIranianDriver($driver)
+        ));
+    }
+
+    public static function normalizeAmount(string $amount): string
+    {
+        $amount = str_replace([',', ' ', '٬'], '', $amount);
+        $amount = str_replace('٫', '.', $amount);
+
+        return $amount;
     }
 }

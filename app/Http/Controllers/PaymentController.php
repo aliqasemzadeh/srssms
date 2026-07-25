@@ -23,7 +23,7 @@ class PaymentController extends Controller
 
         $driver = PaymentGateways::driverFromMethod((string) $deposit->method);
 
-        if ($driver === null || ! in_array($driver, PaymentGateways::enabledDrivers(), true)) {
+        if ($driver === null || ! in_array($driver, PaymentGateways::enabledIranianDrivers(), true)) {
             return redirect()
                 ->route('panels.user.wallet.index')
                 ->with('payment_status', 'failed')
