@@ -18,10 +18,10 @@ new class extends Component
     public ContactForm $form;
 
     #[On('panels.user.phonebook.contact.create.assign-data')]
-    public function assignData(): void
+    public function assignData(?int $groupId = null): void
     {
         $this->form->reset();
-        $this->form->group_ids = [];
+        $this->form->group_ids = $groupId ? [$groupId] : [];
         $this->form->tags = [];
         $this->resetValidation();
         unset($this->groups, $this->availableTags);
@@ -49,6 +49,7 @@ new class extends Component
         $this->form->store();
         $this->form->reset();
         $this->dispatch('panels.user.phonebook.index.refresh');
+        $this->dispatch('panels.user.phonebook.group.view.refresh');
         Flux::modals()->close();
         Flux::toast(__('general.contact_created'));
     }

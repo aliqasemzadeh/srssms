@@ -53,6 +53,7 @@ Route::middleware('auth')->group(function () {
 
     Route::livewire('/panels/user/phonebook', 'pages::panels.user.phonebook.index')->name('panels.user.phonebook.index');
     Route::livewire('/panels/user/phonebook/groups', 'pages::panels.user.phonebook.group.index')->name('panels.user.phonebook.group.index');
+    Route::livewire('/panels/user/phonebook/groups/{group}', 'pages::panels.user.phonebook.group.view')->name('panels.user.phonebook.group.view');
     Route::livewire('/panels/user/phonebook/tags', 'pages::panels.user.phonebook.tag.index')->name('panels.user.phonebook.tag.index');
     Route::livewire('/panels/user/phonebook/notes', 'pages::panels.user.phonebook.note.index')->name('panels.user.phonebook.note.index');
     Route::livewire('/panels/user/phonebook/{contact}', 'pages::panels.user.phonebook.view')->name('panels.user.phonebook.view');

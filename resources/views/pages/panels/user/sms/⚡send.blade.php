@@ -17,6 +17,9 @@ new class extends Component
     #[Url]
     public string $contacts = '';
 
+    #[Url]
+    public string $groups = '';
+
     public ?int $gateway_id = null;
 
     public string $body = '';
@@ -42,6 +45,20 @@ new class extends Component
             $this->contact_ids = Contact::query()
                 ->ownedBy(Auth::user())
                 ->whereIn('id', $fromQuery)
+                ->pluck('id')
+                ->all();
+        }
+
+        $fromGroups = collect(explode(',', $this->groups))
+            ->map(fn ($id) => (int) trim($id))
+            ->filter()
+            ->values()
+            ->all();
+
+        if ($fromGroups !== []) {
+            $this->group_ids = Group::query()
+                ->where('user_id', Auth::id())
+                ->whereIn('id', $fromGroups)
                 ->pluck('id')
                 ->all();
         }

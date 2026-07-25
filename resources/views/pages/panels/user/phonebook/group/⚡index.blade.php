@@ -87,7 +87,11 @@ new class extends Component
                 <flux:table.rows>
                     @foreach ($this->groups as $group)
                         <flux:table.row :key="$group->id">
-                            <flux:table.cell variant="strong">{{ $group->name }}</flux:table.cell>
+                            <flux:table.cell variant="strong">
+                                <a href="{{ route('panels.user.phonebook.group.view', $group) }}" class="hover:underline" wire:navigate>
+                                    {{ $group->name }}
+                                </a>
+                            </flux:table.cell>
                             <flux:table.cell>{{ $group->description ?: '—' }}</flux:table.cell>
                             <flux:table.cell>
                                 <flux:badge size="sm" color="teal">{{ $group->contacts_count }}</flux:badge>
@@ -95,6 +99,9 @@ new class extends Component
                             <flux:table.cell>{{ $group->created_at->toDynamicFormat('Y/m/d H:i') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
+                                    <flux:tooltip content="{{ __('general.view') }}">
+                                        <flux:button size="xs" variant="primary" color="zinc" icon="eye" icon:variant="outline" :href="route('panels.user.phonebook.group.view', $group)" wire:navigate />
+                                    </flux:tooltip>
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.user.phonebook.group.edit.assign-data', { group: {{ $group->id }} })" />
                                     </flux:tooltip>
