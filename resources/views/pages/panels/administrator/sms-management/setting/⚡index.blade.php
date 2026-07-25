@@ -1,6 +1,7 @@
 <?php
 
 use App\Livewire\Forms\Settings\SmsSettingsForm;
+use App\Models\Finance\Currency;
 use App\Models\Sms\Gateway;
 use App\Services\Sms\SmsManager;
 use App\Settings\SmsSettings;
@@ -26,6 +27,16 @@ new class extends Component
             ->where('is_active', true)
             ->orderBy('title')
             ->get();
+    }
+
+    #[Computed]
+    public function currencies(): Collection
+    {
+        return Currency::query()
+            ->where('is_active', true)
+            ->where('type', 'fiat')
+            ->orderBy('name')
+            ->get(['id', 'name', 'symbol']);
     }
 
     public function save(): void
@@ -80,6 +91,21 @@ new class extends Component
                     @foreach ($this->gateways as $gateway)
                         <flux:select.option value="{{ $gateway->id }}">
                             {{ $gateway->title }} — {{ $gateway->provider?->name }} (<span dir="ltr">{{ $gateway->number }}</span>)
+                        </flux:select.option>
+                    @endforeach
+                </flux:select>
+
+                <flux:select
+                    wire:model="form.billing_currency_id"
+                    variant="listbox"
+                    searchable
+                    label="{{ __('general.sms_billing_currency') }}"
+                    description="{{ __('general.sms_billing_currency_hint') }}"
+                    placeholder="{{ __('general.currency') }}..."
+                >
+                    @foreach ($this->currencies as $currency)
+                        <flux:select.option value="{{ $currency->id }}">
+                            <span dir="ltr">{{ $currency->symbol }}</span> — {{ $currency->name }}
                         </flux:select.option>
                     @endforeach
                 </flux:select>

@@ -7,8 +7,10 @@ use App\Models\Finance\Wallet;
 use App\Models\Sms\Gateway;
 use App\Models\Sms\Message;
 use App\Models\User;
+use App\Settings\SmsSettings;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
+use Throwable;
 
 class SmsBillingService
 {
@@ -36,12 +38,29 @@ class SmsBillingService
         ];
     }
 
+    public function billingCurrencyId(): int
+    {
+        try {
+            $currencyId = app(SmsSettings::class)->billing_currency_id;
+        } catch (Throwable) {
+            $currencyId = null;
+        }
+
+        if (! $currencyId) {
+            throw new RuntimeException(__('general.sms_billing_currency_not_configured'));
+        }
+
+        return (int) $currencyId;
+    }
+
     public function resolveWallet(User $user): Wallet
     {
+        $currencyId = $this->billingCurrencyId();
+
         $wallet = $user->wallets()
             ->where('is_active', true)
+            ->where('currency_id', $currencyId)
             ->with('currency')
-            ->orderBy('id')
             ->first();
 
         if (! $wallet) {
@@ -66,11 +85,13 @@ class SmsBillingService
     public function debitForMessage(User $user, Message $message, int $cost): Transaction
     {
         return DB::transaction(function () use ($user, $message, $cost): Transaction {
+            $currencyId = $this->billingCurrencyId();
+
             $wallet = Wallet::query()
                 ->where('user_id', $user->id)
+                ->where('currency_id', $currencyId)
                 ->where('is_active', true)
                 ->lockForUpdate()
-                ->orderBy('id')
                 ->first();
 
             if (! $wallet) {

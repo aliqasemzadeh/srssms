@@ -12,6 +12,8 @@ class SmsSettings extends Settings
 
     public string $default_sms_rate = '1500';
 
+    public ?int $billing_currency_id = null;
+
     public static function group(): string
     {
         return 'sms';
