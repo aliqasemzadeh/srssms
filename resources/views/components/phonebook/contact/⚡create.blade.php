@@ -5,7 +5,6 @@ use App\Enums\Phonebook\ContactPersonTypeEnum;
 use App\Livewire\Forms\Phonebook\ContactForm;
 use App\Models\Phonebook\Contact;
 use App\Models\Phonebook\Group;
-use App\Settings\SmsSettings;
 use Flux\Flux;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
