@@ -5,9 +5,12 @@ namespace App\Livewire\Forms\Phonebook;
 use App\Enums\Phonebook\ContactNoteStatusEnum;
 use App\Models\Phonebook\Contact;
 use App\Models\Phonebook\Note;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Form;
+use Morilog\Jalali\Jalalian;
+use Throwable;
 
 class NoteForm extends Form
 {
@@ -27,7 +30,11 @@ class NoteForm extends Form
         $this->contact_id = $note->contact_id;
         $this->body = $note->body;
         $this->status = $note->status?->value ?? '';
-        $this->remind_at = $note->remind_at?->format('Y-m-d');
+        $this->remind_at = $note->remind_at
+            ? (app()->getLocale() === 'fa'
+                ? Jalalian::fromCarbon($note->remind_at)->format('Y/m/d')
+                : $note->remind_at->format('Y-m-d'))
+            : null;
     }
 
     /**
@@ -45,7 +52,31 @@ class NoteForm extends Form
             ],
             'body' => ['required', 'string', 'max:5000'],
             'status' => ['nullable', 'string', Rule::enum(ContactNoteStatusEnum::class)],
-            'remind_at' => ['nullable', 'date', 'after:today'],
+            'remind_at' => [
+                'nullable',
+                function (string $attribute, mixed $value, \Closure $fail): void {
+                    if (blank($value)) {
+                        return;
+                    }
+
+                    $date = $this->parseRemindAt($value);
+
+                    if (! $date) {
+                        $fail(__('validation.date', ['attribute' => __('general.remind_at')]));
+
+                        return;
+                    }
+
+                    if ($date->startOfDay()->lte(now()->startOfDay())) {
+                        $fail(__('validation.after', [
+                            'attribute' => __('general.remind_at'),
+                            'date' => __('validation.today') !== 'validation.today'
+                                ? __('validation.today')
+                                : (app()->getLocale() === 'fa' ? 'امروز' : 'today'),
+                        ]));
+                    }
+                },
+            ],
         ];
     }
 
@@ -77,7 +108,7 @@ class NoteForm extends Form
             'contact_id' => $this->contact_id,
             'body' => $this->body,
             'status' => $this->status !== '' ? $this->status : null,
-            'remind_at' => $this->remind_at ?: null,
+            'remind_at' => $this->gregorianRemindAt(),
             'reminded_at' => null,
         ]);
     }
@@ -92,12 +123,38 @@ class NoteForm extends Form
 
         Contact::query()->ownedBy(Auth::user())->findOrFail($this->contact_id);
 
+        $remindAt = $this->gregorianRemindAt();
+
         $this->note->update([
             'contact_id' => $this->contact_id,
             'body' => $this->body,
             'status' => $this->status !== '' ? $this->status : null,
-            'remind_at' => $this->remind_at ?: null,
-            'reminded_at' => $this->remind_at ? $this->note->reminded_at : null,
+            'remind_at' => $remindAt,
+            'reminded_at' => $remindAt ? $this->note->reminded_at : null,
         ]);
+    }
+
+    protected function gregorianRemindAt(): ?string
+    {
+        return $this->parseRemindAt($this->remind_at)?->format('Y-m-d');
+    }
+
+    protected function parseRemindAt(mixed $value): ?Carbon
+    {
+        if (blank($value)) {
+            return null;
+        }
+
+        try {
+            if (app()->getLocale() === 'fa') {
+                return Jalalian::fromFormat('Y/m/d', str_replace('-', '/', (string) $value))
+                    ->toCarbon()
+                    ->startOfDay();
+            }
+
+            return Carbon::parse((string) $value)->startOfDay();
+        } catch (Throwable) {
+            return null;
+        }
     }
 }

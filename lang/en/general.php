@@ -34,6 +34,7 @@ return [
     'otp_verify_hint' => 'Please enter the one-time password we sent you.',
     'otp_sent' => 'If an account exists, a one-time password has been sent.',
     'otp_invalid' => 'The entered code is invalid.',
+    'otp_verified' => 'Verification code confirmed.',
     'otp_throttle' => 'Please wait :seconds seconds before trying again.',
     'otp_expires_in' => 'Code is valid for :time',
     'otp_expired' => 'Code has expired',

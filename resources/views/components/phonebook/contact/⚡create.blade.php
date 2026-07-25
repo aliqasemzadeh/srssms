@@ -64,6 +64,8 @@ new class extends Component
 
         $this->tagSearch = '';
         unset($this->availableTags);
+
+        Flux::toast(__('general.phonebook_tag_created'));
     }
 
     public function save(): void

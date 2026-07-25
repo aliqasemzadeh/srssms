@@ -130,6 +130,8 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
         $this->step = 'reset';
         $this->password = '';
         $this->password_confirmation = '';
+
+        Flux::toast(__('general.otp_verified'));
     }
 
     public function resetPassword(): void
