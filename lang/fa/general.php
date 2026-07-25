@@ -35,6 +35,8 @@ return [
     'otp_sent' => 'در صورت وجود حساب، کد یک‌بارمصرف ارسال شد.',
     'otp_invalid' => 'کد وارد شده معتبر نیست.',
     'otp_throttle' => 'لطفاً :seconds ثانیه دیگر دوباره تلاش کنید.',
+    'otp_expires_in' => 'کد تا :time دیگر معتبر است',
+    'otp_expired' => 'کد منقضی شده است',
     'otp_sms_body' => 'کد یک‌بارمصرف شما: :code (معتبر تا :minutes دقیقه)',
     'otp_mail_subject' => 'کد یک‌بارمصرف',
     'otp_mail_body' => 'کد یک‌بارمصرف شما :code است و تا :minutes دقیقه معتبر می‌باشد.',

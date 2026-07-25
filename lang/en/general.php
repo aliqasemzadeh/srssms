@@ -35,6 +35,8 @@ return [
     'otp_sent' => 'If an account exists, a one-time password has been sent.',
     'otp_invalid' => 'The entered code is invalid.',
     'otp_throttle' => 'Please wait :seconds seconds before trying again.',
+    'otp_expires_in' => 'Code is valid for :time',
+    'otp_expired' => 'Code has expired',
     'otp_sms_body' => 'Your one-time password is: :code (valid for :minutes minutes)',
     'otp_mail_subject' => 'Your one-time password',
     'otp_mail_body' => 'Your one-time password is :code and is valid for :minutes minutes.',

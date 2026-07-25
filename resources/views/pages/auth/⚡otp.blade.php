@@ -14,11 +14,14 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
     public string $code = '';
 
+    public ?int $otpExpiresAt = null;
+
     public function mount(): void
     {
         session()->forget('otp.login.user_id');
         $this->step = 'request';
         $this->code = '';
+        $this->otpExpiresAt = null;
     }
 
     public function send(OtpService $otp): void
@@ -43,6 +46,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
         $this->step = 'verify';
         $this->code = '';
+        $this->startOtpTimer();
 
         Flux::toast(__('general.otp_sent'));
     }
@@ -56,6 +60,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
         }
 
         $this->code = '';
+        $this->startOtpTimer();
 
         Flux::toast(__('general.otp_sent'));
     }
@@ -104,6 +109,14 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
         session()->forget('otp.login.user_id');
         $this->step = 'request';
         $this->code = '';
+        $this->otpExpiresAt = null;
+    }
+
+    protected function startOtpTimer(): void
+    {
+        $minutes = (int) config('one-time-passwords.default_expires_in_minutes', 5);
+
+        $this->otpExpiresAt = now()->addMinutes($minutes)->getTimestamp();
     }
 };
 ?>
@@ -130,13 +143,46 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
             </flux:button>
         </form>
     @else
-        <form wire:submit="verify" class="space-y-8">
+        <form wire:submit="verify" class="space-y-4">
             <div class="max-w-64 mx-auto space-y-2">
                 <flux:heading size="lg" class="text-center">{{ __('general.otp_verify_heading') }}</flux:heading>
                 <flux:text class="text-center">{{ __('general.otp_verify_hint') }}</flux:text>
             </div>
 
-            <div class="space-y-6">
+            <div
+                wire:key="otp-timer-{{ $otpExpiresAt }}"
+                x-data="{
+                    expiresAt: {{ (int) $otpExpiresAt }},
+                    remaining: 0,
+                    init() {
+                        this.tick()
+
+                        const timer = setInterval(() => this.tick(), 1000)
+
+                        this.$cleanup(() => clearInterval(timer))
+                    },
+                    tick() {
+                        this.remaining = Math.max(0, this.expiresAt - Math.floor(Date.now() / 1000))
+                    },
+                    get formatted() {
+                        const minutes = Math.floor(this.remaining / 60)
+                        const seconds = this.remaining % 60
+
+                        return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0')
+                    },
+                }"
+                class="flex items-center justify-center gap-1.5 text-sm text-zinc-500 dark:text-zinc-400"
+            >
+                <flux:icon.clock variant="mini" class="size-4 shrink-0" />
+                <span
+                    x-show="remaining > 0"
+                    x-cloak
+                    x-text="'{{ __('general.otp_expires_in', ['time' => '__TIME__']) }}'.replace('__TIME__', formatted)"
+                ></span>
+                <span x-show="remaining === 0" x-cloak>{{ __('general.otp_expired') }}</span>
+            </div>
+
+            <div class="space-y-2">
                 <flux:otp wire:model="code" length="6" submit="auto" dir="ltr" class="mx-auto" />
                 <flux:error name="code" />
                 <flux:error name="otp" />
@@ -146,11 +192,11 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
                 {{ __('general.verify_otp') }}
             </flux:button>
 
-            <div class="space-y-2 text-center">
-                <flux:button type="button" variant="ghost" wire:click="resend" class="w-full">
+            <div class="flex items-center justify-center gap-1">
+                <flux:button type="button" variant="ghost" size="sm" icon="refresh-cw" wire:click="resend">
                     {{ __('general.resend_otp') }}
                 </flux:button>
-                <flux:button type="button" variant="ghost" wire:click="resetToRequest" class="w-full">
+                <flux:button type="button" variant="ghost" size="sm" icon="phone" wire:click="resetToRequest">
                     {{ __('general.change_mobile') }}
                 </flux:button>
             </div>
