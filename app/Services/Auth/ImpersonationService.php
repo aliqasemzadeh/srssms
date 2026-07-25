@@ -32,10 +32,11 @@ class ImpersonationService
             ]);
         }
 
-        session([self::SESSION_KEY => $actor->id]);
+        $actorId = $actor->id;
 
+        // Auth::login migrates the session (destroying prior data), so store after login.
         Auth::login($target);
-        session()->regenerate();
+        session([self::SESSION_KEY => $actorId]);
     }
 
     public function leave(): void
@@ -48,9 +49,8 @@ class ImpersonationService
 
         $admin = User::query()->findOrFail(session(self::SESSION_KEY));
 
+        // Auth::login migrates the session and drops impersonator_id automatically.
         Auth::login($admin);
-        session()->regenerate();
-        session()->forget(self::SESSION_KEY);
     }
 
     public function isImpersonating(): bool
