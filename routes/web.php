@@ -1,12 +1,18 @@
 <?php
 
+use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+Route::match(['get', 'post'], '/payment/callback/{deposit}', [PaymentController::class, 'callback'])
+    ->name('payment.callback');
+
 Route::middleware('auth')->group(function () {
+    Route::get('/payment/pay/{deposit}', [PaymentController::class, 'pay'])
+        ->name('payment.pay');
     // Administrator Panel
     Route::livewire('/panels/administrator/dashboard', 'pages::panels.administrator.dashboard.index')->name('panels.administrator.dashboard.index');
     Route::livewire('/panels/administrator/user-management/users', 'pages::panels.administrator.user-management.user.index')->name('panels.administrator.user-management.user.index');
@@ -31,6 +37,9 @@ Route::middleware('auth')->group(function () {
     // User Panel
     Route::livewire('/panels/user/dashboard', 'pages::panels.user.dashboard.index')->name('panels.user.dashboard.index');
     Route::livewire('/panels/user/settings', 'pages::panels.user.setting.index')->name('panels.user.setting.index');
+    Route::livewire('/panels/user/wallet', 'pages::panels.user.wallet.index')->name('panels.user.wallet.index');
+    Route::livewire('/panels/user/wallet/charge', 'pages::panels.user.wallet.charge')->name('panels.user.wallet.charge');
+    Route::livewire('/panels/user/wallet/{wallet}/transactions', 'pages::panels.user.wallet.transaction.index')->name('panels.user.wallet.transaction.index');
 });
 
 require __DIR__.'/auth.php';

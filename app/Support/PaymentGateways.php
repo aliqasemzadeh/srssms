@@ -177,4 +177,59 @@ class PaymentGateways
             ->mapWithKeys(fn (string $driver): array => [$driver => self::driverLabel($driver)])
             ->all();
     }
+
+    public static function driverFromMethod(string $method): ?string
+    {
+        if (! str_starts_with($method, 'gateway_')) {
+            return null;
+        }
+
+        $driver = substr($method, 8);
+
+        return in_array($driver, self::allDrivers(), true) ? $driver : null;
+    }
+
+    public static function methodForDriver(string $driver): string
+    {
+        return 'gateway_'.$driver;
+    }
+
+    /**
+     * Convert wallet amount to integer unit expected by Shetabit driver (Toman or Rial).
+     */
+    public static function toGatewayAmount(string|float|int $amount, string $driver, ?string $currencySymbol = null): int
+    {
+        $amountInt = (int) round((float) $amount);
+        $driverCurrency = strtoupper((string) config("payment.drivers.{$driver}.currency", 'T'));
+        $symbol = strtoupper(trim((string) $currencySymbol));
+
+        $isRial = in_array($symbol, ['IRR', 'RIAL'], true)
+            || str_contains($symbol, 'IRR')
+            || str_contains((string) $currencySymbol, 'ریال');
+
+        $isToman = in_array($symbol, ['IRT', 'TMN', 'TOMAN'], true)
+            || str_contains($symbol, 'IRT')
+            || str_contains((string) $currencySymbol, 'تومان');
+
+        if ($driverCurrency === 'T') {
+            if ($isRial) {
+                return max(1, intdiv($amountInt, 10));
+            }
+
+            return max(1, $amountInt);
+        }
+
+        if ($isToman) {
+            return max(1, $amountInt * 10);
+        }
+
+        return max(1, $amountInt);
+    }
+
+    public static function minChargeAmount(string $driver): int
+    {
+        $driverCurrency = strtoupper((string) config("payment.drivers.{$driver}.currency", 'T'));
+
+        return $driverCurrency === 'R' ? 10000 : 1000;
+    }
 }
