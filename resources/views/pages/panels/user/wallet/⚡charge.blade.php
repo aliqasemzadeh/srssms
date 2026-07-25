@@ -142,7 +142,8 @@ new class extends Component
             ]);
         });
 
-        return $this->redirect(route('payment.pay', $deposit), navigate: false);
+        // Force a top-level GET so the Livewire POST is not replayed onto payment.pay.
+        $this->js('window.location.href = '.json_encode(route('payment.pay', $deposit)));
     }
 };
 ?>

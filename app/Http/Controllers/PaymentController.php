@@ -71,10 +71,19 @@ class PaymentController extends Controller
                 })
                 ->pay();
 
+            $action = $redirection->getAction();
+
+            if (blank($action)) {
+                return redirect()
+                    ->route('panels.user.wallet.index')
+                    ->with('payment_status', 'failed')
+                    ->with('payment_message', __('general.payment_failed'));
+            }
+
             return view('shetabitPayment::redirectForm', [
-                'action' => $redirection->getAction(),
+                'action' => $action,
                 'inputs' => $redirection->getInputs(),
-                'method' => $redirection->getMethod(),
+                'method' => strtoupper($redirection->getMethod() ?: 'GET'),
             ]);
         } catch (Throwable $e) {
             report($e);

@@ -119,10 +119,12 @@
                 var countdownEl = document.getElementById('countdown');
                 var seconds = 3;
 
+                if (!form || !form.getAttribute('action')) {
+                    return;
+                }
+
                 function submitForm() {
-                    if (form) {
-                        form.submit();
-                    }
+                    form.submit();
                 }
 
                 function tick() {

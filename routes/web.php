@@ -11,7 +11,7 @@ Route::match(['get', 'post'], '/payment/callback/{deposit}', [PaymentController:
     ->name('payment.callback');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/payment/pay/{deposit}', [PaymentController::class, 'pay'])
+    Route::match(['get', 'post'], '/payment/pay/{deposit}', [PaymentController::class, 'pay'])
         ->name('payment.pay');
     // Administrator Panel
     Route::livewire('/panels/administrator/dashboard', 'pages::panels.administrator.dashboard.index')->name('panels.administrator.dashboard.index');

@@ -9,7 +9,7 @@
             <flux:sidebar.item icon="home" href="{{ route('panels.user.dashboard.index') }}" :current="request()->routeIs('panels.user.dashboard.index')" wire:navigate>{{ __('general.dashboard') }}</flux:sidebar.item>
         </div>
         <div x-show="showItem($el)" x-cloak>
-            <flux:sidebar.item icon="wallet" href="{{ route('panels.user.wallet.index') }}" :current="request()->routeIs('panels.user.wallet.*')" wire:navigate>{{ __('general.wallets') }}</flux:sidebar.item>
+            <flux:sidebar.item icon="wallet" href="{{ route('panels.user.wallet.index') }}" :current="request()->routeIs('panels.user.wallet.*')" wire:navigate>{{ __('general.wallet') }}</flux:sidebar.item>
         </div>
         <div x-show="showItem($el)" x-cloak>
             <flux:sidebar.item icon="settings" href="{{ route('panels.user.setting.index') }}" :current="request()->routeIs('panels.user.setting.index')" wire:navigate>{{ __('general.settings') }}</flux:sidebar.item>
