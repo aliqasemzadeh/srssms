@@ -50,6 +50,7 @@ new class extends Component
         ]);
 
         $this->ticket->refresh();
+        $this->form->setTicket($this->ticket);
         unset($this->replies);
 
         Flux::toast(__('general.ticket_status_updated'));
@@ -68,6 +69,7 @@ new class extends Component
         $this->form->store();
 
         $this->ticket->refresh();
+        $this->form->setTicket($this->ticket);
         $this->status = $this->ticket->status->value;
         unset($this->replies);
 
