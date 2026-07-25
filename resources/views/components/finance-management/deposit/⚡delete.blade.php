@@ -1,38 +1,25 @@
 <?php
 
 use App\Models\Finance\Deposit;
-use App\Models\Finance\Wallet;
-use App\Models\User;
 use Flux\Flux;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 new class extends Component
 {
-    public User $user;
-
-    public Wallet $wallet;
-
     public ?Deposit $deposit = null;
 
-    public function mount(User $user, Wallet $wallet): void
-    {
-        abort_unless($wallet->user_id === $user->id, 404);
-
-        $this->user = $user;
-        $this->wallet = $wallet->load([
-            'currency' => fn ($query) => $query->withTrashed(),
-        ]);
-    }
-
-    #[On('panels.administrator.user-management.user.wallet.deposit.delete.assign-data')]
+    #[On('panels.administrator.finance-management.deposit.delete.assign-data')]
     public function assignData(int $deposit): void
     {
         $this->deposit = Deposit::query()
-            ->where('wallet_id', $this->wallet->id)
+            ->with([
+                'user' => fn ($query) => $query->withTrashed(),
+                'wallet.currency' => fn ($query) => $query->withTrashed(),
+            ])
             ->findOrFail($deposit);
 
-        Flux::modal('user-management.user.wallet.deposit.delete')->show();
+        Flux::modal('finance-management.deposit.delete')->show();
     }
 
     public function delete(): void
@@ -45,7 +32,7 @@ new class extends Component
 
         $this->deposit = null;
 
-        $this->dispatch('panels.administrator.user-management.user.wallet.deposit.index.refresh');
+        $this->dispatch('panels.administrator.finance-management.deposit.index.refresh');
 
         Flux::modals()->close();
 
@@ -54,12 +41,7 @@ new class extends Component
 };
 ?>
 
-@php
-    $decimals = $wallet->currency?->decimals ?? 8;
-    $currencySymbol = $wallet->currency?->symbol ?? '';
-@endphp
-
-<flux:modal name="user-management.user.wallet.deposit.delete" class="min-w-[22rem] space-y-6">
+<flux:modal name="finance-management.deposit.delete" class="min-w-[22rem] space-y-6">
     <div>
         <flux:heading size="lg">{{ __('general.delete_confirmation') }}</flux:heading>
 
@@ -70,9 +52,16 @@ new class extends Component
     </div>
 
     @if ($deposit)
+        @php
+            $decimals = $deposit->wallet?->currency?->decimals ?? 8;
+            $symbol = $deposit->wallet?->currency?->symbol ?? '';
+            $userLabel = $deposit->user?->full_name ?? __('general.deleted');
+        @endphp
         <flux:callout icon="arrow-down-to-line" variant="secondary" inline>
             <flux:callout.heading>
-                <span dir="ltr">{{ number_format((float) $deposit->amount, $decimals) }} {{ $currencySymbol }}</span>
+                {{ $userLabel }}
+                —
+                <span dir="ltr">{{ number_format((float) $deposit->amount, $decimals) }} {{ $symbol }}</span>
             </flux:callout.heading>
             <flux:callout.text>
                 {{ $deposit->status->label() }}

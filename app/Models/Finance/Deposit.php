@@ -68,6 +68,11 @@ class Deposit extends Model
         return $this->status === DepositStatusEnum::Pending;
     }
 
+    public function isApproved(): bool
+    {
+        return $this->status === DepositStatusEnum::Approved;
+    }
+
     public function isCompleted(): bool
     {
         return $this->status === DepositStatusEnum::Completed;
@@ -76,5 +81,14 @@ class Deposit extends Model
     public function isRejected(): bool
     {
         return $this->status === DepositStatusEnum::Rejected;
+    }
+
+    public function settledAmount(): string
+    {
+        if ($this->amount_settled !== null) {
+            return (string) $this->amount_settled;
+        }
+
+        return bcsub(bcsub((string) $this->amount, (string) $this->fee, 8), (string) $this->tax, 8);
     }
 }

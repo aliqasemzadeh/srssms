@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Finance\Deposit;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Withdrawal;
+use App\Observers\DepositObserver;
 use App\Observers\TransactionObserver;
 use App\Observers\WithdrawalObserver;
 use Illuminate\Support\Carbon;
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Transaction::observe(TransactionObserver::class);
+        Deposit::observe(DepositObserver::class);
         Withdrawal::observe(WithdrawalObserver::class);
 
         Carbon::macro('toDynamicFormat', function (string $format = 'Y/m/d H:i:s'): string {

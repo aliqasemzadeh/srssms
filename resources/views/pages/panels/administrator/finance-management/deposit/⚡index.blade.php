@@ -250,6 +250,10 @@ new class extends Component
                 <flux:breadcrumbs.item>{{ __('general.finance_management') }}</flux:breadcrumbs.item>
                 <flux:breadcrumbs.item>{{ __('general.deposits') }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
+
+            <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.finance-management.deposit.create.assign-data')">
+                {{ __('actions.create') }} {{ __('general.deposit') }}
+            </flux:button>
         </div>
 
         <flux:card class="space-y-4">
@@ -372,6 +376,7 @@ new class extends Component
                     <flux:table.column>{{ __('general.transactions') }}</flux:table.column>
                     <flux:table.column>{{ __('general.creator') }}</flux:table.column>
                     <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">{{ __('general.created_at') }}</flux:table.column>
+                    <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
                 </flux:table.columns>
 
                 <flux:table.rows>
@@ -438,10 +443,20 @@ new class extends Component
                                 {{ $deposit->creator?->full_name ?? '—' }}
                             </flux:table.cell>
                             <flux:table.cell>{{ $deposit->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
+                            <flux:table.cell align="end">
+                                <div class="flex justify-end gap-2">
+                                    <flux:tooltip content="{{ __('general.edit') }}">
+                                        <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.finance-management.deposit.edit.assign-data', { deposit: {{ $deposit->id }} })" />
+                                    </flux:tooltip>
+                                    <flux:tooltip content="{{ __('general.delete') }}">
+                                        <flux:button size="xs" variant="danger" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.finance-management.deposit.delete.assign-data', { deposit: {{ $deposit->id }} })" />
+                                    </flux:tooltip>
+                                </div>
+                            </flux:table.cell>
                         </flux:table.row>
                     @empty
                         <flux:table.row>
-                            <flux:table.cell colspan="11">
+                            <flux:table.cell colspan="12">
                                 <div class="flex flex-col items-center justify-center gap-2 py-10 text-center">
                                     <flux:icon.arrow-down-to-line variant="outline" class="size-8 text-zinc-400" />
                                     <flux:text>{{ __('general.no_results_found') }}</flux:text>
@@ -453,4 +468,8 @@ new class extends Component
             </flux:table>
         </flux:card>
     </div>
+
+    <livewire:finance-management.deposit.create :key="'finance-deposit-create'" />
+    <livewire:finance-management.deposit.edit :key="'finance-deposit-edit'" />
+    <livewire:finance-management.deposit.delete :key="'finance-deposit-delete'" />
 </div>

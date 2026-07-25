@@ -268,6 +268,17 @@ new class extends Component
                                                 wire:navigate
                                             />
                                         </flux:tooltip>
+                                        <flux:tooltip content="{{ __('general.deposits') }}">
+                                            <flux:button
+                                                size="xs"
+                                                variant="primary"
+                                                color="emerald"
+                                                icon="arrow-down-to-line"
+                                                icon:variant="outline"
+                                                :href="route('panels.administrator.user-management.user.wallet.deposit.index', ['user' => $user, 'wallet' => $wallet])"
+                                                wire:navigate
+                                            />
+                                        </flux:tooltip>
                                         <flux:tooltip content="{{ __('general.withdrawals') }}">
                                             <flux:button
                                                 size="xs"
