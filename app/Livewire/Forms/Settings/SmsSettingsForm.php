@@ -39,6 +39,12 @@ class SmsSettingsForm extends Form
 
     public function store(): void
     {
+        if (blank($this->default_gateway_id) || (int) $this->default_gateway_id === 0) {
+            $this->default_gateway_id = null;
+        } else {
+            $this->default_gateway_id = (int) $this->default_gateway_id;
+        }
+
         $this->validate();
 
         if ($this->default_gateway_id) {

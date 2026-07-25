@@ -9,7 +9,6 @@ use App\Services\Sms\SmsSendResult;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
-use Throwable;
 
 class SabanovinDriver implements SmsDriver
 {

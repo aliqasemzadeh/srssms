@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\SmsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,6 +10,9 @@ Route::get('/', function () {
 
 Route::match(['get', 'post'], '/payment/callback/{deposit}', [PaymentController::class, 'callback'])
     ->name('payment.callback');
+
+Route::post('/sms/webhook/{provider}/{type}', [SmsController::class, 'webhook'])
+    ->name('sms.webhook');
 
 Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/payment/pay/{deposit}', [PaymentController::class, 'pay'])
@@ -30,6 +34,12 @@ Route::middleware('auth')->group(function () {
     Route::livewire('/panels/administrator/finance-management/withdrawals', 'pages::panels.administrator.finance-management.withdrawal.index')->name('panels.administrator.finance-management.withdrawal.index');
     Route::livewire('/panels/administrator/finance-management/payments', 'pages::panels.administrator.finance-management.payment.index')->name('panels.administrator.finance-management.payment.index');
     Route::livewire('/panels/administrator/finance-management/payments/settings', 'pages::panels.administrator.finance-management.payment.setting.index')->name('panels.administrator.finance-management.payment.setting.index');
+    Route::livewire('/panels/administrator/sms-management/providers', 'pages::panels.administrator.sms-management.provider.index')->name('panels.administrator.sms-management.provider.index');
+    Route::livewire('/panels/administrator/sms-management/gateways', 'pages::panels.administrator.sms-management.gateway.index')->name('panels.administrator.sms-management.gateway.index');
+    Route::livewire('/panels/administrator/sms-management/gateways/{gateway}/users', 'pages::panels.administrator.sms-management.gateway.user.index')->name('panels.administrator.sms-management.gateway.user.index');
+    Route::livewire('/panels/administrator/sms-management/messages', 'pages::panels.administrator.sms-management.message.index')->name('panels.administrator.sms-management.message.index');
+    Route::livewire('/panels/administrator/sms-management/messages/{message}', 'pages::panels.administrator.sms-management.message.detail')->name('panels.administrator.sms-management.message.detail');
+    Route::livewire('/panels/administrator/sms-management/settings', 'pages::panels.administrator.sms-management.setting.index')->name('panels.administrator.sms-management.setting.index');
     Route::livewire('/panels/administrator/system-management/settings', 'pages::panels.administrator.system-management.setting.index')->name('panels.administrator.system-management.setting.index');
     Route::livewire('/panels/administrator/system-management/functions', 'pages::panels.administrator.system-management.function.index')->name('panels.administrator.system-management.function.index');
     Route::livewire('/panels/administrator/system-management/backups', 'pages::panels.administrator.system-management.backup.index')->name('panels.administrator.system-management.backup.index');

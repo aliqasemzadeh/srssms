@@ -1,13 +1,146 @@
 <?php
 
+use App\Models\Sms\Provider;
+use App\Services\Sms\SmsManager;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 new class extends Component
 {
-    //
+    use WithPagination;
+
+    public string $search = '';
+
+    public string $driver = '';
+
+    public string $sortBy = 'created_at';
+
+    public string $sortDirection = 'desc';
+
+    #[Computed]
+    public function providers(): LengthAwarePaginator
+    {
+        return Provider::query()
+            ->withCount('gateways')
+            ->when($this->search, function ($query) {
+                $query->where(function ($query) {
+                    $query->where('name', 'like', "%{$this->search}%")
+                        ->orWhere('driver', 'like', "%{$this->search}%");
+                });
+            })
+            ->when($this->driver, fn ($query) => $query->where('driver', $this->driver))
+            ->orderBy($this->sortBy, $this->sortDirection)
+            ->paginate(config('general.per_page', 10));
+    }
+
+    public function sort(string $column): void
+    {
+        if ($this->sortBy === $column) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortBy = $column;
+            $this->sortDirection = 'asc';
+        }
+
+        $this->resetPage();
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedDriver(): void
+    {
+        $this->resetPage();
+    }
+
+    #[On('panels.administrator.sms-management.provider.index.refresh')]
+    public function refresh(): void
+    {
+        unset($this->providers);
+    }
 };
 ?>
 
+@php
+    $driverOptions = app(SmsManager::class)->driverOptions();
+@endphp
+
 <div>
-    {{-- It always seems impossible until it is done. - Nelson Mandela --}}
+    <x-slot name="title">{{ __('general.providers') }} - {{ config('app.name') }}</x-slot>
+
+    <div class="space-y-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+            <flux:breadcrumbs>
+                <flux:breadcrumbs.item href="{{ route('panels.administrator.dashboard.index') }}" icon="home" wire:navigate />
+                <flux:breadcrumbs.item>{{ __('general.sms_management') }}</flux:breadcrumbs.item>
+                <flux:breadcrumbs.item>{{ __('general.providers') }}</flux:breadcrumbs.item>
+            </flux:breadcrumbs>
+
+            <flux:button class="shrink-0" variant="primary" color="teal" icon="plus" wire:click="$dispatch('panels.administrator.sms-management.provider.create.assign-data')">
+                {{ __('actions.create') }} {{ __('general.provider') }}
+            </flux:button>
+        </div>
+
+        <flux:card>
+            <div class="mb-4 grid gap-3 md:grid-cols-2">
+                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." clearable />
+
+                <flux:select wire:model.live="driver" variant="listbox" searchable placeholder="{{ __('general.driver') }}..." clearable>
+                    @foreach ($driverOptions as $value => $label)
+                        <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+            </div>
+
+            <flux:table :paginate="$this->providers">
+                <flux:table.columns>
+                    <flux:table.column sortable :sorted="$sortBy === 'name'" :direction="$sortDirection" wire:click="sort('name')">{{ __('general.name') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.driver') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.sms_gateways') }}</flux:table.column>
+                    <flux:table.column>{{ __('general.status') }}</flux:table.column>
+                    <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">{{ __('general.created_at') }}</flux:table.column>
+                    <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
+                </flux:table.columns>
+
+                <flux:table.rows>
+                    @foreach ($this->providers as $provider)
+                        <flux:table.row :key="$provider->id">
+                            <flux:table.cell variant="strong">{{ $provider->name }}</flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="sky">{{ $driverOptions[$provider->driver] ?? $provider->driver }}</flux:badge>
+                            </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="zinc">{{ $provider->gateways_count }}</flux:badge>
+                            </flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge size="sm" color="{{ $provider->is_active ? 'green' : 'red' }}">
+                                    {{ $provider->is_active ? __('general.active') : __('general.inactive') }}
+                                </flux:badge>
+                            </flux:table.cell>
+                            <flux:table.cell>{{ $provider->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
+                            <flux:table.cell align="end">
+                                <div class="flex justify-end gap-2">
+                                    <flux:tooltip content="{{ __('general.edit') }}">
+                                        <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.provider.edit.assign-data', { provider: {{ $provider->id }} })" />
+                                    </flux:tooltip>
+                                    <flux:tooltip content="{{ __('general.delete') }}">
+                                        <flux:button size="xs" variant="danger" icon="trash" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.provider.delete.assign-data', { provider: {{ $provider->id }} })" />
+                                    </flux:tooltip>
+                                </div>
+                            </flux:table.cell>
+                        </flux:table.row>
+                    @endforeach
+                </flux:table.rows>
+            </flux:table>
+        </flux:card>
+    </div>
+
+    <livewire:sms-management.provider.create :key="'provider-create'" />
+    <livewire:sms-management.provider.edit :key="'provider-edit'" />
+    <livewire:sms-management.provider.delete :key="'provider-delete'" />
 </div>

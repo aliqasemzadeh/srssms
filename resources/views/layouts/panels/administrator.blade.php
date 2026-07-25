@@ -70,6 +70,34 @@
 
         <div
             data-sidebar-menu-group
+            data-sidebar-menu-heading="{{ __('general.sms_management') }}"
+            x-show="matches($el)"
+            x-cloak
+        >
+            <flux:sidebar.group
+                expandable
+                icon="message-square-text"
+                heading="{{ __('general.sms_management') }}"
+                class="grid"
+                :expanded="request()->routeIs('panels.administrator.sms-management.*')"
+            >
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.sms-management.provider.index') }}" :current="request()->routeIs('panels.administrator.sms-management.provider.*')" wire:navigate>{{ __('general.providers') }}</flux:sidebar.item>
+                </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.sms-management.gateway.index') }}" :current="request()->routeIs('panels.administrator.sms-management.gateway.*')" wire:navigate>{{ __('general.sms_gateways') }}</flux:sidebar.item>
+                </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.sms-management.message.index') }}" :current="request()->routeIs('panels.administrator.sms-management.message.*')" wire:navigate>{{ __('general.sms_messages') }}</flux:sidebar.item>
+                </div>
+                <div x-show="showItem($el)" x-cloak>
+                    <flux:sidebar.item href="{{ route('panels.administrator.sms-management.setting.index') }}" :current="request()->routeIs('panels.administrator.sms-management.setting.*')" wire:navigate>{{ __('general.sms_settings') }}</flux:sidebar.item>
+                </div>
+            </flux:sidebar.group>
+        </div>
+
+        <div
+            data-sidebar-menu-group
             data-sidebar-menu-heading="{{ __('general.system_management') }}"
             x-show="matches($el)"
             x-cloak

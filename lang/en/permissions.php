@@ -107,5 +107,31 @@ return [
                 'view' => 'View Logs',
             ],
         ],
+        'sms-management' => [
+            'provider' => [
+                'view' => 'View Providers',
+                'create' => 'Create Provider',
+                'edit' => 'Edit Provider',
+                'delete' => 'Delete Provider',
+            ],
+            'gateway' => [
+                'view' => 'View SMS Gateways',
+                'create' => 'Create SMS Gateway',
+                'edit' => 'Edit SMS Gateway',
+                'delete' => 'Delete SMS Gateway',
+                'user' => [
+                    'view' => 'View Gateway Users',
+                    'create' => 'Grant Gateway Access',
+                    'delete' => 'Revoke Gateway Access',
+                ],
+            ],
+            'message' => [
+                'view' => 'View SMS Messages',
+            ],
+            'setting' => [
+                'view' => 'View SMS Settings',
+                'edit' => 'Edit SMS Settings',
+            ],
+        ],
     ],
 ];
