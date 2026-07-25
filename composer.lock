@@ -2416,16 +2416,16 @@
         },
         {
             "name": "laravel-lang/lang",
-            "version": "15.32.0",
+            "version": "15.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Laravel-Lang/lang.git",
-                "reference": "581112fa9660e61f272c37045e305eec320ab5f0"
+                "reference": "963488ac110876196c88630ea31594742f44358b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Laravel-Lang/lang/zipball/581112fa9660e61f272c37045e305eec320ab5f0",
-                "reference": "581112fa9660e61f272c37045e305eec320ab5f0",
+                "url": "https://api.github.com/repos/Laravel-Lang/lang/zipball/963488ac110876196c88630ea31594742f44358b",
+                "reference": "963488ac110876196c88630ea31594742f44358b",
                 "shasum": ""
             },
             "require": {
@@ -2486,7 +2486,7 @@
                     "type": "yoomoney"
                 }
             ],
-            "time": "2026-07-02T07:50:39+00:00"
+            "time": "2026-07-24T12:39:52+00:00"
         },
         {
             "name": "laravel-lang/locale-list",
@@ -3312,16 +3312,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "v13.21.1",
+            "version": "v13.22.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "303b5f8dc899f89e8c38c350b639b8fbd193ed16"
+                "reference": "d354afa45334cdac523fbc015f203a78d7e2f5c6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/303b5f8dc899f89e8c38c350b639b8fbd193ed16",
-                "reference": "303b5f8dc899f89e8c38c350b639b8fbd193ed16",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/d354afa45334cdac523fbc015f203a78d7e2f5c6",
+                "reference": "d354afa45334cdac523fbc015f203a78d7e2f5c6",
                 "shasum": ""
             },
             "require": {
@@ -3535,7 +3535,7 @@
                 "issues": "https://github.com/laravel/framework/issues",
                 "source": "https://github.com/laravel/framework"
             },
-            "time": "2026-07-21T14:27:35+00:00"
+            "time": "2026-07-24T20:38:48+00:00"
         },
         {
             "name": "laravel/prompts",
