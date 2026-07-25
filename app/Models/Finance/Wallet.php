@@ -61,4 +61,28 @@ class Wallet extends Model
     {
         return bcsub((string) $this->balance, (string) $this->locked_balance, 8);
     }
+
+    /**
+     * Recalculate balance from all wallet transactions (credits − debits).
+     */
+    public function recalculateBalance(): string
+    {
+        $balance = '0';
+
+        $this->transactions()
+            ->orderBy('id')
+            ->select(['id', 'type', 'amount'])
+            ->cursor()
+            ->each(function (Transaction $transaction) use (&$balance) {
+                if ($transaction->type === Transaction::TYPE_CREDIT) {
+                    $balance = bcadd($balance, (string) $transaction->amount, 8);
+                } else {
+                    $balance = bcsub($balance, (string) $transaction->amount, 8);
+                }
+            });
+
+        $this->forceFill(['balance' => $balance])->saveQuietly();
+
+        return $balance;
+    }
 }

@@ -75,6 +75,11 @@ class Withdrawal extends Model
         return $this->status === WithdrawalStatusEnum::Pending;
     }
 
+    public function isApproved(): bool
+    {
+        return $this->status === WithdrawalStatusEnum::Approved;
+    }
+
     public function isCompleted(): bool
     {
         return $this->status === WithdrawalStatusEnum::Completed;

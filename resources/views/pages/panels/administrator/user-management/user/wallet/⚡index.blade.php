@@ -122,7 +122,7 @@ new class extends Component
             ->where('user_id', $this->user->id)
             ->findOrFail($walletId);
 
-        $wallet->refresh();
+        $wallet->recalculateBalance();
 
         unset($this->currencies);
 
@@ -265,6 +265,17 @@ new class extends Component
                                                 icon="arrow-left-right"
                                                 icon:variant="outline"
                                                 :href="route('panels.administrator.user-management.user.wallet.transaction.index', ['user' => $user, 'wallet' => $wallet])"
+                                                wire:navigate
+                                            />
+                                        </flux:tooltip>
+                                        <flux:tooltip content="{{ __('general.withdrawals') }}">
+                                            <flux:button
+                                                size="xs"
+                                                variant="primary"
+                                                color="rose"
+                                                icon="arrow-up-from-line"
+                                                icon:variant="outline"
+                                                :href="route('panels.administrator.user-management.user.wallet.withdrawal.index', ['user' => $user, 'wallet' => $wallet])"
                                                 wire:navigate
                                             />
                                         </flux:tooltip>

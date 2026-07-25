@@ -3,8 +3,10 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Finance\Currency;
+use App\Models\Finance\Deposit;
 use App\Models\Finance\Transaction;
 use App\Models\Finance\Wallet;
+use App\Models\Finance\Withdrawal;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -117,13 +119,11 @@ class TransactionForm extends Form
             $wallet = Wallet::query()->lockForUpdate()->findOrFail($this->wallet->id);
 
             $this->ensureSufficientBalance($wallet, $this->type, $amount);
-            $this->applyEffect($wallet, $this->type, $amount);
 
             $transaction = $wallet->transactions()->create([
                 'created_by' => Auth::id(),
                 'type' => $this->type,
                 'amount' => $amount,
-                'balance_after' => $wallet->balance,
                 'description' => filled($this->description) ? trim($this->description) : null,
                 'reference_type' => $referenceType,
                 'reference_id' => $referenceId,
@@ -156,21 +156,32 @@ class TransactionForm extends Form
                 ->lockForUpdate()
                 ->findOrFail($this->transaction->id);
 
-            $this->reverseEffect($wallet, $transaction->type, (string) $transaction->amount);
+            $projectedBalance = $this->projectedBalanceAfterUpdate(
+                $wallet,
+                $transaction,
+                $this->type,
+                $amount,
+            );
 
-            if (bccomp((string) $wallet->balance, (string) $wallet->locked_balance, 8) < 0) {
+            if (bccomp($projectedBalance, (string) $wallet->locked_balance, 8) < 0) {
                 throw ValidationException::withMessages([
                     'amount' => __('general.transaction_update_insufficient_balance'),
                 ]);
             }
 
-            $this->ensureSufficientBalance($wallet, $this->type, $amount);
-            $this->applyEffect($wallet, $this->type, $amount);
+            if ($this->type === Transaction::TYPE_DEBIT) {
+                $available = bcsub($projectedBalance, (string) $wallet->locked_balance, 8);
+
+                if (bccomp($available, '0', 8) < 0) {
+                    throw ValidationException::withMessages([
+                        'amount' => __('general.insufficient_available_balance'),
+                    ]);
+                }
+            }
 
             $transaction->update([
                 'type' => $this->type,
                 'amount' => $amount,
-                'balance_after' => $wallet->balance,
                 'description' => filled($this->description) ? trim($this->description) : null,
                 'reference_type' => $referenceType,
                 'reference_id' => $referenceId,
@@ -194,9 +205,9 @@ class TransactionForm extends Form
                 ->lockForUpdate()
                 ->findOrFail($this->transaction->id);
 
-            $this->reverseEffect($wallet, $transaction->type, (string) $transaction->amount);
+            $projectedBalance = $this->projectedBalanceAfterDelete($wallet, $transaction);
 
-            if (bccomp((string) $wallet->balance, (string) $wallet->locked_balance, 8) < 0) {
+            if (bccomp($projectedBalance, (string) $wallet->locked_balance, 8) < 0) {
                 throw ValidationException::withMessages([
                     'amount' => __('general.transaction_delete_insufficient_balance'),
                 ]);
@@ -318,6 +329,48 @@ class TransactionForm extends Form
             return $results;
         }
 
+        if ($class === Deposit::class || $class === Withdrawal::class) {
+            $query->withTrashed()
+                ->with([
+                    'user' => fn ($q) => $q->withTrashed(),
+                    'wallet.currency' => fn ($q) => $q->withTrashed(),
+                ])
+                ->when($this->wallet, fn ($query) => $query->where('wallet_id', $this->wallet->id))
+                ->when($search, function ($query) use ($search) {
+                    $query->where(function ($query) use ($search) {
+                        $query->where('id', $search)
+                            ->orWhere('tracking_code', 'like', "%{$search}%")
+                            ->orWhereHas('user', function ($query) use ($search) {
+                                $query->withTrashed()
+                                    ->where(function ($query) use ($search) {
+                                        $query->where('first_name', 'like', "%{$search}%")
+                                            ->orWhere('last_name', 'like', "%{$search}%")
+                                            ->orWhere('email', 'like', "%{$search}%");
+                                    });
+                            });
+                    });
+                })
+                ->latest('id')
+                ->limit(20);
+
+            $results = $query->get();
+
+            if (filled($this->reference_id) && ! $results->pluck('id')->contains((int) $this->reference_id)) {
+                $selected = $class::withTrashed()
+                    ->with([
+                        'user' => fn ($q) => $q->withTrashed(),
+                        'wallet.currency' => fn ($q) => $q->withTrashed(),
+                    ])
+                    ->find($this->reference_id);
+
+                if ($selected) {
+                    $results = $results->prepend($selected);
+                }
+            }
+
+            return $results;
+        }
+
         return new Collection;
     }
 
@@ -336,6 +389,14 @@ class TransactionForm extends Form
 
         if ($model instanceof Currency) {
             return $model->symbol.' — '.$model->name;
+        }
+
+        if ($model instanceof Deposit || $model instanceof Withdrawal) {
+            $userName = $model->user?->full_name ?? __('general.deleted');
+            $symbol = $model->wallet?->currency?->symbol ?? '';
+            $tracking = $model->tracking_code ? ' — '.$model->tracking_code : '';
+
+            return '#'.$model->id.$tracking.' — '.$userName.($symbol ? ' — '.$symbol : '');
         }
 
         return class_basename($model).' #'.$model->getKey();
@@ -427,24 +488,34 @@ class TransactionForm extends Form
         }
     }
 
-    protected function applyEffect(Wallet $wallet, string $type, string $amount): void
-    {
-        if ($type === Transaction::TYPE_CREDIT) {
-            $wallet->balance = bcadd((string) $wallet->balance, $amount, 8);
+    protected function projectedBalanceAfterUpdate(
+        Wallet $wallet,
+        Transaction $transaction,
+        string $newType,
+        string $newAmount,
+    ): string {
+        $balance = (string) $wallet->balance;
+
+        if ($transaction->type === Transaction::TYPE_CREDIT) {
+            $balance = bcsub($balance, (string) $transaction->amount, 8);
         } else {
-            $wallet->balance = bcsub((string) $wallet->balance, $amount, 8);
+            $balance = bcadd($balance, (string) $transaction->amount, 8);
         }
 
-        $wallet->save();
+        if ($newType === Transaction::TYPE_CREDIT) {
+            return bcadd($balance, $newAmount, 8);
+        }
+
+        return bcsub($balance, $newAmount, 8);
     }
 
-    protected function reverseEffect(Wallet $wallet, string $type, string $amount): void
+    protected function projectedBalanceAfterDelete(Wallet $wallet, Transaction $transaction): string
     {
-        $this->applyEffect(
-            $wallet,
-            $type === Transaction::TYPE_CREDIT ? Transaction::TYPE_DEBIT : Transaction::TYPE_CREDIT,
-            $amount,
-        );
+        if ($transaction->type === Transaction::TYPE_CREDIT) {
+            return bcsub((string) $wallet->balance, (string) $transaction->amount, 8);
+        }
+
+        return bcadd((string) $wallet->balance, (string) $transaction->amount, 8);
     }
 
     protected function sanitizeAmount(string $amount): string

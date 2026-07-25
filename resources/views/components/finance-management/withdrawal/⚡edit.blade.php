@@ -2,9 +2,7 @@
 
 use App\Enums\WithdrawalStatusEnum;
 use App\Livewire\Forms\WithdrawalForm;
-use App\Models\Finance\Wallet;
 use App\Models\Finance\Withdrawal;
-use App\Models\User;
 use Flux\Flux;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -13,42 +11,66 @@ use Livewire\Component;
 
 new class extends Component
 {
-    public User $user;
-
-    public Wallet $wallet;
-
     public WithdrawalForm $form;
+
+    public string $userSearch = '';
+
+    public string $walletSearch = '';
 
     public string $userAccountSearch = '';
 
-    public function mount(User $user, Wallet $wallet): void
-    {
-        abort_unless($wallet->user_id === $user->id, 404);
-
-        $this->user = $user;
-        $this->wallet = $wallet->load([
-            'currency' => fn ($query) => $query->withTrashed(),
-        ]);
-    }
-
-    #[On('panels.administrator.user-management.user.wallet.withdrawal.edit.assign-data')]
+    #[On('panels.administrator.finance-management.withdrawal.edit.assign-data')]
     public function assignData(int $withdrawal): void
     {
-        $model = Withdrawal::query()
-            ->where('wallet_id', $this->wallet->id)
-            ->findOrFail($withdrawal);
-
-        $this->form->setModel($model);
+        $this->form->setModel(Withdrawal::query()->findOrFail($withdrawal));
+        $this->userSearch = '';
+        $this->walletSearch = '';
         $this->userAccountSearch = '';
         $this->resetValidation();
-        unset($this->userAccounts);
+        unset($this->users, $this->wallets, $this->userAccounts);
 
-        Flux::modal('user-management.user.wallet.withdrawal.edit')->show();
+        Flux::modal('finance-management.withdrawal.edit')->show();
     }
 
-    public function updatedUserAccountSearch(): void
+    public function updated(string $property): void
     {
-        unset($this->userAccounts);
+        if ($property === 'form.user_id') {
+            $this->form->wallet_id = '';
+            $this->form->user_account_id = '';
+            $this->walletSearch = '';
+            $this->userAccountSearch = '';
+            unset($this->wallets, $this->userAccounts);
+        }
+
+        if ($property === 'form.wallet_id') {
+            $this->form->user_account_id = '';
+            $this->userAccountSearch = '';
+            unset($this->userAccounts);
+        }
+
+        if (in_array($property, ['userSearch', 'walletSearch', 'userAccountSearch'], true)) {
+            unset($this->users, $this->wallets, $this->userAccounts);
+        }
+    }
+
+    #[Computed]
+    public function users(): Collection
+    {
+        return $this->form->userOptions($this->userSearch)
+            ->map(fn ($user) => (object) [
+                'id' => $user->id,
+                'label' => trim($user->full_name.' — '.($user->email ?: $user->username ?: '#'.$user->id)),
+            ]);
+    }
+
+    #[Computed]
+    public function wallets(): Collection
+    {
+        return $this->form->walletOptions($this->walletSearch)
+            ->map(fn ($wallet) => (object) [
+                'id' => $wallet->id,
+                'label' => $this->form->walletOptionLabel($wallet),
+            ]);
     }
 
     #[Computed]
@@ -63,11 +85,9 @@ new class extends Component
 
     public function save(): void
     {
-        $this->form->user_id = (string) $this->user->id;
-        $this->form->wallet_id = (string) $this->wallet->id;
         $this->form->update();
 
-        $this->dispatch('panels.administrator.user-management.user.wallet.withdrawal.index.refresh');
+        $this->dispatch('panels.administrator.finance-management.withdrawal.index.refresh');
 
         Flux::modals()->close();
 
@@ -79,25 +99,46 @@ new class extends Component
 @php
     $withdrawalMethods = config('finance.withdrawal_methods', []);
     $decimals = $form->decimals();
-    $currencySymbol = $wallet->currency?->symbol ?? '';
 @endphp
 
-<flux:modal name="user-management.user.wallet.withdrawal.edit" flyout position="right" class="space-y-6">
+<flux:modal name="finance-management.withdrawal.edit" flyout position="right" class="space-y-6">
     <div>
         <flux:heading size="lg">{{ __('actions.edit') }} {{ __('general.withdrawal') }}</flux:heading>
-        <flux:subheading>
-            <span dir="ltr">{{ $currencySymbol }}</span> — {{ $user->full_name }}
-        </flux:subheading>
+        <flux:subheading>{{ __('general.withdrawals') }}</flux:subheading>
     </div>
 
     <form wire:submit="save" class="space-y-6">
-        <flux:select wire:model="form.user_account_id" variant="combobox" :filter="false" searchable label="{{ __('general.user_account') }}">
+        <flux:select wire:model.live="form.user_id" variant="combobox" :filter="false" searchable label="{{ __('general.user') }}">
+            <x-slot name="input">
+                <flux:select.input wire:model.live.debounce.300ms="userSearch" placeholder="{{ __('general.search') }}..." />
+            </x-slot>
+
+            @foreach ($this->users as $userOption)
+                <flux:select.option value="{{ $userOption->id }}" wire:key="withdrawal-edit-user-{{ $userOption->id }}">
+                    {{ $userOption->label }}
+                </flux:select.option>
+            @endforeach
+        </flux:select>
+
+        <flux:select wire:model.live="form.wallet_id" variant="combobox" :filter="false" searchable label="{{ __('general.wallet') }}" :disabled="blank($form->user_id)">
+            <x-slot name="input">
+                <flux:select.input wire:model.live.debounce.300ms="walletSearch" placeholder="{{ __('general.search') }}..." />
+            </x-slot>
+
+            @foreach ($this->wallets as $walletOption)
+                <flux:select.option value="{{ $walletOption->id }}" wire:key="withdrawal-edit-wallet-{{ $walletOption->id }}">
+                    {{ $walletOption->label }}
+                </flux:select.option>
+            @endforeach
+        </flux:select>
+
+        <flux:select wire:model="form.user_account_id" variant="combobox" :filter="false" searchable label="{{ __('general.user_account') }}" :disabled="blank($form->wallet_id)">
             <x-slot name="input">
                 <flux:select.input wire:model.live.debounce.300ms="userAccountSearch" placeholder="{{ __('general.search') }}..." />
             </x-slot>
 
             @foreach ($this->userAccounts as $accountOption)
-                <flux:select.option value="{{ $accountOption->id }}" wire:key="user-withdrawal-edit-account-{{ $accountOption->id }}">
+                <flux:select.option value="{{ $accountOption->id }}" wire:key="withdrawal-edit-account-{{ $accountOption->id }}">
                     <span dir="ltr">{{ $accountOption->label }}</span>
                 </flux:select.option>
             @endforeach

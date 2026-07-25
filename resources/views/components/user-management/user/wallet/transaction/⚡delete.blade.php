@@ -51,19 +51,16 @@ new class extends Component
                     ->lockForUpdate()
                     ->findOrFail($this->transaction->id);
 
-                if ($transaction->type === Transaction::TYPE_CREDIT) {
-                    $wallet->balance = bcsub((string) $wallet->balance, (string) $transaction->amount, 8);
-                } else {
-                    $wallet->balance = bcadd((string) $wallet->balance, (string) $transaction->amount, 8);
-                }
+                $projectedBalance = $transaction->type === Transaction::TYPE_CREDIT
+                    ? bcsub((string) $wallet->balance, (string) $transaction->amount, 8)
+                    : bcadd((string) $wallet->balance, (string) $transaction->amount, 8);
 
-                if (bccomp((string) $wallet->balance, (string) $wallet->locked_balance, 8) < 0) {
+                if (bccomp($projectedBalance, (string) $wallet->locked_balance, 8) < 0) {
                     throw ValidationException::withMessages([
                         'transaction' => __('general.transaction_delete_insufficient_balance'),
                     ]);
                 }
 
-                $wallet->save();
                 $transaction->delete();
             });
         } catch (ValidationException $exception) {
