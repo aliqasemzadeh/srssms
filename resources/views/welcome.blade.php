@@ -2,12 +2,40 @@
     $general = $general ?? app(\App\Settings\GeneralSettings::class);
     $welcome = $welcome ?? app(\App\Settings\WelcomePageSettings::class);
     $contact = $contact ?? app(\App\Settings\ContactSettings::class);
+    $social = $social ?? app(\App\Settings\SocialSettings::class);
 
     $siteName = $general->site_name ?: config('app.name');
     $shortName = $general->site_short_name ?: strtoupper(mb_substr($siteName, 0, 3));
     $logo = filled($general->site_logo) ? asset('storage/'.$general->site_logo) : null;
     $generalSettings = $general;
     $title = $siteName;
+
+    $socialNetworks = [
+        'telegram' => 'send',
+        'eitaa' => 'message-circle',
+        'bale' => 'message-square',
+        'rubika' => 'smartphone',
+        'soroush' => 'messages-square',
+        'aparat' => 'video',
+        'instagram' => 'camera',
+        'linkedin' => 'briefcase',
+        'x_twitter' => 'at-sign',
+    ];
+
+    $activeSocials = collect($socialNetworks)
+        ->filter(fn (string $icon, string $network) => filled($social->{$network}))
+        ->map(fn (string $icon, string $network) => [
+            'network' => $network,
+            'icon' => $icon,
+            'url' => $social->{$network},
+            'label' => __('general.'.$network),
+        ])
+        ->values();
+
+    $hasContact = filled($contact->address)
+        || filled($contact->support_email)
+        || filled($contact->fax)
+        || ! empty($contact->phone_numbers);
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ __('general.page_direction') }}">
@@ -32,7 +60,12 @@
 
                 <nav class="hidden items-center gap-6 text-sm text-zinc-600 dark:text-zinc-300 md:flex">
                     <a href="#features" class="transition hover:text-teal-700 dark:hover:text-teal-300">{{ __('general.nav_features') }}</a>
-                    <a href="#contact" class="transition hover:text-teal-700 dark:hover:text-teal-300">{{ __('general.nav_contact') }}</a>
+                    @if ($hasContact)
+                        <a href="#contact" class="transition hover:text-teal-700 dark:hover:text-teal-300">{{ __('general.nav_contact') }}</a>
+                    @endif
+                    @if ($activeSocials->isNotEmpty())
+                        <a href="#social" class="transition hover:text-teal-700 dark:hover:text-teal-300">{{ __('general.nav_social') }}</a>
+                    @endif
                 </nav>
 
                 <div class="flex items-center gap-2">
@@ -156,74 +189,120 @@
                 </div>
             </section>
 
-            <section id="contact" class="scroll-mt-24 border-t border-zinc-200/80 py-20 dark:border-zinc-800/80">
-                <div class="mx-auto max-w-6xl px-4 sm:px-6">
-                    <div class="mb-12 max-w-2xl">
-                        <flux:heading size="xl">{{ __('general.contact_section_heading') }}</flux:heading>
-                        <flux:subheading class="mt-2">{{ __('general.contact_section_hint') }}</flux:subheading>
+            @if ($hasContact)
+                <section id="contact" class="scroll-mt-24 border-t border-zinc-200/80 py-20 dark:border-zinc-800/80">
+                    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+                        <div class="mb-12 max-w-2xl">
+                            <flux:heading size="xl">{{ __('general.contact_section_heading') }}</flux:heading>
+                            <flux:subheading class="mt-2">{{ __('general.contact_section_hint') }}</flux:subheading>
+                        </div>
+
+                        <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                            @if (filled($contact->address))
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 text-teal-700 dark:text-teal-300">
+                                        <flux:icon name="map-pin" variant="mini" class="size-5" />
+                                        <flux:heading size="sm">{{ __('general.address') }}</flux:heading>
+                                    </div>
+                                    <flux:text>{{ $contact->address }}</flux:text>
+                                    @if (filled($contact->postal_code))
+                                        <flux:text size="sm" class="text-zinc-500">{{ __('general.postal_code') }}: {{ $contact->postal_code }}</flux:text>
+                                    @endif
+                                </div>
+                            @endif
+
+                            @if (! empty($contact->phone_numbers))
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 text-teal-700 dark:text-teal-300">
+                                        <flux:icon name="phone" variant="mini" class="size-5" />
+                                        <flux:heading size="sm">{{ __('general.phone_numbers') }}</flux:heading>
+                                    </div>
+                                    <ul class="space-y-1" dir="ltr">
+                                        @foreach ($contact->phone_numbers as $phone)
+                                            <li>
+                                                <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}" class="font-mono text-sm text-zinc-700 transition hover:text-teal-700 dark:text-zinc-300 dark:hover:text-teal-300">
+                                                    {{ $phone }}
+                                                </a>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
+
+                            @if (filled($contact->support_email))
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 text-teal-700 dark:text-teal-300">
+                                        <flux:icon name="mail" variant="mini" class="size-5" />
+                                        <flux:heading size="sm">{{ __('general.support_email') }}</flux:heading>
+                                    </div>
+                                    <a href="mailto:{{ $contact->support_email }}" class="text-sm text-zinc-700 transition hover:text-teal-700 dark:text-zinc-300 dark:hover:text-teal-300" dir="ltr">
+                                        {{ $contact->support_email }}
+                                    </a>
+                                </div>
+                            @endif
+
+                            @if (filled($contact->fax))
+                                <div class="space-y-2">
+                                    <div class="flex items-center gap-2 text-teal-700 dark:text-teal-300">
+                                        <flux:icon name="printer" variant="mini" class="size-5" />
+                                        <flux:heading size="sm">{{ __('general.fax') }}</flux:heading>
+                                    </div>
+                                    <flux:text class="font-mono" dir="ltr">{{ $contact->fax }}</flux:text>
+                                </div>
+                            @endif
+                        </div>
                     </div>
+                </section>
+            @endif
 
-                    <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                        @if (filled($contact->address))
-                            <div class="space-y-2">
-                                <div class="flex items-center gap-2 text-teal-700 dark:text-teal-300">
-                                    <flux:icon name="map-pin" variant="mini" class="size-5" />
-                                    <flux:heading size="sm">{{ __('general.address') }}</flux:heading>
-                                </div>
-                                <flux:text>{{ $contact->address }}</flux:text>
-                                @if (filled($contact->postal_code))
-                                    <flux:text size="sm" class="text-zinc-500">{{ __('general.postal_code') }}: {{ $contact->postal_code }}</flux:text>
-                                @endif
-                            </div>
-                        @endif
+            @if ($activeSocials->isNotEmpty())
+                <section id="social" class="scroll-mt-24 border-t border-zinc-200/80 bg-white/60 py-20 backdrop-blur-sm dark:border-zinc-800/80 dark:bg-zinc-950/40">
+                    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+                        <div class="mb-12 max-w-2xl">
+                            <flux:heading size="xl">{{ __('general.social_section_heading') }}</flux:heading>
+                            <flux:subheading class="mt-2">{{ __('general.social_section_hint') }}</flux:subheading>
+                        </div>
 
-                        @if (! empty($contact->phone_numbers))
-                            <div class="space-y-2">
-                                <div class="flex items-center gap-2 text-teal-700 dark:text-teal-300">
-                                    <flux:icon name="phone" variant="mini" class="size-5" />
-                                    <flux:heading size="sm">{{ __('general.phone_numbers') }}</flux:heading>
-                                </div>
-                                <ul class="space-y-1" dir="ltr">
-                                    @foreach ($contact->phone_numbers as $phone)
-                                        <li>
-                                            <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}" class="font-mono text-sm text-zinc-700 transition hover:text-teal-700 dark:text-zinc-300 dark:hover:text-teal-300">
-                                                {{ $phone }}
-                                            </a>
-                                        </li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-
-                        @if (filled($contact->support_email))
-                            <div class="space-y-2">
-                                <div class="flex items-center gap-2 text-teal-700 dark:text-teal-300">
-                                    <flux:icon name="mail" variant="mini" class="size-5" />
-                                    <flux:heading size="sm">{{ __('general.support_email') }}</flux:heading>
-                                </div>
-                                <a href="mailto:{{ $contact->support_email }}" class="text-sm text-zinc-700 transition hover:text-teal-700 dark:text-zinc-300 dark:hover:text-teal-300" dir="ltr">
-                                    {{ $contact->support_email }}
+                        <div class="flex flex-wrap gap-3">
+                            @foreach ($activeSocials as $item)
+                                <a
+                                    href="{{ $item['url'] }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    class="inline-flex items-center gap-2 rounded-xl bg-teal-50 px-4 py-3 text-sm font-medium text-teal-800 transition hover:bg-teal-100 dark:bg-teal-500/10 dark:text-teal-200 dark:hover:bg-teal-500/20"
+                                >
+                                    <flux:icon name="{{ $item['icon'] }}" variant="mini" class="size-5" />
+                                    <span>{{ $item['label'] }}</span>
                                 </a>
-                            </div>
-                        @endif
-
-                        @if (filled($contact->fax))
-                            <div class="space-y-2">
-                                <div class="flex items-center gap-2 text-teal-700 dark:text-teal-300">
-                                    <flux:icon name="printer" variant="mini" class="size-5" />
-                                    <flux:heading size="sm">{{ __('general.fax') }}</flux:heading>
-                                </div>
-                                <flux:text class="font-mono" dir="ltr">{{ $contact->fax }}</flux:text>
-                            </div>
-                        @endif
+                            @endforeach
+                        </div>
                     </div>
-                </div>
-            </section>
+                </section>
+            @endif
         </main>
 
         <footer class="relative z-10 border-t border-zinc-200/80 bg-white/70 py-6 dark:border-zinc-800/80 dark:bg-zinc-950/50">
             <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-6">
-                <flux:text size="sm" class="text-zinc-500">{{ $siteName }}</flux:text>
+                <div class="flex flex-col items-center gap-3 sm:items-start">
+                    <flux:text size="sm" class="text-zinc-500">{{ $siteName }}</flux:text>
+                    @if ($activeSocials->isNotEmpty())
+                        <div class="flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+                            @foreach ($activeSocials as $item)
+                                <flux:tooltip content="{{ $item['label'] }}">
+                                    <a
+                                        href="{{ $item['url'] }}"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        class="inline-flex size-9 items-center justify-center rounded-lg text-zinc-500 transition hover:bg-teal-50 hover:text-teal-700 dark:hover:bg-teal-500/10 dark:hover:text-teal-300"
+                                        aria-label="{{ $item['label'] }}"
+                                    >
+                                        <flux:icon name="{{ $item['icon'] }}" variant="mini" class="size-4" />
+                                    </a>
+                                </flux:tooltip>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
                 @include('layouts.shared.theme')
             </div>
         </footer>
