@@ -10,6 +10,8 @@ class SmsSettings extends Settings
 
     public ?int $default_gateway_id;
 
+    public string $default_sms_rate = '1500';
+
     public static function group(): string
     {
         return 'sms';

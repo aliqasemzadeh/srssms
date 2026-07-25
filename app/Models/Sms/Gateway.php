@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
     'access_type',
     'usage_type',
     'is_public',
+    'sms_rate',
     'settings',
     'is_active',
 ])]
@@ -38,6 +39,7 @@ class Gateway extends Model
             'access_type' => SmsGatewayAccessTypeEnum::class,
             'usage_type' => SmsGatewayUsageTypeEnum::class,
             'is_public' => 'boolean',
+            'sms_rate' => 'integer',
             'settings' => 'array',
             'is_active' => 'boolean',
         ];

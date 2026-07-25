@@ -3,12 +3,14 @@
 namespace App\Models\Sms;
 
 use App\Enums\Sms\SmsMessageStatusEnum;
+use App\Models\Phonebook\Contact;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 #[Fillable([
     'message_id',
+    'contact_id',
     'mobile',
     'status',
     'reference_id',
@@ -33,5 +35,10 @@ class MessageRecipient extends Model
     public function message(): BelongsTo
     {
         return $this->belongsTo(Message::class);
+    }
+
+    public function contact(): BelongsTo
+    {
+        return $this->belongsTo(Contact::class);
     }
 }

@@ -5,11 +5,13 @@ namespace App\Models\Sms;
 use App\Enums\Sms\SmsDirectionEnum;
 use App\Enums\Sms\SmsEncodingEnum;
 use App\Enums\Sms\SmsMessageStatusEnum;
+use App\Models\Finance\Transaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable([
     'gateway_id',
@@ -18,6 +20,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'number',
     'body',
     'parts_count',
+    'sms_rate',
+    'cost',
     'encoding',
     'status',
     'reference_id',
@@ -39,6 +43,8 @@ class Message extends Model
             'encoding' => SmsEncodingEnum::class,
             'status' => SmsMessageStatusEnum::class,
             'parts_count' => 'integer',
+            'sms_rate' => 'integer',
+            'cost' => 'integer',
             'provider_payload' => 'array',
             'sent_at' => 'datetime',
             'received_at' => 'datetime',
@@ -58,5 +64,10 @@ class Message extends Model
     public function recipients(): HasMany
     {
         return $this->hasMany(MessageRecipient::class);
+    }
+
+    public function transactions(): MorphMany
+    {
+        return $this->morphMany(Transaction::class, 'reference');
     }
 }

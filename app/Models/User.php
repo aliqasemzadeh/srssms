@@ -6,6 +6,9 @@ namespace App\Models;
 use App\Models\Finance\Deposit;
 use App\Models\Finance\Wallet;
 use App\Models\Finance\Withdrawal;
+use App\Models\Phonebook\Contact as PhonebookContact;
+use App\Models\Phonebook\Group as PhonebookGroup;
+use App\Models\Phonebook\Note as PhonebookNote;
 use App\Models\Sms\Gateway;
 use App\Models\Sms\Message;
 use Database\Factories\UserFactory;
@@ -90,5 +93,20 @@ class User extends Authenticatable
     public function smsMessages(): HasMany
     {
         return $this->hasMany(Message::class);
+    }
+
+    public function phonebookContacts(): HasMany
+    {
+        return $this->hasMany(PhonebookContact::class);
+    }
+
+    public function phonebookGroups(): HasMany
+    {
+        return $this->hasMany(PhonebookGroup::class);
+    }
+
+    public function phonebookNotes(): HasMany
+    {
+        return $this->hasMany(PhonebookNote::class);
     }
 }

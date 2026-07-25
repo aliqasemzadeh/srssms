@@ -4,6 +4,7 @@ use App\Models\Finance\Currency;
 use App\Models\Finance\Deposit;
 use App\Models\Finance\Wallet;
 use App\Models\Finance\Withdrawal;
+use App\Models\Sms\Message as SmsMessage;
 use App\Models\User;
 
 return [
@@ -37,6 +38,10 @@ return [
         'withdrawal' => [
             'model' => Withdrawal::class,
             'label' => 'general.withdrawal',
+        ],
+        'sms_message' => [
+            'model' => SmsMessage::class,
+            'label' => 'general.sms_message',
         ],
     ],
 
