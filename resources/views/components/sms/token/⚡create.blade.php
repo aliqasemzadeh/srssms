@@ -31,6 +31,12 @@ new class extends Component
         $this->dispatch('panels.user.sms.token.index.refresh');
         Flux::toast(__('general.sms_token_created'));
     }
+
+    public function closeCreated(): void
+    {
+        $this->createdToken = null;
+        Flux::modals()->close();
+    }
 };
 ?>
 
@@ -47,7 +53,7 @@ new class extends Component
                 <span class="break-all font-mono" dir="ltr">{{ $createdToken }}</span>
             </flux:callout.text>
         </flux:callout>
-        <flux:button variant="primary" color="zinc" class="w-full" wire:click="$set('createdToken', null); Flux.modal('sms.token.create').close()">
+        <flux:button variant="primary" color="zinc" class="w-full" wire:click="closeCreated">
             {{ __('actions.close') }}
         </flux:button>
     @else
