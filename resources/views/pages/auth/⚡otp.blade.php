@@ -16,9 +16,9 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
     public function mount(): void
     {
-        if (session()->has('otp.login.user_id')) {
-            $this->step = 'verify';
-        }
+        session()->forget('otp.login.user_id');
+        $this->step = 'request';
+        $this->code = '';
     }
 
     public function send(OtpService $otp): void
@@ -99,7 +99,7 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
         return $userId ? User::query()->find($userId) : null;
     }
 
-    protected function resetToRequest(): void
+    public function resetToRequest(): void
     {
         session()->forget('otp.login.user_id');
         $this->step = 'request';
@@ -146,9 +146,12 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
                 {{ __('general.verify_otp') }}
             </flux:button>
 
-            <div class="text-center">
+            <div class="space-y-2 text-center">
                 <flux:button type="button" variant="ghost" wire:click="resend" class="w-full">
                     {{ __('general.resend_otp') }}
+                </flux:button>
+                <flux:button type="button" variant="ghost" wire:click="resetToRequest" class="w-full">
+                    {{ __('general.change_mobile') }}
                 </flux:button>
             </div>
         </form>

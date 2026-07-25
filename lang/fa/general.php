@@ -42,6 +42,7 @@ return [
     'reset_password_hint' => 'رمز عبور جدید خود را وارد کنید.',
     'password_reset_success' => 'رمز عبور با موفقیت تغییر کرد. اکنون می‌توانید وارد شوید.',
     'back_to_login' => 'بازگشت به ورود',
+    'change_mobile' => 'تغییر شماره',
     'users' => 'کاربران',
     'create_user' => 'ایجاد کاربر',
     'edit_user' => 'ویرایش کاربر',

@@ -42,6 +42,7 @@ return [
     'reset_password_hint' => 'Enter your new password.',
     'password_reset_success' => 'Password changed successfully. You can now log in.',
     'back_to_login' => 'Back to login',
+    'change_mobile' => 'Change mobile number',
     'users' => 'Users',
     'create_user' => 'Create User',
     'edit_user' => 'Edit User',
