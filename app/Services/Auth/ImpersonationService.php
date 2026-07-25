@@ -20,14 +20,14 @@ class ImpersonationService
             abort(403);
         }
 
-        if (! $actor->can(self::PERMISSION)) {
-            abort(403);
-        }
-
         if ($this->isImpersonating()) {
             throw ValidationException::withMessages([
                 'impersonate' => __('app.already_impersonating'),
             ]);
+        }
+
+        if (! $actor->can(self::PERMISSION)) {
+            abort(403);
         }
 
         if ($actor->is($target)) {

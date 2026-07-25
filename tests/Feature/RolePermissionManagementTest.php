@@ -20,7 +20,7 @@ class RolePermissionManagementTest extends TestCase
     {
         parent::setUp();
 
-        $this->admin = User::factory()->create();
+        $this->admin = $this->makeAdministrator(User::factory()->create());
         $this->actingAs($this->admin);
     }
 
@@ -92,8 +92,8 @@ class RolePermissionManagementTest extends TestCase
     public function test_role_permissions_can_be_granted_and_revoked(): void
     {
         $role = Role::create(['name' => 'manager']);
-        $view = Permission::create(['name' => 'user-management.user.view']);
-        $edit = Permission::create(['name' => 'user-management.user.edit']);
+        $view = Permission::findOrCreate('user-management.user.view');
+        $edit = Permission::findOrCreate('user-management.user.edit');
         $role->givePermissionTo($edit);
 
         Livewire::test('user-management.role.permissions')
@@ -112,15 +112,17 @@ class RolePermissionManagementTest extends TestCase
     public function test_role_permissions_grant_all_and_revoke_all(): void
     {
         $role = Role::create(['name' => 'manager']);
-        Permission::create(['name' => 'user-management.user.view']);
-        Permission::create(['name' => 'user-management.user.edit']);
+        Permission::findOrCreate('user-management.user.view');
+        Permission::findOrCreate('user-management.user.edit');
+
+        $totalPermissions = Permission::query()->count();
 
         $component = Livewire::test('user-management.role.permissions')
             ->dispatch('panels.administrator.user-management.role.permissions.assign-data', role: $role->id)
             ->call('confirm', 'grant-all')
             ->call('apply');
 
-        $this->assertCount(2, $role->fresh()->permissions);
+        $this->assertCount($totalPermissions, $role->fresh()->permissions);
 
         $component
             ->call('confirm', 'revoke-all')

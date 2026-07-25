@@ -15,7 +15,7 @@ class ImpersonationTest extends TestCase
 
     public function test_admin_can_impersonate_user_and_leave(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->makeAdministrator(User::factory()->create());
         $target = User::factory()->create();
 
         $this->actingAs($admin);
@@ -38,7 +38,7 @@ class ImpersonationTest extends TestCase
 
     public function test_cannot_impersonate_self(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->makeAdministrator(User::factory()->create());
 
         $this->actingAs($admin);
 
@@ -49,7 +49,7 @@ class ImpersonationTest extends TestCase
 
     public function test_cannot_start_while_already_impersonating(): void
     {
-        $admin = User::factory()->create();
+        $admin = $this->makeAdministrator(User::factory()->create());
         $first = User::factory()->create();
         $second = User::factory()->create();
 
