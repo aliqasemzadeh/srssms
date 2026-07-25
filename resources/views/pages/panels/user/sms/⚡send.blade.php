@@ -17,8 +17,8 @@ new class extends Component
     #[Url]
     public string $contacts = '';
 
-    #[Url]
-    public string $groups = '';
+    #[Url(as: 'groups')]
+    public string $groupsQuery = '';
 
     public ?int $gateway_id = null;
 
@@ -49,7 +49,7 @@ new class extends Component
                 ->all();
         }
 
-        $fromGroups = collect(explode(',', $this->groups))
+        $fromGroups = collect(explode(',', $this->groupsQuery))
             ->map(fn ($id) => (int) trim($id))
             ->filter()
             ->values()
@@ -94,13 +94,13 @@ new class extends Component
     }
 
     #[Computed]
-    public function groups(): Collection
+    public function groupOptions(): Collection
     {
         return Group::query()->where('user_id', Auth::id())->orderBy('name')->get(['id', 'name']);
     }
 
     #[Computed]
-    public function tags(): Collection
+    public function tagOptions(): Collection
     {
         return Tag::query()->where('type', Contact::tagTypeFor(Auth::user()))->get();
     }
@@ -238,13 +238,13 @@ new class extends Component
             </flux:select>
 
             <flux:select wire:model.live="group_ids" variant="listbox" searchable multiple label="{{ __('general.phonebook_groups') }}" clearable>
-                @foreach ($this->groups as $group)
+                @foreach ($this->groupOptions as $group)
                     <flux:select.option value="{{ $group->id }}">{{ $group->name }}</flux:select.option>
                 @endforeach
             </flux:select>
 
             <flux:select wire:model.live="tag_ids" variant="listbox" searchable multiple label="{{ __('general.phonebook_tags') }}" clearable>
-                @foreach ($this->tags as $tag)
+                @foreach ($this->tagOptions as $tag)
                     <flux:select.option value="{{ $tag->id }}">{{ $tag->name }}</flux:select.option>
                 @endforeach
             </flux:select>
