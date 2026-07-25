@@ -49,7 +49,7 @@ class ImpersonationService
 
         $admin = User::query()->findOrFail(session(self::SESSION_KEY));
 
-        // Auth::login migrates the session and drops impersonator_id automatically.
+        session()->forget(self::SESSION_KEY);
         Auth::login($admin);
     }
 
