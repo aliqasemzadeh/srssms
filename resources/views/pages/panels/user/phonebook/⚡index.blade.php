@@ -49,7 +49,13 @@ new class extends Component
                 });
             })
             ->when($this->groupId, fn ($query) => $query->whereHas('groups', fn ($q) => $q->where('phonebook_groups.id', $this->groupId)))
-            ->when($this->tagId, fn ($query) => $query->withAnyTags([Tag::find($this->tagId)?->name], Contact::tagTypeFor(Auth::user())))
+            ->when($this->tagId, function ($query) {
+                $tag = Tag::query()->find($this->tagId);
+
+                if ($tag) {
+                    $query->withAnyTags([$tag], Contact::tagTypeFor(Auth::user()));
+                }
+            })
             ->when($this->personType, fn ($query) => $query->where('person_type', $this->personType))
             ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate(config('general.per_page', 10));
@@ -194,7 +200,7 @@ new class extends Component
                     <flux:button size="sm" variant="primary" color="sky" icon="send" wire:click="goToSendSms">
                         {{ __('general.send_sms') }}
                     </flux:button>
-                    <flux:button size="sm" variant="ghost" wire:click="clearSelection">{{ __('actions.clear') }}</flux:button>
+                    <flux:button size="sm" variant="ghost" wire:click="clearSelection">{{ __('general.clear_selection') }}</flux:button>
                 </x-slot:actions>
             </flux:callout>
         @endif

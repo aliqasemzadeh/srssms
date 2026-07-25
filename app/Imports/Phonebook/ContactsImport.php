@@ -2,12 +2,9 @@
 
 namespace App\Imports\Phonebook;
 
-use App\Enums\Phonebook\ContactGenderEnum;
-use App\Enums\Phonebook\ContactPersonTypeEnum;
 use App\Models\Phonebook\Contact;
 use App\Models\User;
 use Illuminate\Support\Collection;
-use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
