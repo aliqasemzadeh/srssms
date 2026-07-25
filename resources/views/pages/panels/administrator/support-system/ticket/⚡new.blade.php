@@ -115,26 +115,60 @@ new class extends Component
             </flux:breadcrumbs>
         </div>
 
-        <flux:card>
-            <div class="mb-4 flex flex-wrap items-end gap-3">
-                <flux:input wire:model.live.debounce.300ms="search" icon="search" placeholder="{{ __('general.search') }}..." class="max-w-xs" />
+        <flux:card class="space-y-4">
+            @php
+                $activeFilters = collect([
+                    $priority,
+                ])->filter(fn ($v) => filled($v))->count();
+            @endphp
 
-                <flux:select wire:model.live="priority" searchable placeholder="{{ __('general.ticket_priority') }}" class="max-w-xs">
-                    <flux:select.option value="">{{ __('general.ticket_priority') }}</flux:select.option>
-                    @foreach (TicketPriorityEnum::cases() as $priorityOption)
-                        <flux:select.option value="{{ $priorityOption->value }}">{{ $priorityOption->label() }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+            <div class="flex items-center gap-3">
+                <flux:input
+                    wire:model.live.debounce.300ms="search"
+                    icon="search"
+                    placeholder="{{ __('general.search') }}..."
+                    clearable
+                    class="min-w-0 flex-1 max-w-xs"
+                />
 
-                @if ($priority !== '')
-                    <flux:button size="sm" variant="ghost" wire:click="clearFilters">{{ __('general.clear_filters') }}</flux:button>
-                @endif
+                <flux:dropdown align="end" class="shrink-0 ms-auto">
+                    <flux:button
+                        icon="funnel"
+                        icon:variant="micro"
+                        icon:class="text-zinc-400"
+                    >
+                        {{ __('general.filters') }}
 
-                <div class="ms-auto">
-                    <flux:tooltip content="{{ __('general.refresh') }}">
-                        <flux:button size="sm" variant="ghost" icon="refresh-cw" wire:click="refresh" />
-                    </flux:tooltip>
-                </div>
+                        <x-slot name="iconTrailing">
+                            <flux:badge size="sm" class="-mr-1">
+                                <span class="tabular-nums">{{ $activeFilters }}</span>
+                            </flux:badge>
+                        </x-slot>
+                    </flux:button>
+
+                    <flux:popover class="w-[min(100vw-2rem,20rem)] max-h-[70vh] overflow-y-auto flex flex-col gap-4">
+                        <flux:select wire:model.live="priority" variant="listbox" searchable placeholder="{{ __('general.ticket_priority') }}..." clearable>
+                            @foreach (TicketPriorityEnum::cases() as $priorityOption)
+                                <flux:select.option value="{{ $priorityOption->value }}">{{ $priorityOption->label() }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+
+                        <flux:separator variant="subtle" />
+
+                        <flux:button
+                            variant="subtle"
+                            size="sm"
+                            class="justify-start -m-2 !px-2"
+                            wire:click="clearFilters"
+                        >
+                            {{ __('general.clear_filters') }}
+                        </flux:button>
+                    </flux:popover>
+                </flux:dropdown>
+
+                <flux:tooltip content="{{ __('general.refresh') }}">
+                    <flux:button size="sm" variant="ghost" icon="refresh-cw" wire:click="refresh" class="shrink-0" />
+                </flux:tooltip>
             </div>
 
             <flux:table :paginate="$this->tickets">
