@@ -46,16 +46,16 @@
         <div class="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(rgba(113,113,122,0.35)_1px,transparent_1px)] [background-size:18px_18px] dark:opacity-[0.2]"></div>
 
         <header class="relative z-20 border-b border-zinc-200/70 bg-white/70 backdrop-blur-md dark:border-zinc-800/70 dark:bg-zinc-950/60">
-            <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-                <a href="{{ route('home') }}" class="flex items-center gap-3">
+            <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:gap-4 sm:px-6">
+                <a href="{{ route('home') }}" class="flex min-w-0 items-center gap-3">
                     @if ($logo)
-                        <img src="{{ $logo }}" alt="{{ $siteName }}" class="h-9 w-auto object-contain" />
+                        <img src="{{ $logo }}" alt="{{ $siteName }}" class="h-9 w-auto shrink-0 object-contain" />
                     @else
-                        <span class="flex size-9 items-center justify-center rounded-lg bg-teal-600 text-xs font-bold tracking-wide text-white">
+                        <span class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-600 text-xs font-bold tracking-wide text-white">
                             {{ $shortName }}
                         </span>
                     @endif
-                    <span class="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">{{ $siteName }}</span>
+                    <span class="truncate text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">{{ $siteName }}</span>
                 </a>
 
                 <nav class="hidden items-center gap-6 text-sm text-zinc-600 dark:text-zinc-300 md:flex">
@@ -68,20 +68,48 @@
                     @endif
                 </nav>
 
-                <div class="flex items-center gap-2">
+                <div class="flex shrink-0 items-center gap-2">
                     @auth
-                        <flux:button href="{{ route('panels.administrator.dashboard.index') }}" size="sm" variant="primary" color="teal" icon="layout-dashboard">
-                            {{ __('general.administrator_panel') }}
-                        </flux:button>
-                        <flux:button href="{{ route('panels.user.dashboard.index') }}" size="sm" variant="filled" color="zinc" icon="user">
-                            {{ __('general.user_panel') }}
-                        </flux:button>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <flux:button type="submit" size="sm" variant="ghost" icon="arrow-right-start-on-rectangle">
-                                {{ __('actions.log_out') }}
+                        <div class="hidden items-center gap-2 md:flex">
+                            @if (auth()->user()->hasRole('administrator'))
+                                <flux:button href="{{ route('panels.administrator.dashboard.index') }}" size="sm" variant="primary" color="teal" icon="layout-dashboard">
+                                    {{ __('general.administrator_panel') }}
+                                </flux:button>
+                            @endif
+                            <flux:button href="{{ route('panels.user.dashboard.index') }}" size="sm" variant="filled" color="zinc" icon="user">
+                                {{ __('general.user_panel') }}
                             </flux:button>
-                        </form>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <flux:button type="submit" size="sm" variant="ghost" icon="arrow-right-start-on-rectangle">
+                                    {{ __('actions.log_out') }}
+                                </flux:button>
+                            </form>
+                        </div>
+
+                        <div class="md:hidden">
+                            <flux:dropdown align="end">
+                                <flux:button size="sm" variant="primary" color="teal" icon="menu" />
+
+                                <flux:menu>
+                                    @if (auth()->user()->hasRole('administrator'))
+                                        <flux:menu.item href="{{ route('panels.administrator.dashboard.index') }}" icon="layout-dashboard">
+                                            {{ __('general.administrator_panel') }}
+                                        </flux:menu.item>
+                                    @endif
+                                    <flux:menu.item href="{{ route('panels.user.dashboard.index') }}" icon="user">
+                                        {{ __('general.user_panel') }}
+                                    </flux:menu.item>
+                                    <flux:menu.separator />
+                                    <form method="POST" action="{{ route('logout') }}">
+                                        @csrf
+                                        <flux:menu.item type="submit" icon="arrow-right-start-on-rectangle" variant="danger">
+                                            {{ __('actions.log_out') }}
+                                        </flux:menu.item>
+                                    </form>
+                                </flux:menu>
+                            </flux:dropdown>
+                        </div>
                     @else
                         <flux:button href="{{ route('login') }}" size="sm" variant="primary" color="teal" icon="arrow-right-end-on-rectangle">
                             {{ __('general.login') }}
@@ -155,9 +183,11 @@
 
                 <div class="flex flex-wrap items-center justify-center gap-3">
                     @auth
-                        <flux:button href="{{ route('panels.administrator.dashboard.index') }}" variant="primary" color="teal" icon="layout-dashboard">
-                            {{ __('general.administrator_panel') }}
-                        </flux:button>
+                        @if (auth()->user()->hasRole('administrator'))
+                            <flux:button href="{{ route('panels.administrator.dashboard.index') }}" variant="primary" color="teal" icon="layout-dashboard">
+                                {{ __('general.administrator_panel') }}
+                            </flux:button>
+                        @endif
                         <flux:button href="{{ route('panels.user.dashboard.index') }}" variant="filled" color="zinc" icon="user">
                             {{ __('general.user_panel') }}
                         </flux:button>
