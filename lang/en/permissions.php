@@ -20,6 +20,7 @@ return [
                 'delete' => 'Delete User',
                 'import' => 'Import Users',
                 'export' => 'Export Users',
+                'impersonate' => 'Impersonate User',
             ],
             'role' => [
                 'view' => 'View Roles',
