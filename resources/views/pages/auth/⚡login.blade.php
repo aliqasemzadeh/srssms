@@ -69,6 +69,15 @@ new #[\Livewire\Attributes\Layout('layouts.auth')] class extends Component
 
         <flux:checkbox wire:model="form.remember" label="{{ __('general.remember_me') }}" />
 
+        <div class="flex flex-wrap items-center justify-between gap-2 text-sm">
+            <flux:link href="{{ route('password.request') }}" wire:navigate class="font-medium">
+                {{ __('app.forgot_password_link') }}
+            </flux:link>
+            <flux:link href="{{ route('login.otp') }}" wire:navigate class="font-medium">
+                {{ __('app.login_with_otp') }}
+            </flux:link>
+        </div>
+
         <flux:button type="submit" variant="primary" color="teal" class="w-full">
             {{ __('general.login') }}
         </flux:button>

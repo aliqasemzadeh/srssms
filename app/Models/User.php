@@ -50,6 +50,11 @@ class User extends Authenticatable
         return trim("{$this->first_name} {$this->last_name}");
     }
 
+    public function routeNotificationForSms(): ?string
+    {
+        return $this->mobile;
+    }
+
     /**
      * Soft-deleted wallets are excluded by default.
      */

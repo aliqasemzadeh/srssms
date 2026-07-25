@@ -3,7 +3,7 @@
 use Spatie\OneTimePasswords\Actions\ConsumeOneTimePasswordAction;
 use Spatie\OneTimePasswords\Actions\CreateOneTimePasswordAction;
 use Spatie\OneTimePasswords\Models\OneTimePassword;
-use Spatie\OneTimePasswords\Notifications\OneTimePasswordNotification;
+use App\Notifications\Auth\OneTimePasswordNotification;
 use Spatie\OneTimePasswords\Support\OriginInspector\DefaultOriginEnforcer;
 use Spatie\OneTimePasswords\Support\PasswordGenerators\NumericOneTimePasswordGenerator;
 
@@ -11,7 +11,7 @@ return [
     /*
      * one-time passwords should be consumed within this number of minutes
      */
-    'default_expires_in_minutes' => 2,
+    'default_expires_in_minutes' => 5,
 
     /*
      * When this setting is active, we'll delete all previous one-time passwords for
@@ -23,7 +23,7 @@ return [
      * When this option is active, we'll try to ensure that the one-time password can only
      * be consumed on the platform where it was requested on
      */
-    'enforce_same_origin' => true,
+    'enforce_same_origin' => false,
 
     /*
      * This class is responsible to enforce that the one-time password can only be consumed on
@@ -49,7 +49,7 @@ return [
      * The Livewire component will redirect successfully authenticated users
      * to this URL.
      */
-    'redirect_successful_authentication_to' => '/dashboard',
+    'redirect_successful_authentication_to' => '/',
 
     /*
      * These values are used to rate limit the number of attempts
