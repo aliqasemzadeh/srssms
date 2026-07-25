@@ -22,6 +22,8 @@ new class extends Component
     {
         $this->form->store();
 
+        app(PaymentSettings::class)->refreshCache();
+
         Flux::toast(__('general.settings_saved'));
     }
 };
