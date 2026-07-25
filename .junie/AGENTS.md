@@ -62,6 +62,7 @@ You are an expert full-stack developer working on a Laravel project. Your task i
 *   **Prices & Masking:** Use Flux UI input masking for prices, currencies, or formatted numbers (https://fluxui.dev/components/input#input-masking).
 *   **File Uploads:** Always use Flux UI's file upload component (https://fluxui.dev/components/file-upload). **Crucial constraint:** When placing a file upload inside a modal, you MUST use the **inline layout** (https://fluxui.dev/components/file-upload#inline-layout). Only use the standard/block file upload layout if the upload field is placed directly on a full Livewire page (outside of any modals).
 *   **Selects:** Use `<flux:select searchable>` for standard searchable dropdowns. Use the backend-search component for database options (https://fluxui.dev/components/select#backend-search).
+* *   **Selects:** Use `<flux:select searchable>` for standard searchable dropdowns. **CRUCIAL RULE:** The `variant="combobox"` attribute does NOT support the `searchable` feature. Never combine them. Use the backend-search component for dynamic database options (https://fluxui.dev/components/select#backend-search).
 *   **Pillbox:** Use `https://fluxui.dev/components/pillbox#searchable` for multi-select/search.
 *   **Numbers:** Use `<flux:input type="number" />`.
 *   **Dates/Times:** Use `<flux:date-picker selectable-header />` and `<flux:time-picker selectable-header />`.
