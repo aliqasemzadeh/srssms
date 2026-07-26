@@ -198,6 +198,11 @@ new class extends Component
                             <flux:table.cell>{{ $provider->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
+                                    @can('sms-management.provider.view')
+                                    <flux:tooltip content="{{ __('general.view') }}">
+                                        <flux:button size="xs" variant="primary" color="zinc" icon="eye" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.provider.detail.assign-data', { provider: {{ $provider->id }} })" />
+                                    </flux:tooltip>
+                                    @endcan
                                     @can('sms-management.provider.edit')
                                     <flux:tooltip content="{{ __('general.edit') }}">
                                         <flux:button size="xs" variant="primary" color="blue" icon="pencil" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.provider.edit.assign-data', { provider: {{ $provider->id }} })" />
@@ -219,5 +224,6 @@ new class extends Component
 
     <livewire:sms-management.provider.create :key="'provider-create'" />
     <livewire:sms-management.provider.edit :key="'provider-edit'" />
+    <livewire:sms-management.provider.detail :key="'provider-detail'" />
     <livewire:sms-management.provider.delete :key="'provider-delete'" />
 </div>

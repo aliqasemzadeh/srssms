@@ -1,8 +1,6 @@
 <?php
 
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\Sms\SendController;
-use App\Http\Controllers\SmsController;
 use App\Settings\ContactSettings;
 use App\Settings\GeneralSettings;
 use App\Settings\SocialSettings;
@@ -25,12 +23,6 @@ Route::get('/', function (
 
 Route::match(['get', 'post'], '/payment/callback/{deposit}', [PaymentController::class, 'callback'])
     ->name('payment.callback');
-
-Route::post('/sms/webhook/{provider}/{type}', [SmsController::class, 'webhook'])
-    ->name('sms.webhook');
-
-Route::match(['get', 'post'], '/api/sms/send', [SendController::class, 'send'])
-    ->name('api.sms.send');
 
 Route::middleware('auth')->group(function () {
     Route::match(['get', 'post'], '/payment/pay/{deposit}', [PaymentController::class, 'pay'])
