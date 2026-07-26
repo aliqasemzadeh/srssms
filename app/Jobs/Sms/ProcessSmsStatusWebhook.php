@@ -5,6 +5,8 @@ namespace App\Jobs\Sms;
 use App\Enums\Sms\SmsMessageStatusEnum;
 use App\Models\Sms\Message;
 use App\Models\Sms\MessageRecipient;
+use App\Services\Sms\SmsDeliveryStatusSyncer;
+use App\Services\Sms\SmsStatusMapper;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
@@ -20,13 +22,13 @@ class ProcessSmsStatusWebhook implements ShouldQueue
         public array $payload,
     ) {}
 
-    public function handle(): void
+    public function handle(SmsStatusMapper $mapper, SmsDeliveryStatusSyncer $syncer): void
     {
         $referenceId = isset($this->payload['reference_id'])
             ? (string) $this->payload['reference_id']
             : null;
         $number = isset($this->payload['number']) ? (string) $this->payload['number'] : null;
-        $status = $this->mapStatus($this->payload['status'] ?? null);
+        $status = $mapper->map($this->payload['status'] ?? null);
 
         if (! $referenceId) {
             return;
@@ -43,7 +45,7 @@ class ProcessSmsStatusWebhook implements ShouldQueue
                 'delivered_at' => $status === SmsMessageStatusEnum::Delivered ? now() : $recipient->delivered_at,
             ]);
 
-            $this->syncMessageStatus($recipient->message);
+            $syncer->syncMessageStatus($recipient->message);
 
             return;
         }
@@ -60,48 +62,5 @@ class ProcessSmsStatusWebhook implements ShouldQueue
                 ]),
             ]);
         }
-    }
-
-    protected function syncMessageStatus(?Message $message): void
-    {
-        if (! $message) {
-            return;
-        }
-
-        $statuses = $message->recipients()->pluck('status')->map(
-            fn ($status) => $status instanceof SmsMessageStatusEnum ? $status : SmsMessageStatusEnum::tryFrom((string) $status)
-        )->filter();
-
-        if ($statuses->isEmpty()) {
-            return;
-        }
-
-        if ($statuses->every(fn (SmsMessageStatusEnum $status) => $status === SmsMessageStatusEnum::Delivered)) {
-            $message->update(['status' => SmsMessageStatusEnum::Delivered]);
-
-            return;
-        }
-
-        if ($statuses->every(fn (SmsMessageStatusEnum $status) => $status === SmsMessageStatusEnum::Failed)) {
-            $message->update(['status' => SmsMessageStatusEnum::Failed]);
-
-            return;
-        }
-
-        if ($statuses->contains(SmsMessageStatusEnum::Sent) || $statuses->contains(SmsMessageStatusEnum::Delivered)) {
-            $message->update(['status' => SmsMessageStatusEnum::Sent]);
-        }
-    }
-
-    protected function mapStatus(mixed $status): SmsMessageStatusEnum
-    {
-        $value = is_numeric($status) ? (int) $status : strtolower((string) $status);
-
-        return match ($value) {
-            1, '1', 'sent', 'success' => SmsMessageStatusEnum::Sent,
-            2, '2', 'delivered', 'deliver' => SmsMessageStatusEnum::Delivered,
-            3, '3', 'failed', 'error', 'undelivered' => SmsMessageStatusEnum::Failed,
-            default => SmsMessageStatusEnum::Sent,
-        };
     }
 }

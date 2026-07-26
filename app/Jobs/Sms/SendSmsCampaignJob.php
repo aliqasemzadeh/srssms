@@ -91,6 +91,8 @@ class SendSmsCampaignJob implements ShouldQueue
         $message->save();
 
         $this->syncMessageStatus($message->fresh(['recipients']));
+
+        RefreshSmsDeliveryStatusJob::dispatch($message->id)->delay(now()->addMinutes(5));
     }
 
     protected function syncMessageStatus(Message $message): void
