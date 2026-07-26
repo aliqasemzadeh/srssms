@@ -6,23 +6,22 @@ use App\Contracts\Sms\SmsDriver;
 use App\Enums\Sms\SmsMessageStatusEnum;
 use App\Models\Sms\Gateway;
 use App\Services\Sms\SmsSendResult;
+use App\Services\Sms\SmsStatusMapper;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 
 class SabanovinDriver implements SmsDriver
 {
+    public function __construct(
+        protected SmsStatusMapper $statusMapper,
+    ) {}
+
     public function send(Gateway $gateway, array $mobiles, string $text): SmsSendResult
     {
-        $provider = $gateway->provider;
-        $apiKey = (string) $provider?->credential('api_key', '');
+        $apiKey = $this->apiKey($gateway);
 
-        if ($apiKey === '') {
-            throw new RuntimeException('Sabanovin API key is missing on the provider.');
-        }
-
-        // Do not url-encode the API key: Sabanovin keys contain ":" (e.g. sa123:token)
-        // and encoding it to %3A makes the provider return 401 invalid API key.
         $url = sprintf(
             'https://api.sabanovin.com/v1/%s/sms/send.json',
             $apiKey
@@ -36,17 +35,16 @@ class SabanovinDriver implements SmsDriver
                 ->post($url, [
                     'gateway' => $gateway->number,
                     'to' => implode(',', $mobiles),
-                    'text' => $text . PHP_EOL . "لغو 11",
+                    'text' => $text,
                 ]);
 
-            // Auditing and logging
-            \Illuminate\Support\Facades\Log::info('SMS send attempt via Sabanovin', [
+            Log::info('SMS send attempt via Sabanovin', [
                 'to' => implode(',', $mobiles),
-                'message' => $text . PHP_EOL . "لغو 11",
+                'message' => $text,
                 'response' => $response->json(),
             ]);
         } catch (ConnectionException $e) {
-            \Illuminate\Support\Facades\Log::error('Failed to send SMS: ' . $e->getMessage(), [
+            Log::error('Failed to send SMS: '.$e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);
 
@@ -56,14 +54,16 @@ class SabanovinDriver implements SmsDriver
         $json = $response->json();
 
         if (! $response->successful()) {
-            \Illuminate\Support\Facades\Log::error('Send SMS Error: ' . ($json['status']['message'] ?? 'unknown error'));
+            Log::error('Send SMS Error: '.($json['status']['message'] ?? 'unknown error'));
+
             return $this->failedAll($mobiles, $response->body(), $json);
         }
 
         $code = (int) data_get($json, 'status.code', $response->status());
 
         if ($code !== 200) {
-            \Illuminate\Support\Facades\Log::error('Send SMS Error: ' . (data_get($json, 'status.message', 'unknown error')));
+            Log::error('Send SMS Error: '.(data_get($json, 'status.message', 'unknown error')));
+
             return $this->failedAll(
                 $mobiles,
                 (string) data_get($json, 'status.message', 'Sabanovin send failed'),
@@ -78,7 +78,7 @@ class SabanovinDriver implements SmsDriver
             foreach ($entries as $entry) {
                 $recipients[] = [
                     'mobile' => (string) data_get($entry, 'mobile', data_get($entry, 'number', '')),
-                    'status' => $this->mapStatus(data_get($entry, 'status')),
+                    'status' => $this->statusMapper->mapToValue(data_get($entry, 'status')),
                     'reference_id' => data_get($entry, 'reference_id') !== null
                         ? (string) data_get($entry, 'reference_id')
                         : null,
@@ -96,7 +96,102 @@ class SabanovinDriver implements SmsDriver
             }
         }
 
+        if (($batchId = data_get($json, 'batch_id')) !== null) {
+            $json['batch_id'] = $batchId;
+        }
+
         return new SmsSendResult(success: true, recipients: $recipients, raw: $json);
+    }
+
+    public function status(Gateway $gateway, ?string $batchId = null, array $referenceIds = []): array
+    {
+        $apiKey = $this->apiKey($gateway);
+        $url = sprintf(
+            'https://api.sabanovin.com/v1/%s/sms/status.json',
+            $apiKey
+        );
+
+        $entries = [];
+        $rawResponses = [];
+
+        if (filled($batchId)) {
+            $result = $this->requestStatus($url, ['batch_id' => $batchId]);
+            $rawResponses[] = $result['raw'];
+            $entries = array_merge($entries, $result['entries']);
+        } else {
+            foreach (array_unique(array_filter($referenceIds)) as $referenceId) {
+                $result = $this->requestStatus($url, ['reference_id' => $referenceId]);
+                $rawResponses[] = $result['raw'];
+                $entries = array_merge($entries, $result['entries']);
+            }
+        }
+
+        return [
+            'entries' => $entries,
+            'raw' => count($rawResponses) === 1 ? $rawResponses[0] : $rawResponses,
+        ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $params
+     * @return array{entries: array<int, array{reference_id: ?string, mobile: ?string, status: string, datetime: ?string}>, raw: mixed}
+     */
+    protected function requestStatus(string $url, array $params): array
+    {
+        try {
+            $response = Http::withoutVerifying()
+                ->acceptJson()
+                ->timeout(30)
+                ->asForm()
+                ->post($url, $params);
+        } catch (ConnectionException $e) {
+            Log::error('Failed to fetch SMS status: '.$e->getMessage());
+
+            return ['entries' => [], 'raw' => ['error' => $e->getMessage()]];
+        }
+
+        $json = $response->json();
+        $code = (int) data_get($json, 'status.code', $response->status());
+
+        if (! $response->successful() || $code !== 200) {
+            Log::error('SMS status Error: '.(data_get($json, 'status.message', 'unknown error')));
+
+            return ['entries' => [], 'raw' => $json];
+        }
+
+        $entries = [];
+
+        foreach (data_get($json, 'entries', []) ?: [] as $entry) {
+            if (! is_array($entry)) {
+                continue;
+            }
+
+            $entries[] = [
+                'reference_id' => data_get($entry, 'reference_id') !== null
+                    ? (string) data_get($entry, 'reference_id')
+                    : null,
+                'mobile' => data_get($entry, 'number') !== null
+                    ? (string) data_get($entry, 'number')
+                    : (data_get($entry, 'mobile') !== null ? (string) data_get($entry, 'mobile') : null),
+                'status' => $this->statusMapper->mapToValue(data_get($entry, 'status')),
+                'datetime' => data_get($entry, 'datetime') !== null
+                    ? (string) data_get($entry, 'datetime')
+                    : null,
+            ];
+        }
+
+        return ['entries' => $entries, 'raw' => $json];
+    }
+
+    protected function apiKey(Gateway $gateway): string
+    {
+        $apiKey = (string) $gateway->provider?->credential('api_key', '');
+
+        if ($apiKey === '') {
+            throw new RuntimeException('Sabanovin API key is missing on the provider.');
+        }
+
+        return $apiKey;
     }
 
     /**
@@ -115,17 +210,5 @@ class SabanovinDriver implements SmsDriver
         );
 
         return new SmsSendResult(success: false, recipients: $recipients, message: $error, raw: $raw);
-    }
-
-    protected function mapStatus(mixed $status): string
-    {
-        $value = is_numeric($status) ? (int) $status : strtolower((string) $status);
-
-        return match ($value) {
-            1, '1', 'sent', 'success' => SmsMessageStatusEnum::Sent->value,
-            2, '2', 'delivered' => SmsMessageStatusEnum::Delivered->value,
-            3, '3', 'failed', 'error' => SmsMessageStatusEnum::Failed->value,
-            default => SmsMessageStatusEnum::Sent->value,
-        };
     }
 }

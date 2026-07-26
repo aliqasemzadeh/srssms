@@ -23,6 +23,7 @@ class SmsSender implements SmsSenderContract
         protected SmsManager $manager,
         protected SmsPartCounter $partCounter,
         protected SmsBillingService $billing,
+        protected SmsMessageInspector $inspector,
     ) {}
 
     public function send(string $mobile, string $message): void
@@ -160,6 +161,8 @@ class SmsSender implements SmsSenderContract
         if ($normalized->isEmpty()) {
             throw new RuntimeException(__('general.no_sms_recipients'));
         }
+
+        $this->inspector->assertContainsOptOut($text);
 
         $estimate = $this->billing->estimate($gateway, $text, $normalized->count());
         $analysis = $this->partCounter->analyze($text);

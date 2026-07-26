@@ -16,10 +16,11 @@ class SmsBillingService
 {
     public function __construct(
         protected SmsPartCounter $partCounter,
+        protected SmsMessageInspector $inspector,
     ) {}
 
     /**
-     * @return array{encoding: mixed, parts_count: int, length: int, recipients_count: int, sms_rate: int, cost: int}
+     * @return array{encoding: mixed, parts_count: int, length: int, recipients_count: int, sms_rate: int, cost: int, billing_multiplier: int, is_english: bool}
      */
     public function estimate(Gateway $gateway, string $text, int $recipientsCount): array
     {
@@ -27,6 +28,7 @@ class SmsBillingService
         $rate = (int) ($gateway->sms_rate ?: 0);
         $parts = max(1, (int) $analysis['parts_count']);
         $recipients = max(0, $recipientsCount);
+        $multiplier = $this->inspector->billingMultiplier($text);
 
         return [
             'encoding' => $analysis['encoding'],
@@ -34,7 +36,9 @@ class SmsBillingService
             'length' => $analysis['length'],
             'recipients_count' => $recipients,
             'sms_rate' => $rate,
-            'cost' => $recipients * $parts * $rate,
+            'billing_multiplier' => $multiplier,
+            'is_english' => $multiplier === 2,
+            'cost' => $recipients * $parts * $rate * $multiplier,
         ];
     }
 

@@ -35,4 +35,12 @@ class LogDriver implements SmsDriver
 
         return new SmsSendResult(success: true, recipients: $recipients);
     }
+
+    public function status(Gateway $gateway, ?string $batchId = null, array $referenceIds = []): array
+    {
+        return [
+            'entries' => [],
+            'raw' => null,
+        ];
+    }
 }
