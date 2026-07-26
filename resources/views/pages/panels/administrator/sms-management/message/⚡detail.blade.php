@@ -7,7 +7,6 @@ use App\Services\Sms\SmsSender;
 use Flux\Flux;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Throwable;
 
 new class extends Component
 {
@@ -49,7 +48,7 @@ new class extends Component
             Flux::toast(__('general.sms_resent_successfully'));
         } catch (\RuntimeException $e) {
             Flux::toast(variant: 'danger', text: $e->getMessage());
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             Flux::toast(variant: 'danger', text: __('general.sms_resend_failed'));
         }
     }
