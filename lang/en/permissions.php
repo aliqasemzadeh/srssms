@@ -122,6 +122,7 @@ return [
                 'create' => 'Create Provider',
                 'edit' => 'Edit Provider',
                 'delete' => 'Delete Provider',
+                'detail' => 'View Provider Details',
             ],
             'gateway' => [
                 'view' => 'View SMS Gateways',

@@ -17,7 +17,7 @@ new class extends Component
     #[On('panels.administrator.sms-management.provider.detail.assign-data')]
     public function assignData(int $provider): void
     {
-        $this->authorizePermission('sms-management.provider.view');
+        $this->authorizePermission('sms-management.provider.detail');
 
         $this->provider = Provider::query()->findOrFail($provider);
 

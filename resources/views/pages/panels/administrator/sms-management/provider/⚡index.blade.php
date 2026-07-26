@@ -198,7 +198,7 @@ new class extends Component
                             <flux:table.cell>{{ $provider->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
                             <flux:table.cell align="end">
                                 <div class="flex justify-end gap-2">
-                                    @can('sms-management.provider.view')
+                                    @can('sms-management.provider.detail')
                                     <flux:tooltip content="{{ __('general.view') }}">
                                         <flux:button size="xs" variant="primary" color="zinc" icon="eye" icon:variant="outline" wire:click="$dispatch('panels.administrator.sms-management.provider.detail.assign-data', { provider: {{ $provider->id }} })" />
                                     </flux:tooltip>
