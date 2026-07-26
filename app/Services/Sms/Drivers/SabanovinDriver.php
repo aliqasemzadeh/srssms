@@ -29,27 +29,41 @@ class SabanovinDriver implements SmsDriver
         );
 
         try {
-            $response = Http::asForm()
+            $response = Http::withoutVerifying()
+                ->asForm()
                 ->acceptJson()
                 ->timeout(30)
                 ->post($url, [
                     'gateway' => $gateway->number,
                     'to' => implode(',', $mobiles),
-                    'text' => $text,
+                    'text' => $text . PHP_EOL . "لغو 11",
                 ]);
+
+            // Auditing and logging
+            \Illuminate\Support\Facades\Log::info('SMS send attempt via Sabanovin', [
+                'to' => implode(',', $mobiles),
+                'message' => $text . PHP_EOL . "لغو 11",
+                'response' => $response->json(),
+            ]);
         } catch (ConnectionException $e) {
+            \Illuminate\Support\Facades\Log::error('Failed to send SMS: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
+            ]);
+
             return $this->failedAll($mobiles, $e->getMessage());
         }
 
         $json = $response->json();
 
         if (! $response->successful()) {
+            \Illuminate\Support\Facades\Log::error('Send SMS Error: ' . ($json['status']['message'] ?? 'unknown error'));
             return $this->failedAll($mobiles, $response->body(), $json);
         }
 
         $code = (int) data_get($json, 'status.code', $response->status());
 
         if ($code !== 200) {
+            \Illuminate\Support\Facades\Log::error('Send SMS Error: ' . (data_get($json, 'status.message', 'unknown error')));
             return $this->failedAll(
                 $mobiles,
                 (string) data_get($json, 'status.message', 'Sabanovin send failed'),
