@@ -4,9 +4,11 @@ use App\Models\Phonebook\Contact;
 use App\Models\Phonebook\Group;
 use App\Models\Sms\Gateway;
 use App\Services\Sms\SmsBillingService;
+use App\Services\Sms\SmsMessageInspector;
 use App\Services\Sms\SmsPartCounter;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -175,6 +177,12 @@ new class extends Component
             'body' => __('general.message_body'),
         ]);
 
+        if (! app(SmsMessageInspector::class)->containsOptOut($this->body)) {
+            throw ValidationException::withMessages([
+                'body' => __('general.sms_opt_out_required'),
+            ]);
+        }
+
         if ($this->resolvedRecipients->isEmpty()) {
             \Flux\Flux::toast(__('general.no_sms_recipients'));
 
@@ -213,6 +221,10 @@ new class extends Component
                 </flux:callout>
             @endif
 
+            <flux:callout icon="info" color="sky" variant="secondary">
+                <flux:callout.heading>{{ __('general.sms_opt_out_hint') }}</flux:callout.heading>
+            </flux:callout>
+
             <flux:select wire:model.live="gateway_id" variant="listbox" searchable label="{{ __('general.sms_gateway') }}" placeholder="{{ __('general.select_sms_gateway') }}">
                 @foreach ($this->gateways as $gateway)
                     <flux:select.option value="{{ $gateway->id }}">
@@ -223,11 +235,22 @@ new class extends Component
 
             <flux:textarea wire:model.live.debounce.300ms="body" label="{{ __('general.message_body') }}" rows="5" />
 
-            @if ($analysis = app(SmsPartCounter::class)->analyze($body ?: ' '))
+            @php
+                $inspector = app(SmsMessageInspector::class);
+                $analysis = app(SmsPartCounter::class)->analyze($body ?: ' ');
+                $isEnglish = filled($body) && $inspector->isEnglish($body);
+            @endphp
+            @if ($analysis)
                 <div class="flex flex-wrap gap-2 text-sm text-zinc-500">
                     <flux:badge size="sm" color="zinc">{{ __('general.encoding') }}: {{ $analysis['encoding']->label() }}</flux:badge>
                     <flux:badge size="sm" color="zinc">{{ __('general.parts_count') }}: {{ blank($body) ? 0 : $analysis['parts_count'] }}</flux:badge>
                     <flux:badge size="sm" color="zinc">{{ __('general.length') }}: {{ blank($body) ? 0 : $analysis['length'] }}</flux:badge>
+                    @if ($isEnglish)
+                        <flux:badge size="sm" color="amber">{{ __('general.english_sms_double_rate') }}</flux:badge>
+                    @endif
+                    @if (filled($body) && ! $inspector->containsOptOut($body))
+                        <flux:badge size="sm" color="red">{{ __('general.sms_opt_out_required') }}</flux:badge>
+                    @endif
                 </div>
             @endif
 
@@ -257,6 +280,9 @@ new class extends Component
                     <flux:text>
                         {{ __('general.estimated_cost') }}:
                         <strong>{{ number_format($this->estimate['cost']) }}</strong> {{ __('general.rial') }}
+                        @if (($this->estimate['billing_multiplier'] ?? 1) > 1)
+                            <span class="text-amber-600">(×{{ $this->estimate['billing_multiplier'] }})</span>
+                        @endif
                     </flux:text>
                 @endif
             </flux:callout>

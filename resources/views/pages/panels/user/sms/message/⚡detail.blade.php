@@ -1,6 +1,9 @@
 <?php
 
+use App\Enums\Sms\SmsDirectionEnum;
 use App\Models\Sms\Message;
+use App\Services\Sms\SmsDeliveryStatusSyncer;
+use Flux\Flux;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -8,11 +11,21 @@ new class extends Component
 {
     public Message $message;
 
-    public function mount(Message $message): void
+    public function mount(Message $message, SmsDeliveryStatusSyncer $syncer): void
     {
         abort_unless($message->user_id === Auth::id(), 404);
 
-        $this->message = $message->load(['gateway', 'recipients', 'token']);
+        $this->message = $message->load(['gateway.provider', 'recipients', 'token']);
+
+        if ($this->message->direction === SmsDirectionEnum::Outbound) {
+            $result = $syncer->sync($this->message);
+
+            $this->message = $this->message->fresh(['gateway.provider', 'recipients', 'token']);
+
+            if (! ($result['skipped'] ?? true) && ($result['updated'] ?? 0) > 0) {
+                Flux::toast(__('general.sms_status_refreshed'));
+            }
+        }
     }
 };
 ?>
@@ -87,8 +100,10 @@ new class extends Component
                 </div>
 
                 <div>
-                    <flux:text class="mb-2 text-sm opacity-70">{{ __('general.sms_message') }}</flux:text>
-                    <div class="rounded-lg border border-zinc-200 p-4 whitespace-pre-wrap dark:border-zinc-700">{{ $message->body }}</div>
+                    <flux:text class="mb-2 text-sm opacity-70">{{ __('general.final_message_preview') }}</flux:text>
+                    <div class="relative overflow-hidden rounded-2xl border border-teal-200/80 bg-gradient-to-b from-teal-50 to-white p-4 shadow-sm dark:border-teal-900/50 dark:from-teal-950/40 dark:to-zinc-900">
+                        <div class="rounded-xl bg-white/90 p-4 text-sm leading-7 text-zinc-800 shadow-inner whitespace-pre-wrap dark:bg-zinc-900/80 dark:text-zinc-100" dir="auto">{{ $message->body }}</div>
+                    </div>
                 </div>
             </flux:card>
 
@@ -100,6 +115,7 @@ new class extends Component
                         <flux:table>
                             <flux:table.columns>
                                 <flux:table.column>{{ __('general.mobile') }}</flux:table.column>
+                                <flux:table.column>{{ __('general.reference_id') }}</flux:table.column>
                                 <flux:table.column>{{ __('general.status') }}</flux:table.column>
                                 <flux:table.column>{{ __('general.error') }}</flux:table.column>
                                 <flux:table.column>{{ __('general.delivered_at') }}</flux:table.column>
@@ -108,6 +124,7 @@ new class extends Component
                                 @forelse ($message->recipients as $recipient)
                                     <flux:table.row :key="$recipient->id">
                                         <flux:table.cell><span dir="ltr">{{ $recipient->mobile }}</span></flux:table.cell>
+                                        <flux:table.cell><span dir="ltr">{{ $recipient->reference_id ?: '—' }}</span></flux:table.cell>
                                         <flux:table.cell>
                                             <flux:badge size="sm" color="{{ $recipient->status->color() }}">{{ $recipient->status->label() }}</flux:badge>
                                         </flux:table.cell>
@@ -116,7 +133,7 @@ new class extends Component
                                     </flux:table.row>
                                 @empty
                                     <flux:table.row>
-                                        <flux:table.cell colspan="4">—</flux:table.cell>
+                                        <flux:table.cell colspan="5">—</flux:table.cell>
                                     </flux:table.row>
                                 @endforelse
                             </flux:table.rows>

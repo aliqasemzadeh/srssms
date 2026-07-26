@@ -3,6 +3,7 @@
 use App\Enums\Sms\SmsDirectionEnum;
 use App\Enums\Sms\SmsMessageStatusEnum;
 use App\Models\Sms\Message;
+use App\Services\Sms\SmsDeliveryStatusSyncer;
 use App\Services\Sms\SmsSender;
 use Flux\Flux;
 use Livewire\Attributes\Computed;
@@ -12,9 +13,19 @@ new class extends Component
 {
     public Message $message;
 
-    public function mount(Message $message): void
+    public function mount(Message $message, SmsDeliveryStatusSyncer $syncer): void
     {
         $this->message = $message->load(['gateway.provider', 'user', 'recipients']);
+
+        if ($this->message->direction === SmsDirectionEnum::Outbound) {
+            $result = $syncer->sync($this->message);
+
+            $this->message = $this->message->fresh(['gateway.provider', 'user', 'recipients']);
+
+            if (! ($result['skipped'] ?? true) && ($result['updated'] ?? 0) > 0) {
+                Flux::toast(__('general.sms_status_refreshed'));
+            }
+        }
     }
 
     #[Computed]

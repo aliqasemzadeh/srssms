@@ -154,6 +154,11 @@ new class extends Component
                     @if ($this->estimate)
                         <div><span class="text-zinc-500">{{ __('general.parts_count') }}:</span> {{ $this->estimate['parts_count'] }}</div>
                         <div><span class="text-zinc-500">{{ __('general.encoding') }}:</span> {{ $this->estimate['encoding']->label() }}</div>
+                        @if ($this->estimate['is_english'] ?? false)
+                            <div>
+                                <flux:badge size="sm" color="amber">{{ __('general.english_sms_double_rate') }}</flux:badge>
+                            </div>
+                        @endif
                         <div><span class="text-zinc-500">{{ __('general.sms_rate') }}:</span> {{ number_format($this->estimate['sms_rate']) }} {{ __('general.rial') }}</div>
                         <div><span class="text-zinc-500">{{ __('general.estimated_cost') }}:</span> <strong>{{ number_format($this->estimate['cost']) }}</strong> {{ __('general.rial') }}</div>
                     @endif
@@ -163,9 +168,15 @@ new class extends Component
                     </div>
                 </div>
 
-                <div>
-                    <flux:text class="mb-2 font-medium">{{ __('general.message_body') }}</flux:text>
-                    <div class="rounded-lg border border-zinc-200 p-3 text-sm dark:border-zinc-700 whitespace-pre-wrap">{{ $body }}</div>
+                <div class="space-y-2">
+                    <flux:text class="font-medium">{{ __('general.final_message_preview') }}</flux:text>
+                    <div class="relative overflow-hidden rounded-2xl border border-teal-200/80 bg-gradient-to-b from-teal-50 to-white p-4 shadow-sm dark:border-teal-900/50 dark:from-teal-950/40 dark:to-zinc-900">
+                        <div class="mb-3 flex items-center gap-2 text-xs text-teal-700 dark:text-teal-300">
+                            <flux:icon name="message-square-text" variant="micro" />
+                            <span>{{ __('general.sms_message') }}</span>
+                        </div>
+                        <div class="rounded-xl bg-white/90 p-4 text-sm leading-7 text-zinc-800 shadow-inner whitespace-pre-wrap dark:bg-zinc-900/80 dark:text-zinc-100" dir="auto">{{ $body }}</div>
+                    </div>
                 </div>
             </div>
 
