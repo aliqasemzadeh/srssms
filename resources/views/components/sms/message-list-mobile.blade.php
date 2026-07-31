@@ -45,7 +45,7 @@
                         <span>{{ $message->created_at->toDynamicFormat($variant === 'admin' ? 'Y/m/d H:i:s' : 'Y/m/d H:i') }}</span>
 
                         @if ($variant === 'user')
-                            <span>{{ $message->parts_count }} {{ __('general.parts_count') }}</span>
+                            <span>{{ __('general.parts_count') }}: {{ $message->parts_count }}</span>
                             <span>{{ $message->cost !== null ? number_format($message->cost).' '.__('general.rial') : '—' }}</span>
                         @elseif ($message->user)
                             <span>{{ $message->user->full_name }}</span>
