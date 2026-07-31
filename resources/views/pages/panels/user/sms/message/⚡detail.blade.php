@@ -41,9 +41,17 @@ new class extends Component
                 <flux:breadcrumbs.item>#{{ $message->id }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <flux:button variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.user.sms.message.index') }}" wire:navigate>
-                {{ __('general.sms_messages') }}
-            </flux:button>
+            <div class="sm:hidden shrink-0">
+                <flux:tooltip content="{{ __('general.sms_messages') }}">
+                    <flux:button variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.user.sms.message.index') }}" wire:navigate />
+                </flux:tooltip>
+            </div>
+
+            <div class="hidden sm:block shrink-0">
+                <flux:button variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.user.sms.message.index') }}" wire:navigate>
+                    {{ __('general.sms_messages') }}
+                </flux:button>
+            </div>
         </div>
 
         <div class="grid gap-6 lg:grid-cols-2">
@@ -112,32 +120,36 @@ new class extends Component
                     <flux:card class="space-y-4">
                         <flux:heading size="lg">{{ __('general.recipients') }}</flux:heading>
 
-                        <flux:table>
-                            <flux:table.columns>
-                                <flux:table.column>{{ __('general.mobile') }}</flux:table.column>
-                                <flux:table.column>{{ __('general.reference_id') }}</flux:table.column>
-                                <flux:table.column>{{ __('general.status') }}</flux:table.column>
-                                <flux:table.column>{{ __('general.error') }}</flux:table.column>
-                                <flux:table.column>{{ __('general.delivered_at') }}</flux:table.column>
-                            </flux:table.columns>
-                            <flux:table.rows>
-                                @forelse ($message->recipients as $recipient)
-                                    <flux:table.row :key="$recipient->id">
-                                        <flux:table.cell><span dir="ltr">{{ $recipient->mobile }}</span></flux:table.cell>
-                                        <flux:table.cell><span dir="ltr">{{ $recipient->reference_id ?: '—' }}</span></flux:table.cell>
-                                        <flux:table.cell>
-                                            <flux:badge size="sm" color="{{ $recipient->status->color() }}">{{ $recipient->status->label() }}</flux:badge>
-                                        </flux:table.cell>
-                                        <flux:table.cell>{{ $recipient->error ?: '—' }}</flux:table.cell>
-                                        <flux:table.cell>{{ $recipient->delivered_at?->toDynamicFormat('Y/m/d H:i') ?: '—' }}</flux:table.cell>
-                                    </flux:table.row>
-                                @empty
-                                    <flux:table.row>
-                                        <flux:table.cell colspan="5">—</flux:table.cell>
-                                    </flux:table.row>
-                                @endforelse
-                            </flux:table.rows>
-                        </flux:table>
+                        <x-sms.recipient-list-mobile :recipients="$message->recipients" extended />
+
+                        <div class="hidden md:block">
+                            <flux:table>
+                                <flux:table.columns>
+                                    <flux:table.column>{{ __('general.mobile') }}</flux:table.column>
+                                    <flux:table.column>{{ __('general.reference_id') }}</flux:table.column>
+                                    <flux:table.column>{{ __('general.status') }}</flux:table.column>
+                                    <flux:table.column>{{ __('general.error') }}</flux:table.column>
+                                    <flux:table.column>{{ __('general.delivered_at') }}</flux:table.column>
+                                </flux:table.columns>
+                                <flux:table.rows>
+                                    @forelse ($message->recipients as $recipient)
+                                        <flux:table.row :key="$recipient->id">
+                                            <flux:table.cell><span dir="ltr">{{ $recipient->mobile }}</span></flux:table.cell>
+                                            <flux:table.cell><span dir="ltr">{{ $recipient->reference_id ?: '—' }}</span></flux:table.cell>
+                                            <flux:table.cell>
+                                                <flux:badge size="sm" color="{{ $recipient->status->color() }}">{{ $recipient->status->label() }}</flux:badge>
+                                            </flux:table.cell>
+                                            <flux:table.cell>{{ $recipient->error ?: '—' }}</flux:table.cell>
+                                            <flux:table.cell>{{ $recipient->delivered_at?->toDynamicFormat('Y/m/d H:i') ?: '—' }}</flux:table.cell>
+                                        </flux:table.row>
+                                    @empty
+                                        <flux:table.row>
+                                            <flux:table.cell colspan="5">—</flux:table.cell>
+                                        </flux:table.row>
+                                    @endforelse
+                                </flux:table.rows>
+                            </flux:table>
+                        </div>
                     </flux:card>
                 @endif
             </div>
