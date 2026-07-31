@@ -800,4 +800,9 @@ return [
     'article_tag_created' => 'تگ با موفقیت ایجاد شد.',
     'create_article_tag' => 'ایجاد',
     'search_article_tags' => 'جستجو یا ایجاد تگ...',
+
+    'sms_gateways_count' => 'تعداد خطوط پیامکی',
+    'total_wallet_balance' => 'مجموع موجودی کیف پول‌ها',
+    'unanswered_tickets' => 'تیکت‌های بی‌پاسخ',
+    'quick_access' => 'دسترسی سریع',
 ];

@@ -801,4 +801,9 @@ return [
     'article_tag_created' => 'Tag created successfully.',
     'create_article_tag' => 'Create',
     'search_article_tags' => 'Search or create a tag...',
+
+    'sms_gateways_count' => 'SMS Gateways Count',
+    'total_wallet_balance' => 'Total Wallet Balance',
+    'unanswered_tickets' => 'Unanswered Tickets',
+    'quick_access' => 'Quick Access',
 ];
