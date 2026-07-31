@@ -78,10 +78,22 @@ new class extends Component
                 <flux:breadcrumbs.item>#{{ $message->id }}</flux:breadcrumbs.item>
             </flux:breadcrumbs>
 
-            <div class="flex flex-wrap items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
                 @if ($this->canResend)
                     <flux:tooltip content="{{ __('general.resend_sms') }}">
                         <flux:button
+                            class="sm:hidden"
+                            variant="primary"
+                            color="orange"
+                            icon="refresh-cw"
+                            wire:click="resend"
+                            wire:confirm="{{ __('general.are_you_sure') }}"
+                        />
+                    </flux:tooltip>
+
+                    <flux:tooltip content="{{ __('general.resend_sms') }}">
+                        <flux:button
+                            class="hidden sm:inline-flex"
                             variant="primary"
                             color="orange"
                             icon="refresh-cw"
@@ -93,7 +105,11 @@ new class extends Component
                     </flux:tooltip>
                 @endif
 
-                <flux:button variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.administrator.sms-management.message.index') }}" wire:navigate>
+                <flux:tooltip content="{{ __('general.sms_messages') }}">
+                    <flux:button class="sm:hidden" variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.administrator.sms-management.message.index') }}" wire:navigate />
+                </flux:tooltip>
+
+                <flux:button class="hidden sm:inline-flex" variant="primary" color="zinc" icon="arrow-right" href="{{ route('panels.administrator.sms-management.message.index') }}" wire:navigate>
                     {{ __('general.sms_messages') }}
                 </flux:button>
             </div>
@@ -157,28 +173,32 @@ new class extends Component
                     <flux:card class="space-y-4">
                         <flux:heading size="lg">{{ __('general.recipients') }}</flux:heading>
 
-                        <flux:table>
-                            <flux:table.columns>
-                                <flux:table.column>{{ __('general.mobile') }}</flux:table.column>
-                                <flux:table.column>{{ __('general.status') }}</flux:table.column>
-                                <flux:table.column>{{ __('general.reference_id') }}</flux:table.column>
-                            </flux:table.columns>
-                            <flux:table.rows>
-                                @forelse ($message->recipients as $recipient)
-                                    <flux:table.row :key="$recipient->id">
-                                        <flux:table.cell><span dir="ltr">{{ $recipient->mobile }}</span></flux:table.cell>
-                                        <flux:table.cell>
-                                            <flux:badge size="sm" color="{{ $recipient->status->color() }}">{{ $recipient->status->label() }}</flux:badge>
-                                        </flux:table.cell>
-                                        <flux:table.cell><span dir="ltr">{{ $recipient->reference_id ?: '—' }}</span></flux:table.cell>
-                                    </flux:table.row>
-                                @empty
-                                    <flux:table.row>
-                                        <flux:table.cell colspan="3">—</flux:table.cell>
-                                    </flux:table.row>
-                                @endforelse
-                            </flux:table.rows>
-                        </flux:table>
+                        <x-sms.recipient-list-mobile :recipients="$message->recipients" />
+
+                        <div class="hidden md:block">
+                            <flux:table>
+                                <flux:table.columns>
+                                    <flux:table.column>{{ __('general.mobile') }}</flux:table.column>
+                                    <flux:table.column>{{ __('general.status') }}</flux:table.column>
+                                    <flux:table.column>{{ __('general.reference_id') }}</flux:table.column>
+                                </flux:table.columns>
+                                <flux:table.rows>
+                                    @forelse ($message->recipients as $recipient)
+                                        <flux:table.row :key="$recipient->id">
+                                            <flux:table.cell><span dir="ltr">{{ $recipient->mobile }}</span></flux:table.cell>
+                                            <flux:table.cell>
+                                                <flux:badge size="sm" color="{{ $recipient->status->color() }}">{{ $recipient->status->label() }}</flux:badge>
+                                            </flux:table.cell>
+                                            <flux:table.cell><span dir="ltr">{{ $recipient->reference_id ?: '—' }}</span></flux:table.cell>
+                                        </flux:table.row>
+                                    @empty
+                                        <flux:table.row>
+                                            <flux:table.cell colspan="3">—</flux:table.cell>
+                                        </flux:table.row>
+                                    @endforelse
+                                </flux:table.rows>
+                            </flux:table>
+                        </div>
                     </flux:card>
                 @endif
 
