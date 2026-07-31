@@ -1,58 +1,200 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SRSSMS
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+SMS platform for sending messages, managing contacts, wallets, and gateways — with separate administrator and user panels.
 
-## About Laravel
+Built for Persian (Farsi) locales with Jalali dates, OTP login, prepaid wallets, and a token-based SMS API.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Administrator panel
+- **User management** — users, roles, permissions, impersonation, wallets, deposits, withdrawals
+- **Finance** — currencies, wallets, transactions, deposits, withdrawals, payment gateways & settings
+- **SMS** — providers, gateways, gateway–user assignment, messages, SMS settings
+- **System** — general/site settings, system functions, backups
+- **Support** — ticket inbox and replies
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### User panel
+- **SMS** — compose & send, message history, API tokens, docs & samples, request logs
+- **Phonebook** — contacts, groups, tags, notes
+- **Wallet** — balance, charge (online payment), transaction history
+- **Support** — create and track tickets
+- **Settings** — profile and password
 
-## Learning Laravel
+### Platform
+- Public welcome / landing page (configurable)
+- Auth: login, register, OTP, forget password
+- SMS send API (`/api/sms/send`) and provider webhooks
+- Online payment callback for wallet deposits
+- Spatie permissions, Excel import/export, log viewer, database backups
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Tech stack
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| Layer | Technology |
+| --- | --- |
+| Backend | PHP 8.3+, Laravel 13 |
+| UI | Livewire 4 (SFC pages), Flux UI / Flux Pro, Tailwind CSS 4, Alpine.js |
+| Auth & access | Spatie Laravel Permission, one-time passwords (OTP) |
+| Dates | morilog/jalali, FluxUI Persian date picker |
+| Validation | sadegh19b/laravel-persian-validation |
+| Payments | shetabit/payment |
+| SMS drivers | Log (dev), Sabanovin |
+| Data | MySQL, Redis (cache + queue) |
+| Other | Maatwebsite Excel, Spatie Settings / Backup / Tags, Vazirmatn font |
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+## Requirements
 
-## Agentic Development
+- PHP 8.3+ with extensions required by Laravel
+- Composer 2
+- Node.js 20+ (npm)
+- MySQL 8+
+- Redis (queue and cache)
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Installation
 
 ```bash
-composer require laravel/boost --dev
+git clone <repository-url> srssms
+cd srssms
 
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Configure `.env` (at minimum):
 
-## Contributing
+```env
+APP_NAME=SRSSMS
+APP_URL=http://localhost:8000
+APP_LOCALE=fa
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=srssms
+DB_USERNAME=root
+DB_PASSWORD=
 
-## Code of Conduct
+QUEUE_CONNECTION=redis
+CACHE_STORE=redis
+REDIS_HOST=127.0.0.1
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+SMS_DRIVER=log
+```
 
-## Security Vulnerabilities
+Then:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+php artisan migrate
+npm install
+npm run build
+php artisan storage:link
+```
+
+Or use the Composer setup script (installs deps, `.env`, key, migrate, npm build):
+
+```bash
+composer setup
+```
+
+## Development
+
+Run the app, queue worker, logs, and Vite together:
+
+```bash
+composer dev
+```
+
+Equivalent pieces separately:
+
+```bash
+php artisan serve
+php artisan queue:listen --tries=1
+npm run dev
+```
+
+Tests:
+
+```bash
+composer test
+# or
+php artisan test
+```
+
+Code style:
+
+```bash
+vendor/bin/pint
+```
+
+## Panels & URLs
+
+| Area | Path |
+| --- | --- |
+| Home | `/` |
+| Login / Register / OTP | `/login`, `/register`, `/otp` |
+| Admin dashboard | `/panels/administrator/dashboard` |
+| User dashboard | `/panels/user/dashboard` |
+| SMS API | `POST/GET /api/sms/send` |
+| SMS webhook | `POST /api/sms/webhook/{provider}/{type}` |
+| Payment | `/payment/pay/{deposit}`, `/payment/callback/{deposit}` |
+
+Administrator routes are guarded by the `administrator` middleware and Spatie permissions (e.g. `sms-management.message.view`).
+
+## Project structure
+
+```
+app/
+  Enums/              Domain enums (SMS, finance, …)
+  Http/Controllers/   Payments, SMS API & webhooks
+  Jobs/               Queued SMS work
+  Livewire/Forms/     Livewire form objects
+  Models/             User, Finance, Sms, Phonebook, Support
+  Services/           Auth, Permission, SMS drivers
+  Settings/           Spatie settings (general, SMS, payment, …)
+resources/views/
+  pages/              Livewire SFC pages (`pages::…`)
+    auth/
+    panels/administrator/
+    panels/user/
+lang/
+  fa/                 Persian translations (app, permissions, …)
+  en/
+routes/
+  web.php             Panels & payment
+  auth.php            Auth routes
+  api.php             SMS API & webhooks
+```
+
+Conventions used in this project:
+
+- Livewire **single-file components** under `resources/views/pages` (`pages::` namespace)
+- Create/edit via **Flux flyout modals** (`position="right"`)
+- Tables with search/filters; toast feedback after actions
+- Permissions defined and labeled in `lang/fa/permissions.php` and `lang/en/permissions.php`
+- User-facing strings in `lang/fa/app.php` (and related lang files)
+
+## SMS API (overview)
+
+Authenticated clients send SMS via API tokens managed in the user panel (`/panels/user/sms/tokens`), with docs and samples at:
+
+- `/panels/user/sms/tokens/doc`
+- `/panels/user/sms/tokens/sample`
+
+Webhook endpoint for delivery/status callbacks:
+
+```text
+POST /api/sms/webhook/{provider}/{type}
+```
+
+Set `SMS_DRIVER=log` locally; configure real providers/gateways in the administrator SMS management UI.
+
+## Configuration notes
+
+- **Locale**: set `APP_LOCALE=fa` for Persian UI; Jalali dates are used throughout.
+- **Queue**: SMS and related jobs expect Redis — run a worker (`composer dev` or `queue:listen`).
+- **Payments**: configure gateways under administrator finance payment settings.
+- **Site content**: general, welcome, contact, and social settings live under system management.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+MIT
