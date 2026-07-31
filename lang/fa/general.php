@@ -786,4 +786,18 @@ return [
         'high' => 'زیاد',
         'urgent' => 'فوری',
     ],
+
+    'content_management' => 'مدیریت محتوا',
+    'article' => 'مقاله',
+    'articles' => 'مقالات',
+    'article_title' => 'عنوان خبر',
+    'article_content' => 'متن کامل خبر',
+    'article_tags' => 'تگ‌ها',
+    'article_author' => 'نویسنده',
+    'article_created' => 'مقاله با موفقیت ایجاد شد.',
+    'article_updated' => 'مقاله با موفقیت به‌روزرسانی شد.',
+    'article_deleted' => 'مقاله با موفقیت حذف شد.',
+    'article_tag_created' => 'تگ با موفقیت ایجاد شد.',
+    'create_article_tag' => 'ایجاد',
+    'search_article_tags' => 'جستجو یا ایجاد تگ...',
 ];

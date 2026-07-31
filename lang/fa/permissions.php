@@ -116,6 +116,14 @@ return [
                 'delete' => 'حذف تیکت‌ها',
             ],
         ],
+        'content-management' => [
+            'article' => [
+                'view' => 'مشاهده مقالات',
+                'create' => 'ایجاد مقاله',
+                'edit' => 'ویرایش مقاله',
+                'delete' => 'حذف مقاله',
+            ],
+        ],
         'sms-management' => [
             'provider' => [
                 'view' => 'مشاهده پروایدرها',

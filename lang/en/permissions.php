@@ -116,6 +116,14 @@ return [
                 'delete' => 'Delete Tickets',
             ],
         ],
+        'content-management' => [
+            'article' => [
+                'view' => 'View Articles',
+                'create' => 'Create Article',
+                'edit' => 'Edit Article',
+                'delete' => 'Delete Article',
+            ],
+        ],
         'sms-management' => [
             'provider' => [
                 'view' => 'View Providers',

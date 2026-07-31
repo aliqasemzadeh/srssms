@@ -173,6 +173,31 @@
         @endcanany
 
         @canany([
+            'content-management.article.view',
+        ])
+            <div
+                data-sidebar-menu-group
+                data-sidebar-menu-heading="{{ __('general.content_management') }}"
+                x-show="matches($el)"
+                x-cloak
+            >
+                <flux:sidebar.group
+                    expandable
+                    icon="scroll-text"
+                    heading="{{ __('general.content_management') }}"
+                    class="grid"
+                    :expanded="request()->routeIs('panels.administrator.content-management.*')"
+                >
+                    @can('content-management.article.view')
+                        <div x-show="showItem($el)" x-cloak>
+                            <flux:sidebar.item href="{{ route('panels.administrator.content-management.article.index') }}" :current="request()->routeIs('panels.administrator.content-management.article.*')" wire:navigate>{{ __('general.articles') }}</flux:sidebar.item>
+                        </div>
+                    @endcan
+                </flux:sidebar.group>
+            </div>
+        @endcanany
+
+        @canany([
             'system-management.setting.view',
             'system-management.function.view',
             'system-management.backup.view',

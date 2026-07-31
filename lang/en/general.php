@@ -787,4 +787,18 @@ return [
         'high' => 'High',
         'urgent' => 'Urgent',
     ],
+
+    'content_management' => 'Content Management',
+    'article' => 'Article',
+    'articles' => 'Articles',
+    'article_title' => 'Title',
+    'article_content' => 'Content',
+    'article_tags' => 'Tags',
+    'article_author' => 'Author',
+    'article_created' => 'Article created successfully.',
+    'article_updated' => 'Article updated successfully.',
+    'article_deleted' => 'Article deleted successfully.',
+    'article_tag_created' => 'Tag created successfully.',
+    'create_article_tag' => 'Create',
+    'search_article_tags' => 'Search or create a tag...',
 ];

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Content\Article;
 use App\Models\Finance\Deposit;
 use App\Models\Finance\Wallet;
 use App\Models\Finance\Withdrawal;
@@ -120,5 +121,10 @@ class User extends Authenticatable
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    public function articles(): HasMany
+    {
+        return $this->hasMany(Article::class);
     }
 }

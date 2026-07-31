@@ -146,6 +146,11 @@ Route::middleware('auth')->group(function () {
             Route::livewire('/panels/administrator/support-system/tickets/{ticket}', 'pages::panels.administrator.support-system.ticket.view')
                 ->name('panels.administrator.support-system.ticket.view');
         });
+
+        Route::middleware('permission:content-management.article.view')->group(function () {
+            Route::livewire('/panels/administrator/content-management/articles', 'pages::panels.administrator.content-management.article.index')
+                ->name('panels.administrator.content-management.article.index');
+        });
     });
 
     // User Panel
