@@ -175,42 +175,52 @@ new class extends Component
                 </flux:dropdown>
             </div>
 
-            <flux:table :paginate="$this->messages">
-                <flux:table.columns>
-                    <flux:table.column>{{ __('general.direction') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.number') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.sms_gateway') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.parts_count') }}</flux:table.column>
-                    <flux:table.column>{{ __('general.status') }}</flux:table.column>
-                    <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">{{ __('general.created_at') }}</flux:table.column>
-                    <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
-                </flux:table.columns>
+            <x-sms.message-list-mobile
+                :messages="$this->messages"
+                detail-route="panels.administrator.sms-management.message.detail"
+                variant="admin"
+            />
 
-                <flux:table.rows>
-                    @foreach ($this->messages as $message)
-                        <flux:table.row :key="$message->id">
-                            <flux:table.cell>
-                                <flux:badge size="sm" color="{{ $message->direction->color() }}">{{ $message->direction->label() }}</flux:badge>
-                            </flux:table.cell>
-                            <flux:table.cell><span dir="ltr">{{ $message->number }}</span></flux:table.cell>
-                            <flux:table.cell>{{ $message->gateway?->title }}</flux:table.cell>
-                            <flux:table.cell>
-                                <flux:badge size="sm" color="zinc">{{ $message->parts_count }}</flux:badge>
-                                <flux:badge size="sm" color="sky" class="ms-1">{{ $message->encoding->label() }}</flux:badge>
-                            </flux:table.cell>
-                            <flux:table.cell>
-                                <flux:badge size="sm" color="{{ $message->status->color() }}">{{ $message->status->label() }}</flux:badge>
-                            </flux:table.cell>
-                            <flux:table.cell>{{ $message->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
-                            <flux:table.cell align="end">
-                                <flux:tooltip content="{{ __('general.message_details') }}">
-                                    <flux:button size="xs" variant="primary" color="cyan" icon="eye" icon:variant="outline" href="{{ route('panels.administrator.sms-management.message.detail', $message) }}" wire:navigate />
-                                </flux:tooltip>
-                            </flux:table.cell>
-                        </flux:table.row>
-                    @endforeach
-                </flux:table.rows>
-            </flux:table>
+            <div class="hidden md:block">
+                <flux:table>
+                    <flux:table.columns>
+                        <flux:table.column>{{ __('general.direction') }}</flux:table.column>
+                        <flux:table.column>{{ __('general.number') }}</flux:table.column>
+                        <flux:table.column>{{ __('general.sms_gateway') }}</flux:table.column>
+                        <flux:table.column>{{ __('general.parts_count') }}</flux:table.column>
+                        <flux:table.column>{{ __('general.status') }}</flux:table.column>
+                        <flux:table.column sortable :sorted="$sortBy === 'created_at'" :direction="$sortDirection" wire:click="sort('created_at')">{{ __('general.created_at') }}</flux:table.column>
+                        <flux:table.column align="end">{{ __('general.actions') }}</flux:table.column>
+                    </flux:table.columns>
+
+                    <flux:table.rows>
+                        @foreach ($this->messages as $message)
+                            <flux:table.row :key="$message->id">
+                                <flux:table.cell>
+                                    <flux:badge size="sm" color="{{ $message->direction->color() }}">{{ $message->direction->label() }}</flux:badge>
+                                </flux:table.cell>
+                                <flux:table.cell><span dir="ltr">{{ $message->number }}</span></flux:table.cell>
+                                <flux:table.cell>{{ $message->gateway?->title }}</flux:table.cell>
+                                <flux:table.cell>
+                                    <flux:badge size="sm" color="zinc">{{ $message->parts_count }}</flux:badge>
+                                    <flux:badge size="sm" color="sky" class="ms-1">{{ $message->encoding->label() }}</flux:badge>
+                                </flux:table.cell>
+                                <flux:table.cell>
+                                    <flux:badge size="sm" color="{{ $message->status->color() }}">{{ $message->status->label() }}</flux:badge>
+                                </flux:table.cell>
+                                <flux:table.cell>{{ $message->created_at->toDynamicFormat('Y/m/d H:i:s') }}</flux:table.cell>
+                                <flux:table.cell align="end">
+                                    <flux:tooltip content="{{ __('general.message_details') }}">
+                                        <flux:button size="xs" variant="primary" color="cyan" icon="eye" icon:variant="outline" href="{{ route('panels.administrator.sms-management.message.detail', $message) }}" wire:navigate />
+                                    </flux:tooltip>
+                                </flux:table.cell>
+                            </flux:table.row>
+                        @endforeach
+                    </flux:table.rows>
+                </flux:table>
+            </div>
+
+            <flux:pagination :paginator="$this->messages" />
         </flux:card>
     </div>
 </div>
