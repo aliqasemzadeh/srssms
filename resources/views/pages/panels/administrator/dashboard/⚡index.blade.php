@@ -9,7 +9,6 @@ use App\Settings\SmsSettings;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use Throwable;
 
 new class extends Component
 {
@@ -44,7 +43,7 @@ new class extends Component
         return Cache::remember('admin.dashboard.wallet_balance', self::CACHE_TTL, function (): array {
             try {
                 $currencyId = app(SmsSettings::class)->billing_currency_id;
-            } catch (Throwable) {
+            } catch (\Throwable) {
                 $currencyId = null;
             }
 
