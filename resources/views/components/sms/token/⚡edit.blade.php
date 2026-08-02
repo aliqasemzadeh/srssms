@@ -47,10 +47,14 @@ new class extends Component
     <form wire:submit="save" class="space-y-6">
         @if ($form->token)
             <div class="space-y-2">
-                <flux:text class="text-sm opacity-70">{{ __('general.sms_token_value') }}</flux:text>
-                <div class="break-all rounded-lg border border-zinc-200 p-3 font-mono text-sm dark:border-zinc-700" dir="ltr">
-                    {{ $form->token->token }}
-                </div>
+                <flux:input
+                    :value="$form->token->token"
+                    label="{{ __('general.sms_token_value') }}"
+                    readonly
+                    copyable
+                    input:class="text-left font-mono"
+                    dir="ltr"
+                />
                 <flux:button
                     type="button"
                     size="sm"

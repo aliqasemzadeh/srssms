@@ -47,12 +47,14 @@ new class extends Component
     </div>
 
     @if ($createdToken)
-        <flux:callout icon="key" variant="success">
-            <flux:callout.heading>{{ __('general.sms_token_value') }}</flux:callout.heading>
-            <flux:callout.text>
-                <span class="break-all font-mono" dir="ltr">{{ $createdToken }}</span>
-            </flux:callout.text>
-        </flux:callout>
+        <flux:input
+            :value="$createdToken"
+            label="{{ __('general.sms_token_value') }}"
+            readonly
+            copyable
+            input:class="text-left font-mono"
+            dir="ltr"
+        />
         <flux:button variant="primary" color="zinc" class="w-full" wire:click="closeCreated">
             {{ __('actions.close') }}
         </flux:button>
