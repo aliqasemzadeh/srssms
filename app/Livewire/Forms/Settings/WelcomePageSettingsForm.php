@@ -21,6 +21,9 @@ class WelcomePageSettingsForm extends Form
     /** @var array<int, array<string, string>> */
     public array $features = [];
 
+    /** @var array<int, array<string, string>> */
+    public array $tariffs = [];
+
     public function setSettings(WelcomePageSettings $settings): void
     {
         $this->hero_subtitle = $settings->hero_subtitle;
@@ -29,6 +32,7 @@ class WelcomePageSettingsForm extends Form
         $this->typewriter_delete_delay = $settings->typewriter_delete_delay;
         $this->typewriter_pause_delay = $settings->typewriter_pause_delay;
         $this->features = $settings->features;
+        $this->tariffs = $settings->tariffs;
     }
 
     public function rules(): array
@@ -44,6 +48,11 @@ class WelcomePageSettingsForm extends Form
             'features.*.title' => ['required', 'string', 'max:120'],
             'features.*.description' => ['required', 'string', 'max:500'],
             'features.*.icon' => ['required', 'string', 'max:60'],
+            'tariffs' => ['required', 'array', 'min:1'],
+            'tariffs.*.name' => ['required', 'string', 'max:120'],
+            'tariffs.*.price' => ['required', 'string', 'max:20'],
+            'tariffs.*.unit' => ['required', 'string', 'max:60'],
+            'tariffs.*.description' => ['nullable', 'string', 'max:500'],
         ];
     }
 
@@ -68,6 +77,15 @@ class WelcomePageSettingsForm extends Form
                 'icon' => trim($feature['icon']),
             ],
             $this->features
+        ));
+        $settings->tariffs = array_values(array_map(
+            fn (array $tariff) => [
+                'name' => trim($tariff['name']),
+                'price' => trim($tariff['price']),
+                'unit' => trim($tariff['unit']),
+                'description' => trim($tariff['description'] ?? ''),
+            ],
+            $this->tariffs
         ));
 
         $settings->save();

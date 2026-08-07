@@ -128,7 +128,15 @@ new class extends Component
                         <flux:table.row :key="$token->id">
                             <flux:table.cell variant="strong">{{ $token->name }}</flux:table.cell>
                             <flux:table.cell>
-                                <span class="font-mono text-xs" dir="ltr">{{ \Illuminate\Support\Str::limit($token->token, 16) }}</span>
+                                <flux:input
+                                    :value="$token->token"
+                                    size="sm"
+                                    readonly
+                                    copyable
+                                    variant="filled"
+                                    input:class="text-left font-mono text-xs"
+                                    dir="ltr"
+                                />
                             </flux:table.cell>
                             <flux:table.cell>
                                 @php($ips = $token->allowed_ips ?? [])

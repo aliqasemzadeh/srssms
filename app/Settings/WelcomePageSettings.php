@@ -19,6 +19,8 @@ class WelcomePageSettings extends Settings
 
     public array $features;
 
+    public array $tariffs;
+
     public static function group(): string
     {
         return 'welcome_page';

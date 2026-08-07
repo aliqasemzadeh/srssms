@@ -60,6 +60,9 @@
 
                 <nav class="hidden items-center gap-6 text-sm text-zinc-600 dark:text-zinc-300 md:flex">
                     <a href="#features" class="transition hover:text-teal-700 dark:hover:text-teal-300">{{ __('general.nav_features') }}</a>
+                    @if (! empty($welcome->tariffs))
+                        <a href="#tariffs" class="transition hover:text-teal-700 dark:hover:text-teal-300">{{ __('general.welcome_tariffs') }}</a>
+                    @endif
                     @if ($hasContact)
                         <a href="#contact" class="transition hover:text-teal-700 dark:hover:text-teal-300">{{ __('general.nav_contact') }}</a>
                     @endif
@@ -100,6 +103,14 @@
                                     <flux:menu.item href="{{ route('panels.user.dashboard.index') }}" icon="user">
                                         {{ __('general.user_panel') }}
                                     </flux:menu.item>
+                                    <flux:menu.separator />
+                                    <flux:menu.item href="#features" icon="sparkles">{{ __('general.nav_features') }}</flux:menu.item>
+                                    @if (! empty($welcome->tariffs))
+                                        <flux:menu.item href="#tariffs" icon="banknote">{{ __('general.welcome_tariffs') }}</flux:menu.item>
+                                    @endif
+                                    @if ($hasContact)
+                                        <flux:menu.item href="#contact" icon="phone">{{ __('general.nav_contact') }}</flux:menu.item>
+                                    @endif
                                     <flux:menu.separator />
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
@@ -218,6 +229,35 @@
                     </div>
                 </div>
             </section>
+
+            @if (! empty($welcome->tariffs))
+                <section id="tariffs" class="scroll-mt-24 border-t border-zinc-200/80 py-20 dark:border-zinc-800/80">
+                    <div class="mx-auto max-w-6xl px-4 sm:px-6">
+                        <div class="mb-12">
+                            <flux:heading size="xl">{{ __('general.welcome_tariffs') }}</flux:heading>
+                        </div>
+
+                        <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            @foreach ($welcome->tariffs as $index => $tariff)
+                                <flux:card class="flex flex-col justify-between space-y-4 text-center">
+                                    <div class="space-y-2">
+                                        <flux:heading size="lg">{{ $tariff['name'] ?? '' }}</flux:heading>
+                                        @if (! empty($tariff['description']))
+                                            <flux:text class="text-zinc-600 dark:text-zinc-400">{{ $tariff['description'] }}</flux:text>
+                                        @endif
+                                    </div>
+                                    <div class="space-y-1">
+                                        <div class="flex items-baseline justify-center gap-1">
+                                            <span class="text-3xl font-bold text-teal-600 dark:text-teal-400">{{ number_format((float) ($tariff['price'] ?? 0)) }}</span>
+                                            <span class="text-sm text-zinc-500">{{ $tariff['unit'] ?? '' }}</span>
+                                        </div>
+                                    </div>
+                                </flux:card>
+                            @endforeach
+                        </div>
+                    </div>
+                </section>
+            @endif
 
             @if ($hasContact)
                 <section id="contact" class="scroll-mt-24 border-t border-zinc-200/80 py-20 dark:border-zinc-800/80">

@@ -41,6 +41,21 @@ return new class extends SettingsMigration
                 'icon' => 'wallet',
             ],
         ]);
+
+        $this->migrator->add('welcome_page.tariffs', [
+            [
+                'name' => 'ارسال پیامک تکی',
+                'price' => '650',
+                'unit' => 'ریال',
+                'description' => 'ارسال پیامک به ازای هر صفحه فارسی.',
+            ],
+            [
+                'name' => 'ارسال پیامک انبوه',
+                'price' => '600',
+                'unit' => 'ریال',
+                'description' => 'ارسال به لیست‌های بزرگ با تخفیف ویژه.',
+            ],
+        ]);
     }
 
     public function down(): void
@@ -51,5 +66,6 @@ return new class extends SettingsMigration
         $this->migrator->deleteIfExists('welcome_page.typewriter_delete_delay');
         $this->migrator->deleteIfExists('welcome_page.typewriter_pause_delay');
         $this->migrator->deleteIfExists('welcome_page.features');
+        $this->migrator->deleteIfExists('welcome_page.tariffs');
     }
 };

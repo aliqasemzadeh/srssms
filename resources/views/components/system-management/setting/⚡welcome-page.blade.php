@@ -62,6 +62,23 @@ new class extends Component
         $this->form->features = array_values($this->form->features);
     }
 
+    public function addTariff(): void
+    {
+        $this->form->tariffs[] = [
+            'name' => '',
+            'price' => '',
+            'unit' => 'ریال',
+            'description' => '',
+        ];
+    }
+
+    public function removeTariff(int $index): void
+    {
+        unset($this->form->tariffs[$index]);
+
+        $this->form->tariffs = array_values($this->form->tariffs);
+    }
+
     public function save(): void
     {
         $this->authorizePermission('system-management.setting.edit');
@@ -204,6 +221,61 @@ new class extends Component
                             <flux:textarea
                                 wire:model="form.features.{{ $index }}.description"
                                 label="{{ __('general.feature_description') }}"
+                                rows="2"
+                            />
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <flux:heading size="sm">{{ __('general.welcome_tariffs') }}</flux:heading>
+                        <flux:subheading>{{ __('general.welcome_tariffs_hint') }}</flux:subheading>
+                    </div>
+                    <flux:button type="button" size="sm" variant="primary" color="teal" icon="plus" wire:click="addTariff">
+                        {{ __('general.add_tariff') }}
+                    </flux:button>
+                </div>
+                <flux:error name="form.tariffs" />
+
+                <div class="space-y-4">
+                    @foreach ($form->tariffs as $index => $tariff)
+                        <div class="space-y-4 rounded-lg border border-zinc-200 p-4 dark:border-zinc-700" wire:key="tariff-{{ $index }}">
+                            <div class="flex items-start justify-between gap-3">
+                                <flux:heading size="sm">{{ __('general.tariff') }} #{{ $index + 1 }}</flux:heading>
+                                <flux:tooltip content="{{ __('general.remove') }}">
+                                    <flux:button
+                                        type="button"
+                                        size="xs"
+                                        variant="primary"
+                                        color="red"
+                                        icon="trash"
+                                        icon:variant="outline"
+                                        wire:click="removeTariff({{ $index }})"
+                                    />
+                                </flux:tooltip>
+                            </div>
+
+                            <div class="grid gap-4 md:grid-cols-3">
+                                <flux:input
+                                    wire:model="form.tariffs.{{ $index }}.name"
+                                    label="{{ __('general.tariff_name') }}"
+                                />
+                                <flux:input
+                                    wire:model="form.tariffs.{{ $index }}.price"
+                                    label="{{ __('general.tariff_price') }}"
+                                />
+                                <flux:input
+                                    wire:model="form.tariffs.{{ $index }}.unit"
+                                    label="{{ __('general.tariff_unit') }}"
+                                />
+                            </div>
+
+                            <flux:textarea
+                                wire:model="form.tariffs.{{ $index }}.description"
+                                label="{{ __('general.tariff_description') }}"
                                 rows="2"
                             />
                         </div>
