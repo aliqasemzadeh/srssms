@@ -641,6 +641,7 @@ return [
     'manual_number_invalid' => 'شماره موبایل نامعتبر است',
     'manual_recipient_badge' => 'دستی',
     'search_contacts_groups_tags' => 'جستجو در مخاطبین، گروه‌ها و تگ‌ها...',
+    'search_in_group' => 'جستجو در این گروه...',
     'load_more' => 'نمایش بیشتر',
     'group_selection_count' => ':selected از :total',
     'selected_contacts_count' => ':count مخاطب انتخاب شده',

@@ -55,6 +55,9 @@ new class extends Component
     /** @var array<int|string, int> */
     public array $groupContactLimits = [];
 
+    /** @var array<int|string, string> */
+    public array $groupSearches = [];
+
     public function mount(): void
     {
         $urlContacts = $this->parseIdList($this->contacts);
@@ -209,19 +212,10 @@ new class extends Component
             return collect();
         }
 
-        $search = trim($this->search);
-
         return Contact::query()
             ->ownedBy(Auth::user())
             ->whereHas('groups', fn ($q) => $q->whereIn('phonebook_groups.id', $this->group_ids))
             ->with(['groups' => fn ($q) => $q->whereIn('phonebook_groups.id', $this->group_ids)->select('phonebook_groups.id')])
-            ->when($search !== '', function ($query) use ($search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('first_name', 'like', "%{$search}%")
-                        ->orWhere('last_name', 'like', "%{$search}%")
-                        ->orWhere('mobile', 'like', "%{$search}%");
-                });
-            })
             ->orderBy('first_name')
             ->get(['id', 'first_name', 'last_name', 'mobile']);
     }
@@ -310,6 +304,41 @@ new class extends Component
         );
     }
 
+    /** @var array<int, int> */
+    public array $contactIdsBeforeUpdate = [];
+
+    public function updatingContactIds(mixed $value): void
+    {
+        $this->contactIdsBeforeUpdate = array_map('intval', $this->contact_ids);
+    }
+
+    public function updatedContactIds(): void
+    {
+        $this->normalizeIdArrays();
+
+        $before = $this->contactIdsBeforeUpdate;
+        $after = $this->contact_ids;
+        $added = array_values(array_diff($after, $before));
+        $removed = array_values(array_diff($before, $after));
+
+        if ($removed !== []) {
+            $this->explicit_contact_ids = array_values(array_diff(
+                array_map('intval', $this->explicit_contact_ids),
+                $removed
+            ));
+        }
+
+        if ($added !== []) {
+            $this->explicit_contact_ids = array_values(array_unique(array_merge(
+                array_map('intval', $this->explicit_contact_ids),
+                $added
+            )));
+        }
+
+        unset($this->resolvedContacts, $this->recipientCount, $this->estimate);
+        $this->afterSelectionChange();
+    }
+
     public function toggleGroup(int $groupId): void
     {
         $groupId = (int) $groupId;
@@ -318,17 +347,19 @@ new class extends Component
             return;
         }
 
-        if (in_array($groupId, $this->group_ids, true)) {
+        $this->normalizeIdArrays();
+
+        if ($this->isGroupOpen($groupId)) {
             $this->group_ids = array_values(array_filter(
                 $this->group_ids,
                 fn ($id) => (int) $id !== $groupId
             ));
 
             $this->pruneContactIds($this->contactIdsForGroup($groupId));
-            unset($this->groupContactLimits[$groupId]);
+            unset($this->groupContactLimits[$groupId], $this->groupSearches[$groupId]);
         } else {
             $this->group_ids[] = $groupId;
-            $this->group_ids = array_values(array_unique(array_map('intval', $this->group_ids)));
+            $this->normalizeIdArrays();
             $this->groupContactLimits[$groupId] = self::GROUP_CONTACT_PAGE_SIZE;
             $this->mergeContactIds($this->contactIdsForGroup($groupId));
         }
@@ -339,10 +370,13 @@ new class extends Component
 
     public function selectAllInGroup(int $groupId): void
     {
-        if (! in_array($groupId, $this->group_ids, true)) {
+        $groupId = (int) $groupId;
+
+        if (! $this->isGroupOpen($groupId)) {
             return;
         }
 
+        $this->normalizeIdArrays();
         $this->mergeContactIds($this->contactIdsForGroup($groupId));
         unset($this->resolvedContacts, $this->recipientCount, $this->estimate, $this->openGroupMemberIds);
         $this->afterSelectionChange();
@@ -350,10 +384,13 @@ new class extends Component
 
     public function deselectAllInGroup(int $groupId): void
     {
-        if (! in_array($groupId, $this->group_ids, true)) {
+        $groupId = (int) $groupId;
+
+        if (! $this->isGroupOpen($groupId)) {
             return;
         }
 
+        $this->normalizeIdArrays();
         $memberIds = $this->contactIdsForGroup($groupId);
         $this->contact_ids = array_values(array_diff($this->contact_ids, $memberIds));
         $this->explicit_contact_ids = array_values(array_diff($this->explicit_contact_ids, $memberIds));
@@ -370,7 +407,9 @@ new class extends Component
             return;
         }
 
-        if (in_array($contactId, $this->contact_ids, true)) {
+        $this->normalizeIdArrays();
+
+        if ($this->hasContactId($contactId)) {
             $this->contact_ids = array_values(array_filter(
                 $this->contact_ids,
                 fn ($id) => (int) $id !== $contactId
@@ -382,8 +421,7 @@ new class extends Component
         } else {
             $this->contact_ids[] = $contactId;
             $this->explicit_contact_ids[] = $contactId;
-            $this->contact_ids = array_values(array_unique(array_map('intval', $this->contact_ids)));
-            $this->explicit_contact_ids = array_values(array_unique(array_map('intval', $this->explicit_contact_ids)));
+            $this->normalizeIdArrays();
         }
 
         unset($this->resolvedContacts, $this->recipientCount, $this->estimate);
@@ -403,7 +441,9 @@ new class extends Component
             return;
         }
 
-        if (in_array($tagId, $this->tag_ids, true)) {
+        $this->normalizeIdArrays();
+
+        if ($this->hasTagId($tagId)) {
             $this->tag_ids = array_values(array_filter(
                 $this->tag_ids,
                 fn ($id) => (int) $id !== $tagId
@@ -411,7 +451,7 @@ new class extends Component
             $this->pruneContactIds($this->contactIdsForTag($tagId));
         } else {
             $this->tag_ids[] = $tagId;
-            $this->tag_ids = array_values(array_unique(array_map('intval', $this->tag_ids)));
+            $this->normalizeIdArrays();
             $this->mergeContactIds($this->contactIdsForTag($tagId));
         }
 
@@ -421,7 +461,9 @@ new class extends Component
 
     public function loadMoreGroupContacts(int $groupId): void
     {
-        if (! in_array($groupId, $this->group_ids, true)) {
+        $groupId = (int) $groupId;
+
+        if (! $this->isGroupOpen($groupId)) {
             return;
         }
 
@@ -483,6 +525,7 @@ new class extends Component
         $this->explicit_contact_ids = [];
         $this->manual_mobiles = [];
         $this->groupContactLimits = [];
+        $this->groupSearches = [];
 
         unset($this->expandedGroupContacts, $this->openGroupMemberIds, $this->resolvedContacts, $this->recipientCount, $this->estimate);
         $this->afterSelectionChange();
@@ -623,8 +666,32 @@ new class extends Component
 
     protected function afterSelectionChange(): void
     {
+        $this->normalizeIdArrays();
         $this->syncUrlMirrors();
         $this->persistComposeState();
+    }
+
+    protected function normalizeIdArrays(): void
+    {
+        $this->contact_ids = array_values(array_unique(array_map('intval', $this->contact_ids)));
+        $this->group_ids = array_values(array_unique(array_map('intval', $this->group_ids)));
+        $this->tag_ids = array_values(array_unique(array_map('intval', $this->tag_ids)));
+        $this->explicit_contact_ids = array_values(array_unique(array_map('intval', $this->explicit_contact_ids)));
+    }
+
+    protected function isGroupOpen(int $groupId): bool
+    {
+        return collect($this->group_ids)->contains(fn ($id) => (int) $id === $groupId);
+    }
+
+    protected function hasContactId(int $contactId): bool
+    {
+        return collect($this->contact_ids)->contains(fn ($id) => (int) $id === $contactId);
+    }
+
+    protected function hasTagId(int $tagId): bool
+    {
+        return collect($this->tag_ids)->contains(fn ($id) => (int) $id === $tagId);
     }
 
     protected function syncUrlMirrors(): void
@@ -738,11 +805,23 @@ new class extends Component
      */
     public function contactsForGroup(int $groupId): Collection
     {
+        $groupId = (int) $groupId;
+        $groupSearch = trim((string) ($this->groupSearches[$groupId] ?? ''));
+
         $contacts = $this->expandedGroupContacts
             ->filter(fn (Contact $contact) => $contact->groups->contains('id', $groupId))
+            ->when($groupSearch !== '', function (Collection $collection) use ($groupSearch) {
+                $needle = mb_strtolower($groupSearch);
+
+                return $collection->filter(function (Contact $contact) use ($needle) {
+                    $haystack = mb_strtolower(trim("{$contact->first_name} {$contact->last_name} {$contact->mobile}"));
+
+                    return str_contains($haystack, $needle);
+                });
+            })
             ->values();
 
-        if (trim($this->search) !== '') {
+        if ($groupSearch !== '') {
             return $contacts;
         }
 
@@ -753,12 +832,13 @@ new class extends Component
 
     public function groupHasMoreContacts(int $groupId, int $totalCount): bool
     {
-        $limit = (int) ($this->groupContactLimits[$groupId] ?? self::GROUP_CONTACT_PAGE_SIZE);
-        $search = trim($this->search);
+        $groupId = (int) $groupId;
 
-        if ($search !== '') {
+        if (trim((string) ($this->groupSearches[$groupId] ?? '')) !== '') {
             return false;
         }
+
+        $limit = (int) ($this->groupContactLimits[$groupId] ?? self::GROUP_CONTACT_PAGE_SIZE);
 
         return $totalCount > $limit;
     }
@@ -846,17 +926,17 @@ new class extends Component
 
                 @forelse ($this->groupOptions as $group)
                     @php
-                        $isOpen = in_array($group->id, $group_ids, true);
+                        $isOpen = collect($group_ids)->contains(fn ($id) => (int) $id === (int) $group->id);
                         $selectedInGroup = $isOpen ? $this->selectedCountInGroup($group->id) : 0;
                     @endphp
-                    <div class="rounded-lg border border-zinc-200 dark:border-zinc-700" wire:key="sms-group-{{ $group->id }}">
+                    <div class="rounded-lg border border-zinc-200 dark:border-zinc-700" wire:key="sms-group-{{ $group->id }}-{{ $isOpen ? 'open' : 'closed' }}">
                         <div class="flex items-center justify-between gap-3 px-3 py-2">
                             <button
                                 type="button"
                                 class="flex min-w-0 flex-1 items-center gap-3 text-start"
-                                wire:click="toggleGroup({{ $group->id }})"
+                                wire:click="toggleGroup({{ (int) $group->id }})"
                             >
-                                <flux:checkbox :checked="$isOpen" />
+                                <flux:checkbox :checked="$isOpen" wire:key="sms-group-check-{{ $group->id }}-{{ $isOpen ? '1' : '0' }}" />
                                 <span class="truncate font-medium">{{ $group->name }}</span>
                             </button>
                             <flux:badge size="sm" color="{{ $isOpen ? 'teal' : 'zinc' }}">
@@ -870,29 +950,37 @@ new class extends Component
 
                         @if ($isOpen)
                             <div class="space-y-2 border-t border-zinc-200 px-3 py-3 dark:border-zinc-700">
+                                <flux:input
+                                    wire:model.live.debounce.300ms="groupSearches.{{ $group->id }}"
+                                    icon="search"
+                                    placeholder="{{ __('general.search_in_group') }}"
+                                    clearable
+                                />
+
                                 <div class="flex flex-wrap gap-2">
-                                    <flux:button size="xs" variant="ghost" wire:click="selectAllInGroup({{ $group->id }})">
+                                    <flux:button type="button" size="xs" variant="ghost" wire:click="selectAllInGroup({{ (int) $group->id }})">
                                         {{ __('general.select_all') }}
                                     </flux:button>
-                                    <flux:button size="xs" variant="ghost" wire:click="deselectAllInGroup({{ $group->id }})">
+                                    <flux:button type="button" size="xs" variant="ghost" wire:click="deselectAllInGroup({{ (int) $group->id }})">
                                         {{ __('general.deselect_all') }}
                                     </flux:button>
                                 </div>
 
-                                <div class="max-h-64 space-y-1 overflow-y-auto">
+                                <div class="max-h-64 space-y-1 overflow-y-auto" wire:key="sms-group-contacts-{{ $group->id }}-{{ md5(json_encode(array_map('intval', $contact_ids)).'|'.($groupSearches[$group->id] ?? '')) }}">
                                     @forelse ($this->contactsForGroup($group->id) as $contact)
-                                        <button
-                                            type="button"
-                                            class="flex w-full items-center gap-3 rounded-md px-2 py-1.5 text-start hover:bg-zinc-50 dark:hover:bg-zinc-800"
-                                            wire:key="sms-group-{{ $group->id }}-contact-{{ $contact->id }}"
-                                            wire:click="toggleContact({{ $contact->id }})"
+                                        @php
+                                            $contactChecked = collect($contact_ids)->contains(fn ($id) => (int) $id === (int) $contact->id);
+                                        @endphp
+                                        <label
+                                            class="flex w-full cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 text-start hover:bg-zinc-50 dark:hover:bg-zinc-800"
+                                            wire:key="sms-group-{{ $group->id }}-contact-{{ $contact->id }}-{{ $contactChecked ? '1' : '0' }}"
                                         >
-                                            <flux:checkbox :checked="in_array($contact->id, $contact_ids, true)" />
+                                            <flux:checkbox wire:model.live="contact_ids" value="{{ $contact->id }}" />
                                             <span class="min-w-0 flex-1 truncate text-sm">
                                                 {{ $contact->full_name }}
                                                 <span class="text-zinc-500" dir="ltr">— {{ $contact->mobile }}</span>
                                             </span>
-                                        </button>
+                                        </label>
                                     @empty
                                         <flux:text size="sm" class="text-zinc-500">{{ __('general.no_contacts_in_group') }}</flux:text>
                                     @endforelse
@@ -916,13 +1004,16 @@ new class extends Component
                     <flux:heading size="sm">{{ __('general.phonebook_tags') }}</flux:heading>
                     <div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                         @foreach ($this->tagOptions as $tag)
+                            @php
+                                $tagChecked = collect($tag_ids)->contains(fn ($id) => (int) $id === (int) $tag->id);
+                            @endphp
                             <button
                                 type="button"
                                 class="flex items-center gap-3 rounded-lg border border-zinc-200 px-3 py-2 text-start dark:border-zinc-700"
-                                wire:key="sms-tag-{{ $tag->id }}"
-                                wire:click="toggleTag({{ $tag->id }})"
+                                wire:key="sms-tag-{{ $tag->id }}-{{ $tagChecked ? '1' : '0' }}"
+                                wire:click="toggleTag({{ (int) $tag->id }})"
                             >
-                                <flux:checkbox :checked="in_array($tag->id, $tag_ids, true)" />
+                                <flux:checkbox :checked="$tagChecked" />
                                 <span class="truncate text-sm">{{ $tag->name }}</span>
                             </button>
                         @endforeach

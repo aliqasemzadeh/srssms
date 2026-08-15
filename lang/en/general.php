@@ -642,6 +642,7 @@ return [
     'manual_number_invalid' => 'Invalid mobile number',
     'manual_recipient_badge' => 'Manual',
     'search_contacts_groups_tags' => 'Search contacts, groups, and tags...',
+    'search_in_group' => 'Search in this group...',
     'load_more' => 'Load more',
     'group_selection_count' => ':selected of :total',
     'selected_contacts_count' => ':count contacts selected',
