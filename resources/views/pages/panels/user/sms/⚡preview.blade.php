@@ -4,7 +4,9 @@ use App\Models\Phonebook\Contact;
 use App\Models\Sms\Gateway;
 use App\Services\Sms\SmsBillingService;
 use App\Services\Sms\SmsSender;
+use App\Support\MobileNumber;
 use Flux\Flux;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -18,11 +20,22 @@ new class extends Component
     /** @var array<int, int> */
     public array $contact_ids = [];
 
+    /** @var array<int, string> */
+    public array $manual_mobiles = [];
+
     public function mount(): void
     {
         $draft = session('sms_draft');
 
-        if (! is_array($draft) || blank($draft['body'] ?? null) || empty($draft['contact_ids'] ?? [])) {
+        $contactIds = collect($draft['contact_ids'] ?? [])->map(fn ($id) => (int) $id)->filter()->all();
+        $manualMobiles = collect($draft['manual_mobiles'] ?? [])
+            ->map(fn ($mobile) => MobileNumber::normalize((string) $mobile))
+            ->filter(fn ($mobile) => MobileNumber::isValid($mobile))
+            ->unique()
+            ->values()
+            ->all();
+
+        if (! is_array($draft) || blank($draft['body'] ?? null) || ($contactIds === [] && $manualMobiles === [])) {
             $this->redirect(route('panels.user.sms.send'), navigate: true);
 
             return;
@@ -30,7 +43,8 @@ new class extends Component
 
         $this->gateway_id = (int) ($draft['gateway_id'] ?? 0);
         $this->body = (string) $draft['body'];
-        $this->contact_ids = collect($draft['contact_ids'])->map(fn ($id) => (int) $id)->all();
+        $this->contact_ids = $contactIds;
+        $this->manual_mobiles = $manualMobiles;
     }
 
     #[Computed]
@@ -44,12 +58,40 @@ new class extends Component
     }
 
     #[Computed]
-    public function recipients()
+    public function recipients(): Collection
     {
-        return Contact::query()
+        $contacts = Contact::query()
             ->ownedBy(Auth::user())
             ->whereIn('id', $this->contact_ids)
-            ->get(['id', 'first_name', 'last_name', 'mobile']);
+            ->get(['id', 'first_name', 'last_name', 'mobile'])
+            ->map(fn (Contact $contact) => (object) [
+                'id' => $contact->id,
+                'full_name' => $contact->full_name,
+                'mobile' => $contact->mobile,
+                'contact_id' => $contact->id,
+                'is_manual' => false,
+            ]);
+
+        $contactMobiles = $contacts
+            ->pluck('mobile')
+            ->map(fn ($mobile) => MobileNumber::normalize((string) $mobile))
+            ->all();
+
+        $manual = collect($this->manual_mobiles)
+            ->map(fn ($mobile) => MobileNumber::normalize((string) $mobile))
+            ->filter(fn ($mobile) => MobileNumber::isValid($mobile))
+            ->reject(fn ($mobile) => in_array($mobile, $contactMobiles, true))
+            ->unique()
+            ->values()
+            ->map(fn (string $mobile, int $index) => (object) [
+                'id' => 'manual-'.$index.'-'.$mobile,
+                'full_name' => __('general.manual_recipient_badge'),
+                'mobile' => $mobile,
+                'contact_id' => null,
+                'is_manual' => true,
+            ]);
+
+        return $contacts->concat($manual)->values();
     }
 
     #[Computed]
@@ -107,12 +149,12 @@ new class extends Component
         }
 
         try {
-            $payload = $this->recipients->map(fn (Contact $contact) => [
-                'mobile' => $contact->mobile,
-                'contact_id' => $contact->id,
+            $payload = $this->recipients->map(fn ($recipient) => [
+                'mobile' => $recipient->mobile,
+                'contact_id' => $recipient->contact_id,
             ])->all();
 
-            $message = app(SmsSender::class)->queueCampaign(
+            app(SmsSender::class)->queueCampaign(
                 $this->gateway,
                 Auth::user(),
                 $this->body,
@@ -125,7 +167,7 @@ new class extends Component
             return null;
         }
 
-        session()->forget('sms_draft');
+        session()->forget(['sms_draft', 'sms_compose_state']);
 
         Flux::toast(__('general.sms_queued_successfully'));
 
@@ -212,7 +254,14 @@ new class extends Component
                 <flux:table.rows>
                     @foreach ($this->recipients as $recipient)
                         <flux:table.row :key="$recipient->id">
-                            <flux:table.cell>{{ $recipient->full_name }}</flux:table.cell>
+                            <flux:table.cell>
+                                <div class="flex items-center gap-2">
+                                    <span>{{ $recipient->full_name }}</span>
+                                    @if ($recipient->is_manual)
+                                        <flux:badge size="sm" color="teal">{{ __('general.manual_recipient_badge') }}</flux:badge>
+                                    @endif
+                                </div>
+                            </flux:table.cell>
                             <flux:table.cell><span dir="ltr">{{ $recipient->mobile }}</span></flux:table.cell>
                         </flux:table.row>
                     @endforeach
