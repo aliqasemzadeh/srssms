@@ -11,14 +11,8 @@ class ContactsImportSampleExport implements FromCollection, WithHeadings
     public function collection(): Collection
     {
         return collect([
-            [
-                'first_name' => 'علی',
-                'mobile' => '09121234567',
-            ],
-            [
-                'first_name' => 'سارا',
-                'mobile' => '09129876543',
-            ],
+            ['علی', '09121234567'],
+            ['سارا', '09129876543'],
         ]);
     }
 
