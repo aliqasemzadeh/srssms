@@ -1,5 +1,6 @@
 <?php
 
+use App\Exports\Phonebook\ContactsExport;
 use App\Models\Phonebook\Contact;
 use App\Models\Phonebook\Group;
 use Flux\Flux;
@@ -9,6 +10,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 new class extends Component
 {
@@ -77,6 +79,14 @@ new class extends Component
         Flux::toast(__('general.contact_removed_from_group'));
     }
 
+    public function export()
+    {
+        return Excel::download(
+            new ContactsExport(Auth::user(), $this->group->id),
+            'group-contacts-'.now()->format('Ymd-His').'.xlsx'
+        );
+    }
+
     #[On('panels.user.phonebook.group.view.refresh')]
     #[On('panels.user.phonebook.index.refresh')]
     public function refresh(): void
@@ -100,6 +110,24 @@ new class extends Component
             </flux:breadcrumbs>
 
             <div class="flex flex-wrap gap-2">
+                <flux:button
+                    size="sm"
+                    variant="primary"
+                    color="teal"
+                    icon="upload"
+                    wire:click="$dispatch('panels.user.phonebook.group.import.assign-data', { group: {{ $group->id }} })"
+                >
+                    {{ __('actions.import') }}
+                </flux:button>
+                <flux:button
+                    size="sm"
+                    variant="primary"
+                    color="cyan"
+                    icon="download"
+                    wire:click="export"
+                >
+                    {{ __('actions.export') }}
+                </flux:button>
                 <flux:button
                     size="sm"
                     variant="primary"
@@ -205,6 +233,7 @@ new class extends Component
         </flux:card>
     </div>
 
+    <livewire:phonebook.group.import :key="'phonebook-group-import'" />
     <livewire:phonebook.group.add-contacts :key="'phonebook-group-add-contacts'" />
     <livewire:phonebook.contact.create :key="'phonebook-group-view-contact-create'" />
     <livewire:phonebook.contact.edit :key="'phonebook-group-view-contact-edit'" />
