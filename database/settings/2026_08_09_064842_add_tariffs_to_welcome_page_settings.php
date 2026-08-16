@@ -6,7 +6,7 @@ return new class extends SettingsMigration
 {
     public function up(): void
     {
-        $this->migrator->add('welcome_page.tariffs', [
+        $tariffs = [
             [
                 'name' => 'ارسال پیامک تکی',
                 'price' => '1650',
@@ -19,11 +19,17 @@ return new class extends SettingsMigration
                 'unit' => 'ریال',
                 'description' => 'ارسال به لیست‌های بزرگ با تخفیف ویژه.',
             ],
-        ]);
+        ];
+
+        try {
+            $this->migrator->add('welcome_page.tariffs', $tariffs);
+        } catch (\Throwable) {
+            $this->migrator->update('welcome_page.tariffs', fn () => $tariffs);
+        }
     }
 
     public function down(): void
     {
-        $this->migrator->delete('welcome_page.tariffs');
+        $this->migrator->deleteIfExists('welcome_page.tariffs');
     }
 };
