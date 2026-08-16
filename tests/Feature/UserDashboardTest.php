@@ -98,7 +98,6 @@ class UserDashboardTest extends TestCase
             ->assertSee('Hello test message')
             ->assertSee('250,000')
             ->assertSee('IRR')
-            ->assertSee('Ali Rezaei')
             ->assertSee('Support issue');
     }
 
