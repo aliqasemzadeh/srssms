@@ -1,7 +1,5 @@
 <?php
 
-use App\Enums\Sms\SmsMessageStatusEnum;
-use App\Enums\Support\TicketStatusEnum;
 use App\Models\Finance\Currency;
 use App\Models\Finance\Wallet;
 use App\Models\Phonebook\Contact;
@@ -114,15 +112,6 @@ new class extends Component
     }
 
     #[Computed]
-    public function openTicketsCount(): int
-    {
-        return Ticket::query()
-            ->ownedBy(Auth::user())
-            ->where('status', '!=', TicketStatusEnum::Closed->value)
-            ->count();
-    }
-
-    #[Computed]
     public function recentMessages(): Collection
     {
         return Message::query()
@@ -194,32 +183,19 @@ new class extends Component
         </div>
 
         {{-- Welcome Banner --}}
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-teal-500/5 to-transparent border border-teal-500/20 dark:border-teal-500/30">
+        <div class="p-5 rounded-2xl bg-gradient-to-r from-teal-500/10 via-teal-500/5 to-transparent border border-teal-500/20 dark:border-teal-500/30">
             <div class="space-y-1">
                 <flux:heading size="xl" class="font-bold">
-                    {{ __('general.welcome_back') }}، {{ Auth::user()->full_name ?: Auth::user()->username }} 👋
+                    {{ __('general.welcome_back') }}، {{ Auth::user()->full_name ?: Auth::user()->username }}
                 </flux:heading>
                 <flux:text class="text-sm text-zinc-600 dark:text-zinc-400">
                     {{ __('general.user_dashboard_subtitle') }}
                 </flux:text>
             </div>
-            <div class="flex items-center gap-2">
-                <flux:button
-                    size="sm"
-                    variant="primary"
-                    color="teal"
-                    icon="plus"
-                    href="{{ route('panels.user.wallet.charge') }}"
-                    wire:navigate
-                >
-                    {{ __('general.charge_wallet') }}
-                </flux:button>
-            </div>
         </div>
 
         {{-- 4 Top Metric Cards --}}
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            {{-- 1. Active Lines --}}
             <flux:card class="relative overflow-hidden space-y-3">
                 <div class="flex items-center justify-between">
                     <flux:text class="text-sm font-medium text-zinc-500 dark:text-zinc-400">{{ __('general.active_lines_count') }}</flux:text>
@@ -227,19 +203,12 @@ new class extends Component
                         <flux:icon.radio class="size-5" />
                     </div>
                 </div>
-                <div>
-                    <flux:heading size="xl" class="font-bold">{{ number_format($this->activeLinesCount) }}</flux:heading>
-                </div>
-                <div class="flex items-center justify-between text-xs text-zinc-500 pt-1 border-t border-zinc-100 dark:border-zinc-800">
-                    <span>{{ __('general.sms_gateways') }}</span>
-                    <a href="{{ route('panels.user.sms.send') }}" class="text-teal-600 dark:text-teal-400 hover:underline inline-flex items-center gap-1" wire:navigate>
-                        <span>{{ __('general.send_sms') }}</span>
-                        <flux:icon.arrow-left-right class="size-3" />
-                    </a>
+                <flux:heading size="xl" class="font-bold">{{ number_format($this->activeLinesCount) }}</flux:heading>
+                <div class="text-xs text-zinc-500 pt-1 border-t border-zinc-100 dark:border-zinc-800">
+                    {{ __('general.sms_gateways') }}
                 </div>
             </flux:card>
 
-            {{-- 2. Today's Sent Messages --}}
             <flux:card class="relative overflow-hidden space-y-3">
                 <div class="flex items-center justify-between">
                     <flux:text class="text-sm font-medium text-zinc-500 dark:text-zinc-400">{{ __('general.today_sent_messages_count') }}</flux:text>
@@ -247,16 +216,13 @@ new class extends Component
                         <flux:icon.send class="size-5" />
                     </div>
                 </div>
-                <div>
-                    <flux:heading size="xl" class="font-bold">{{ number_format($this->todaySentMessagesCount) }}</flux:heading>
-                </div>
+                <flux:heading size="xl" class="font-bold">{{ number_format($this->todaySentMessagesCount) }}</flux:heading>
                 <div class="flex items-center justify-between text-xs text-zinc-500 pt-1 border-t border-zinc-100 dark:border-zinc-800">
                     <span>{{ __('general.total_sent_messages') }}:</span>
                     <span class="font-medium text-zinc-700 dark:text-zinc-300">{{ number_format($this->totalSentMessagesCount) }}</span>
                 </div>
             </flux:card>
 
-            {{-- 3. Wallet Balance --}}
             <flux:card class="relative overflow-hidden space-y-3">
                 @php $pw = $this->primaryWallet; @endphp
                 <div class="flex items-center justify-between">
@@ -273,16 +239,11 @@ new class extends Component
                         <span class="text-sm font-sans font-medium text-zinc-500">{{ $pw['symbol'] }}</span>
                     @endif
                 </div>
-                <div class="flex items-center justify-between text-xs text-zinc-500 pt-1 border-t border-zinc-100 dark:border-zinc-800">
-                    <span>{{ __('general.wallet') }}</span>
-                    <a href="{{ route('panels.user.wallet.charge', array_filter(['currency' => $pw['currency_id']])) }}" class="text-emerald-600 dark:text-emerald-400 font-medium hover:underline inline-flex items-center gap-1" wire:navigate>
-                        <span>{{ __('general.charge_wallet') }}</span>
-                        <flux:icon.arrow-up-right class="size-3" />
-                    </a>
+                <div class="text-xs text-zinc-500 pt-1 border-t border-zinc-100 dark:border-zinc-800">
+                    {{ __('general.wallet') }}
                 </div>
             </flux:card>
 
-            {{-- 4. Contacts / Phonebook --}}
             <flux:card class="relative overflow-hidden space-y-3">
                 <div class="flex items-center justify-between">
                     <flux:text class="text-sm font-medium text-zinc-500 dark:text-zinc-400">{{ __('general.contacts_count') }}</flux:text>
@@ -290,15 +251,9 @@ new class extends Component
                         <flux:icon.users class="size-5" />
                     </div>
                 </div>
-                <div>
-                    <flux:heading size="xl" class="font-bold">{{ number_format($this->contactsCount) }}</flux:heading>
-                </div>
-                <div class="flex items-center justify-between text-xs text-zinc-500 pt-1 border-t border-zinc-100 dark:border-zinc-800">
-                    <span>{{ __('general.phonebook') }}</span>
-                    <a href="{{ route('panels.user.phonebook.index') }}" class="text-violet-600 dark:text-violet-400 hover:underline inline-flex items-center gap-1" wire:navigate>
-                        <span>{{ __('general.view_all') }}</span>
-                        <flux:icon.arrow-left-right class="size-3" />
-                    </a>
+                <flux:heading size="xl" class="font-bold">{{ number_format($this->contactsCount) }}</flux:heading>
+                <div class="text-xs text-zinc-500 pt-1 border-t border-zinc-100 dark:border-zinc-800">
+                    {{ __('general.phonebook') }}
                 </div>
             </flux:card>
         </div>
@@ -382,21 +337,19 @@ new class extends Component
             </div>
         </div>
 
-        {{-- Detailed Data Grids (2 Columns) --}}
+        {{-- Detailed Data Grids --}}
         <div class="grid gap-6 lg:grid-cols-2">
-            {{-- Left Column: Recent Messages & Active Lines --}}
             <div class="space-y-6">
-                {{-- Recent Sent Messages --}}
                 <flux:card class="space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
                             <flux:heading size="md">{{ __('general.sms_messages') }}</flux:heading>
-                            <flux:text class="text-xs text-zinc-500">{{ __('general.recent_messages') ?? 'آخرین پیام‌های ارسالی' }}</flux:text>
+                            <flux:text class="text-xs text-zinc-500">{{ __('general.recent_messages') }}</flux:text>
                         </div>
                         <flux:button
                             size="sm"
                             variant="ghost"
-                            icon:trailing="arrow-left-right"
+                            icon:trailing="eye"
                             href="{{ route('panels.user.sms.message.index') }}"
                             wire:navigate
                         >
@@ -429,11 +382,13 @@ new class extends Component
                                         </div>
                                     </div>
                                     <div class="shrink-0">
-                                        <flux:tooltip content="{{ __('general.view') ?? 'مشاهده' }}">
+                                        <flux:tooltip content="{{ __('general.view') }}">
                                             <flux:button
                                                 size="xs"
-                                                variant="subtle"
-                                                icon="arrow-left-right"
+                                                variant="primary"
+                                                color="zinc"
+                                                icon="check"
+                                                icon:variant="outline"
                                                 href="{{ route('panels.user.sms.message.detail', $msg) }}"
                                                 wire:navigate
                                             />
@@ -463,7 +418,6 @@ new class extends Component
                     @endif
                 </flux:card>
 
-                {{-- Active Lines / Gateways --}}
                 <flux:card class="space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
@@ -484,7 +438,7 @@ new class extends Component
                     @if ($this->activeGateways->isNotEmpty())
                         <div class="divide-y divide-zinc-100 dark:divide-zinc-800">
                             @foreach ($this->activeGateways as $gateway)
-                                <div class="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-3">
+                                <div class="py-3 first:pt-0 last:pb-0">
                                     <div class="space-y-1">
                                         <div class="flex items-center gap-2">
                                             <span class="font-mono text-sm font-bold text-zinc-800 dark:text-zinc-200" dir="ltr">
@@ -501,16 +455,6 @@ new class extends Component
                                             @endif
                                         </div>
                                     </div>
-                                    <flux:button
-                                        size="xs"
-                                        variant="filled"
-                                        color="zinc"
-                                        icon="send"
-                                        href="{{ route('panels.user.sms.send') }}"
-                                        wire:navigate
-                                    >
-                                        {{ __('general.send_sms') }}
-                                    </flux:button>
                                 </div>
                             @endforeach
                         </div>
@@ -525,9 +469,7 @@ new class extends Component
                 </flux:card>
             </div>
 
-            {{-- Right Column: Wallets & Recent Support Tickets --}}
             <div class="space-y-6">
-                {{-- Wallets List & Charge --}}
                 <flux:card class="space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
@@ -537,7 +479,7 @@ new class extends Component
                         <flux:button
                             size="sm"
                             variant="ghost"
-                            icon:trailing="arrow-left-right"
+                            icon:trailing="eye"
                             href="{{ route('panels.user.wallet.index') }}"
                             wire:navigate
                         >
@@ -608,7 +550,6 @@ new class extends Component
                     @endif
                 </flux:card>
 
-                {{-- Recent Support Tickets --}}
                 <flux:card class="space-y-4">
                     <div class="flex items-center justify-between">
                         <div>
@@ -619,7 +560,7 @@ new class extends Component
                             <flux:button
                                 size="sm"
                                 variant="ghost"
-                                icon:trailing="arrow-left-right"
+                                icon:trailing="eye"
                                 href="{{ route('panels.user.ticket.index') }}"
                                 wire:navigate
                             >
@@ -655,13 +596,17 @@ new class extends Component
                                             <span>{{ __('general.last_replied_at') }}: {{ $ticket->updated_at->toDynamicFormat('Y/m/d H:i') }}</span>
                                         </div>
                                     </div>
-                                    <flux:button
-                                        size="xs"
-                                        variant="subtle"
-                                        icon="arrow-left-right"
-                                        href="{{ route('panels.user.ticket.view', $ticket) }}"
-                                        wire:navigate
-                                    />
+                                    <flux:tooltip content="{{ __('general.view') }}">
+                                        <flux:button
+                                            size="xs"
+                                            variant="primary"
+                                            color="sky"
+                                            icon="eye"
+                                            icon:variant="outline"
+                                            href="{{ route('panels.user.ticket.view', $ticket) }}"
+                                            wire:navigate
+                                        />
+                                    </flux:tooltip>
                                 </div>
                             @endforeach
                         </div>

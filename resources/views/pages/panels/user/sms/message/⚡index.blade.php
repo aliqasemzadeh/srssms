@@ -259,7 +259,7 @@ new class extends Component
                                 <flux:table.cell>{{ $message->created_at->toDynamicFormat('Y/m/d H:i') }}</flux:table.cell>
                                 <flux:table.cell align="end">
                                     <flux:tooltip content="{{ __('general.view') }}">
-                                        <flux:button size="xs" variant="primary" color="zinc" icon="eye" icon:variant="outline" :href="route('panels.user.sms.message.detail', $message)" wire:navigate />
+                                        <flux:button size="xs" variant="primary" color="zinc" icon="check" icon:variant="outline" :href="route('panels.user.sms.message.detail', $message)" wire:navigate />
                                     </flux:tooltip>
                                 </flux:table.cell>
                             </flux:table.row>
