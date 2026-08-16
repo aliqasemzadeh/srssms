@@ -828,6 +828,7 @@ return [
     'unanswered_tickets' => 'Unanswered Tickets',
     'quick_access' => 'Quick Access',
     'active_lines' => 'Active Lines',
+    'recent_messages' => 'Recent messages',
     'active_lines_count' => 'Active Lines Count',
     'today_sent_messages' => 'Today Sent Messages',
     'today_sent_messages_count' => 'Messages Sent Today',

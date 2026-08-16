@@ -827,6 +827,7 @@ return [
     'unanswered_tickets' => 'تیکت‌های بی‌پاسخ',
     'quick_access' => 'دسترسی سریع',
     'active_lines' => 'خطوط فعال',
+    'recent_messages' => 'آخرین پیام‌های ارسالی',
     'active_lines_count' => 'تعداد خطوط فعال',
     'today_sent_messages' => 'پیام‌های ارسالی امروز',
     'today_sent_messages_count' => 'تعداد پیام‌های ارسالی امروز',
