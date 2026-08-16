@@ -53,7 +53,11 @@
                     </div>
                 </div>
 
-                <flux:icon.eye variant="outline" class="mt-0.5 size-4 shrink-0 text-zinc-400" />
+                @if ($variant === 'user')
+                    <flux:icon.check variant="outline" class="mt-0.5 size-4 shrink-0 text-zinc-400" />
+                @else
+                    <flux:icon.eye variant="outline" class="mt-0.5 size-4 shrink-0 text-zinc-400" />
+                @endif
             </div>
         </a>
     @empty
