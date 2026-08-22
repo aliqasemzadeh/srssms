@@ -18,6 +18,7 @@
         "maatwebsite/excel": "^3.1",
         "morilog/jalali": "^3.5",
         "opcodesio/log-viewer": "^3.24",
+        "revoltify/subscriptionify": "^1.0",
         "sadegh19b/laravel-persian-validation": "^2.1",
         "shetabit/payment": "^6.4",
         "spatie/laravel-backup": "^10.3",
