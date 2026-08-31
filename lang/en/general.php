@@ -682,6 +682,7 @@ return [
     'charge_wallet_to_send_sms' => 'Please charge your wallet before sending SMS.',
     'no_sms_recipients' => 'No recipients selected.',
     'sms_gateway_inactive' => 'SMS gateway is inactive.',
+    'no_sms_gateway_configured' => 'No active SMS gateway is configured for sending.',
     'sms_queued_successfully' => 'SMS has been queued for sending.',
     'confirm_and_send' => 'Confirm & Send',
     'sms_debit_description' => 'SMS charge #:id',

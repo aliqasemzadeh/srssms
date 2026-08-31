@@ -7,7 +7,9 @@ use App\Models\Sms\Gateway;
 use App\Models\Sms\Provider;
 use App\Services\Sms\Drivers\LogDriver;
 use App\Services\Sms\Drivers\SabanovinDriver;
+use App\Settings\SmsSettings;
 use InvalidArgumentException;
+use Throwable;
 
 class SmsManager
 {
@@ -26,6 +28,14 @@ class SmsManager
             $source instanceof Provider => $source->driver,
             default => $source,
         };
+
+        if (! $driver) {
+            try {
+                $driver = app(SmsSettings::class)->default_driver;
+            } catch (Throwable) {
+                $driver = null;
+            }
+        }
 
         $driver = $driver ?: (string) config('sms.default', 'log');
 
