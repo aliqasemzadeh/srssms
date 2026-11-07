@@ -641,6 +641,8 @@ return [
     'manual_numbers_hint' => 'Type a number and press Enter or comma',
     'manual_number_invalid' => 'Invalid mobile number',
     'manual_recipient_badge' => 'Manual',
+    'clear_manual_numbers' => 'Clear all numbers',
+    'manual_numbers_cleared' => 'All manual numbers were cleared.',
     'search_contacts_groups_tags' => 'Search contacts, groups, and tags...',
     'search_in_group' => 'Search in this group...',
     'load_more' => 'Load more',

@@ -640,6 +640,8 @@ return [
     'manual_numbers_hint' => 'شماره را وارد کنید و Enter یا کاما بزنید',
     'manual_number_invalid' => 'شماره موبایل نامعتبر است',
     'manual_recipient_badge' => 'دستی',
+    'clear_manual_numbers' => 'حذف همه شماره‌ها',
+    'manual_numbers_cleared' => 'همه شماره‌های دستی حذف شدند.',
     'search_contacts_groups_tags' => 'جستجو در مخاطبین، گروه‌ها و تگ‌ها...',
     'search_in_group' => 'جستجو در این گروه...',
     'load_more' => 'نمایش بیشتر',

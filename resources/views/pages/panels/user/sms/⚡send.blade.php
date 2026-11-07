@@ -517,6 +517,18 @@ new class extends Component
         $this->persistComposeState();
     }
 
+    public function clearManualMobiles(): void
+    {
+        if ($this->manual_mobiles === []) {
+            return;
+        }
+
+        $this->manual_mobiles = [];
+        unset($this->recipientCount, $this->estimate);
+        $this->persistComposeState();
+        Flux::toast(__('general.manual_numbers_cleared'));
+    }
+
     public function clearSelection(): void
     {
         $this->contact_ids = [];
@@ -1067,13 +1079,27 @@ new class extends Component
                 </flux:field>
 
                 @if ($manual_mobiles !== [])
-                    <div class="flex flex-wrap gap-2" dir="ltr">
-                        @foreach ($manual_mobiles as $mobile)
-                            <flux:badge color="teal" wire:key="manual-mobile-{{ $mobile }}">
-                                <span class="font-mono">{{ $mobile }}</span>
-                                <flux:badge.close wire:click="removeManualMobile('{{ $mobile }}')" />
-                            </flux:badge>
-                        @endforeach
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap gap-2" dir="ltr">
+                            @foreach ($manual_mobiles as $mobile)
+                                <flux:badge color="teal" wire:key="manual-mobile-{{ $mobile }}">
+                                    <span class="font-mono">{{ $mobile }}</span>
+                                    <flux:badge.close wire:click="removeManualMobile('{{ $mobile }}')" />
+                                </flux:badge>
+                            @endforeach
+                        </div>
+
+                        <flux:tooltip content="{{ __('general.clear_manual_numbers') }}">
+                            <flux:button
+                                size="xs"
+                                variant="primary"
+                                color="red"
+                                icon="trash"
+                                icon:variant="outline"
+                                wire:click="clearManualMobiles"
+                                wire:confirm="{{ __('general.are_you_sure') }}"
+                            />
+                        </flux:tooltip>
                     </div>
                 @endif
             </div>
