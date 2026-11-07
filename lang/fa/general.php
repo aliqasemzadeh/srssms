@@ -683,6 +683,7 @@ return [
     'charge_wallet_to_send_sms' => 'برای ارسال پیامک ابتدا کیف پول خود را شارژ کنید.',
     'no_sms_recipients' => 'هیچ گیرنده‌ای انتخاب نشده است.',
     'sms_gateway_inactive' => 'درگاه پیامک غیرفعال است.',
+    'no_sms_gateway_configured' => 'درگاه پیامک فعالی برای ارسال تنظیم نشده است.',
     'sms_queued_successfully' => 'پیامک در صف ارسال قرار گرفت.',
     'confirm_and_send' => 'تایید و ارسال',
     'sms_debit_description' => 'کسر هزینه پیامک #:id',

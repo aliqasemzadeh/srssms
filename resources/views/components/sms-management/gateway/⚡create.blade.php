@@ -26,7 +26,7 @@ new class extends Component
         $this->form->reset();
         $this->form->access_type = SmsGatewayAccessTypeEnum::Shared->value;
         $this->form->usage_type = SmsGatewayUsageTypeEnum::Service->value;
-        $this->form->is_public = false;
+        $this->form->is_public = true;
         $this->form->is_active = true;
         $this->form->sms_rate = (string) (app(SmsSettings::class)->default_sms_rate ?: '1500');
         $this->resetValidation();

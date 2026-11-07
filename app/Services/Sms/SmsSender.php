@@ -4,6 +4,7 @@ namespace App\Services\Sms;
 
 use App\Contracts\SmsSender as SmsSenderContract;
 use App\Enums\Sms\SmsDirectionEnum;
+use App\Enums\Sms\SmsGatewayUsageTypeEnum;
 use App\Enums\Sms\SmsMessageSourceEnum;
 use App\Enums\Sms\SmsMessageStatusEnum;
 use App\Jobs\Sms\SendSmsCampaignJob;
@@ -28,13 +29,7 @@ class SmsSender implements SmsSenderContract
 
     public function send(string $mobile, string $message): void
     {
-        try {
-            $gateway = $this->defaultGateway();
-        } catch (RuntimeException) {
-            app(LogSmsSender::class)->send($mobile, $message);
-
-            return;
-        }
+        $gateway = $this->defaultGateway(usageType: SmsGatewayUsageTypeEnum::Service);
 
         $this->sendViaGateway($gateway, [$mobile], $message);
     }
@@ -267,8 +262,10 @@ class SmsSender implements SmsSenderContract
         return $message->fresh(['recipients', 'gateway.provider', 'user']);
     }
 
-    public function defaultGateway(?User $user = null): Gateway
-    {
+    public function defaultGateway(
+        ?User $user = null,
+        ?SmsGatewayUsageTypeEnum $usageType = null,
+    ): Gateway {
         try {
             $settings = app(SmsSettings::class);
             $gatewayId = $settings->default_gateway_id;
@@ -292,7 +289,8 @@ class SmsSender implements SmsSenderContract
         $query = Gateway::query()
             ->with('provider')
             ->where('is_active', true)
-            ->whereHas('provider', fn ($q) => $q->where('is_active', true));
+            ->whereHas('provider', fn ($q) => $q->where('is_active', true))
+            ->when($usageType, fn ($q) => $q->where('usage_type', $usageType));
 
         if ($user) {
             $gateway = (clone $query)->usableBy($user)->orderBy('id')->first();
@@ -301,11 +299,22 @@ class SmsSender implements SmsSenderContract
             }
         }
 
+        if ($usageType && ! $user) {
+            $gateway = (clone $query)->public()->orderBy('id')->first()
+                ?? (clone $query)->orderBy('id')->first();
+
+            if ($gateway) {
+                return $gateway;
+            }
+
+            throw new RuntimeException(__('general.no_sms_gateway_configured'));
+        }
+
         $gateway = (clone $query)->public()->orderBy('id')->first()
             ?? $query->orderBy('id')->first();
 
         if (! $gateway) {
-            throw new RuntimeException('No active SMS gateway is configured.');
+            throw new RuntimeException(__('general.no_sms_gateway_configured'));
         }
 
         return $gateway;

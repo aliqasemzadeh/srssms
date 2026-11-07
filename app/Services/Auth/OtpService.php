@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\Auth\OneTimePasswordNotification;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
 class OtpService
 {
@@ -25,7 +26,19 @@ class OtpService
         $expiresInMinutes = (int) config('one-time-passwords.default_expires_in_minutes', 5);
         $oneTimePassword = $user->createOneTimePassword($expiresInMinutes);
 
-        $user->notify(new OneTimePasswordNotification($oneTimePassword, $channel));
+        $notification = new OneTimePasswordNotification($oneTimePassword, $channel);
+
+        try {
+            if ($channel === 'sms') {
+                $user->notifyNow($notification);
+            } else {
+                $user->notify($notification);
+            }
+        } catch (RuntimeException $e) {
+            throw ValidationException::withMessages([
+                'otp' => __('general.no_sms_gateway_configured'),
+            ]);
+        }
 
         RateLimiter::hit($this->rateLimitKey($user, $purpose), self::SEND_DECAY_SECONDS);
     }
